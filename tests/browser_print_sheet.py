@@ -100,6 +100,12 @@ def run():
                 )
                 page.evaluate("document.documentElement.dataset.theme = 'light'")
                 checks.append('night theme prints black givens on white')
+                # Lantern walls stay solid black with white numbers.
+                open_print(page, 'lightup-01')
+                wall = page.locator('.light-wall').first
+                assert wall.evaluate('e => getComputedStyle(e).backgroundColor') == 'rgb(0, 0, 0)'
+                assert wall.evaluate('e => getComputedStyle(e).color') == 'rgb(255, 255, 255)'
+                checks.append('lightup-01 prints walls black with white numbers')
                 # Crime scenes and Alibi files print their clue list beside the board.
                 for family in ('scene-01', 'dossier-01'):
                     open_print(page, family)

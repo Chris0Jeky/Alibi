@@ -340,10 +340,10 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // leaves 269.32 bytes for identity/hash noise; startup gzip and content limits unchanged.
       // #830 print stylesheet (one @media print block in src/app.css, no JavaScript), including
       // the review fixes (light ink in the night theme, scene/Alibi-file clue lists, no check or
-      // selection tints): measured 1,428,600 bytes (+1,535.68 over the ceiling above). Ceiling
-      // +1,600 (25 x 64) leaves 64.32 bytes; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 44544,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 44,544 bytes',
+      // selection tints, black Lantern walls): measured 1,428,796 bytes (+1,731.68 over the
+      // ceiling above). Ceiling +1,792 (28 x 64) leaves 60.32 bytes; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 44736,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 44,736 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

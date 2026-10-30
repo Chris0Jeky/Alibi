@@ -4585,7 +4585,7 @@ html[data-reduced='true'] *:after {
   .nono-clue {
     font-size: 15px;
   }
-  .cell {
+  .cell:not(.light-wall) {
     border-color: #000 !important;
     background: #fff !important;
     box-shadow: none !important;
@@ -4635,9 +4635,18 @@ html[data-reduced='true'] *:after {
     color: #000;
     text-align: left;
   }
+  /* Lantern walls are puzzle, not decoration: solid black with white numbers, even when the
+     browser drops background graphics. */
+  .light-wall {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
   /* Checking and selection are progress, not puzzle. */
-  .cell.error,
-  .cell.selected {
+  .cell.error:not(.light-wall),
+  .cell.selected:not(.light-wall) {
     background: #fff !important;
     box-shadow: none !important;
   }
