@@ -4515,3 +4515,91 @@ html[data-reduced='true'] *:after {
     font-size: 13px;
   }
 }
+/* Print (#830): the play route prints as one clean pen-and-paper sheet: title, family,
+   difficulty, board and clues in black on white. Everything interactive, decorative or
+   progress-bearing is dropped; the solution is never rendered, so it cannot be printed. */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+  html,
+  body,
+  .shell,
+  .main,
+  .board-card {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  body > :not(#app),
+  .skip-link,
+  .sidebar,
+  .topbar,
+  .banner,
+  .mobile-nav,
+  .footer,
+  .zen-exit,
+  .evidence-column,
+  .play-secondary,
+  .play-end,
+  .paused-cover,
+  .play-head .round,
+  .board-heading,
+  .board-instruction,
+  .board-legend,
+  .counter-line,
+  .control-note,
+  .toolrow,
+  .numberpad,
+  .main-tools,
+  .feedback,
+  .save-state,
+  #timer,
+  .board-wrap ~ *,
+  .board-card button:not(.cell) {
+    display: none !important;
+  }
+  .shell.playing,
+  .player-grid {
+    display: block;
+  }
+  .playing .main {
+    max-width: none;
+    padding: 0;
+  }
+  .play-head {
+    margin-bottom: 8mm;
+  }
+  .board-card {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    break-inside: avoid;
+  }
+  .play-title *,
+  .nono-clue,
+  .nono-clue.met,
+  .nono-clue span {
+    color: #000 !important;
+    opacity: 1;
+  }
+  .nono-clue {
+    font-size: 15px;
+  }
+  .cell {
+    border-color: #000 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    transition: none !important;
+  }
+  .board-wrap {
+    max-width: 150mm;
+    max-height: 190mm;
+  }
+  .board-scroll {
+    overflow: visible;
+  }
+  /* A sheet to fill in by hand: marks from a saved run are not printed. */
+  .nono-cell > * {
+    visibility: hidden;
+  }
+}
