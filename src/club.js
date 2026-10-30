@@ -1093,6 +1093,11 @@
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
+  // A conflict or version change leaves storage refusing writes; controls must refuse, not feign a save.
+  function requireSavable() {
+    if (saveError && !retryableSaveError && storageMode !== 'session')
+      throw Error('Resolve the save conflict or export before continuing.');
+  }
   async function commitGame(id, value) {
     if (updatePaused) return;
     if (saveError && storageMode !== 'session') {
@@ -1226,6 +1231,7 @@
       id = el.dataset.id;
     if (restoring && a !== 'restore-confirm') return;
     try {
+      if (['rotate', 'pin', 'zen', 'assist', 'undo', 'redo'].includes(a)) requireSavable();
       if (a === 'rotate') {
         hero = (hero + 1) % stories.length;
         state.lastHero = hero;
@@ -1391,6 +1397,7 @@
           r = state.runs.regiongardens;
         E().regionGardens.initial(level);
         if (level === r.level) return;
+        requireSavable();
         if (r.log.length || r.redo.length) {
           await resetOrConfirm(
             { id: 'regiongardens', level },
@@ -1616,6 +1623,7 @@
           render();
           return;
         }
+        requireSavable();
         if (
           state.runs.borough?.log.length &&
           !currentGame('borough').done &&
@@ -1635,6 +1643,7 @@
         render();
       } else if (a === 'daily-confirm') {
         document.getElementById('dialog').close();
+        requireSavable();
         state.runs.borough = { seed: root.__clubReset.seed, log: [], redo: [] };
         delete root.__clubReset;
         save();
@@ -1701,6 +1710,7 @@
         const level = Number(v),
           r = state.runs.archive;
         if (level === r.level || !E().warehouse.maps[level]) return;
+        requireSavable();
         if (r.log.length && !currentGame('archive').done) {
           root.__clubReset = { id: 'archive', level };
           confirmation(
