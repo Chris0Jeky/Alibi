@@ -340,15 +340,8 @@
           tx.oncomplete = () => resolve(next);
           tx.onabort = () => reject(bad || tx.error || aborted());
         });
-      // Fallback storage belongs to this tab's Store: compare and write without yielding.
-      let old;
-      try {
-        old =
-          this.mode === 'local'
-            ? JSON.parse(localStorage.getItem(PREFIX + 'meta.' + key))
-            : this.memory.meta[key];
-      } catch {}
-      return this.put('meta', key, write(old));
+      // Fallback storage has no cross-tab transaction; compare, then write (damaged reads as 0).
+      return this.put('meta', key, write(await this.get('meta', key).catch(() => {})));
     }
     async saveRun(record, expectedRevision) {
       // Validate the input and its increment before cloning or writing an unsafe revision.

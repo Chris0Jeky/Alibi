@@ -405,7 +405,7 @@
       .catch((e) => toast('Preferences could not be saved: ' + e.message, true));
   }
   const staleDraft =
-    'This draft changed in another tab, so it is no longer saved here. Export draft to keep this copy, then reload to open the newer one.';
+    'This draft changed in another tab and is no longer saved. Export draft to keep it, then reload.';
   const channel =
     typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('alibi-saves') : null;
   channel?.addEventListener('message', async (e) => {
