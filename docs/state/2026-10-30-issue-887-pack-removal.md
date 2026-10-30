@@ -51,6 +51,12 @@ Branch `claude/pack-removal-887`, based on `05f42df2` and merged with main at `b
 - Screenshots inspected at 390x844 (touch) and 1280x900: pack row and confirmation dialog; 320 px
   row has no horizontal overflow (`test-results/pack-removal-887/`, ignored).
 
+## Review fold-in and final measurement
+
+Two-lens review (Sonnet reviewer, Opus deep-reviewer): SHIP, no CRITICAL/HIGH. Folded in: in IndexedDB mode a backup lists only stored packs, so a tab that missed another tab's removal cannot write the removed pack back into a backup that would then fail validation (`tests/backup-route-race.test.cjs`; reverting the filter fails it); the confirm handler refuses an id this tab does not list as a local pack. LOWs tracked in #889.
+
+Re-measured on main after #888: startup gzip 135,029 -> 135,328, ceiling 127 KiB + 5,312 (83 x 64), 32 left; shell 1,441,109 -> 1,442,612, ceiling 1.32 MiB + 58,560 (915 x 64; 914 x 64 would leave 4.32), 68.32 left. These replace the entries above.
+
 ## NOT verified
 
 - Physical phone, screen reader, and the hosted Cloudflare/Sites origins.
