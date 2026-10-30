@@ -81,13 +81,13 @@ function fixture({ holdSave = false, puzzle = initial } = {}) {
   });
   vm.runInContext(
     `
-    let draft = initial, draftVerified = false, draftComparison = null,
+    let draft = initial, draftVerified = false, draftComparison = null, draftConflict = null,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftBusy = false, draftEpoch = 0, draftShowSolution = true, routeSerial = 0,
       dialogOpener = null, bridgeAnchor = null, noteTimer = null;
     ${workshop}
     ${routeEntry}
-    globalThis.state = () => ({ draft, draftVerified, draftBusy, draftEpoch, draftShowSolution, draftComparison });
+    globalThis.state = () => ({ draft, draftVerified, draftBusy, draftEpoch, draftShowSolution, draftComparison, draftConflict });
     globalThis.edit = () => { draft.rooms[0] = 1; dirtyDraft(); };
     globalThis.replace = () => { draft = C.clone(initial); dirtyDraft(); };
     globalThis.markCurrentVerified = () => { draftVerified = true; };
@@ -154,6 +154,86 @@ for (const value of [
     await assert.rejects(pending);
     assert.equal(h.context.state().draftVerified, false);
     assert.equal(h.context.state().draftComparison, null);
+    assert.equal(h.calls.saves.length, 0);
+  });
+}
+
+const conflict = { solutions: [], diagnosis: { kind: 'clues', clues: [0, 2] } };
+
+test('a conflict diagnosis is kept as guidance, never verified, saved or marked playable', async () => {
+  for (const diagnosis of [conflict.diagnosis, { kind: 'layout' }]) {
+    const h = fixture(),
+      original = h.context.state().draft;
+    h.context.markCurrentVerified();
+    const pending = h.context.verify();
+    h.worker.resolve({ solutions: [], diagnosis });
+    await pending;
+    const state = h.context.state();
+    // An empty list is a layout-only impossibility; otherwise the numbered clue indices.
+    assert.deepEqual(JSON.parse(JSON.stringify(state.draftConflict)), diagnosis.clues || []);
+    assert.equal(state.draft, original);
+    assert.equal(state.draftVerified, false);
+    assert.equal(state.draftComparison, null);
+    assert.equal(h.calls.saves.length, 0);
+    h.context.edit();
+    assert.equal(h.context.state().draftConflict, null, 'an edit invalidates the diagnosis');
+  }
+});
+
+for (const interrupt of ['edit', 'replace', 'navigate']) {
+  test(`a late conflict diagnosis cannot return after ${interrupt}`, async () => {
+    const h = fixture(),
+      pending = h.context.verify();
+    await h.context[interrupt]();
+    h.worker.resolve(conflict);
+    await pending;
+    assert.equal(h.context.state().draftConflict, null);
+    assert.equal(h.context.state().draftVerified, false);
+    assert.equal(h.calls.toasts.length, 0);
+  });
+}
+
+for (const interrupt of ['replace', 'navigate', 'generate']) {
+  test(`a shown conflict diagnosis is cleared by ${interrupt}`, async () => {
+    const h = fixture(),
+      pending = h.context.verify();
+    h.worker.resolve(conflict);
+    await pending;
+    assert.ok(h.context.state().draftConflict);
+    const next = h.context[interrupt]();
+    assert.equal(h.context.state().draftConflict, null);
+    if (interrupt === 'generate') {
+      h.worker.reject(new Error('stop'));
+      await assert.rejects(next);
+    } else await next;
+  });
+}
+
+const count = initial.clues.length;
+for (const bad of [
+  { solutions: [], diagnosis: null },
+  { solutions: [], diagnosis: 'layout' },
+  { solutions: [], diagnosis: {} },
+  { solutions: [], diagnosis: { kind: 'other', clues: [0] } },
+  { solutions: [], diagnosis: { kind: 'clues' } },
+  { solutions: [], diagnosis: { kind: 'clues', clues: 0 } },
+  { solutions: [], diagnosis: { kind: 'clues', clues: [] } },
+  { solutions: [], diagnosis: { kind: 'clues', clues: [1, 1] } },
+  { solutions: [], diagnosis: { kind: 'clues', clues: [2, 1] } },
+  { solutions: [], diagnosis: { kind: 'clues', clues: [-1, 0] } },
+  { solutions: [], diagnosis: { kind: 'clues', clues: [0.5] } },
+  { solutions: [], diagnosis: { kind: 'clues', clues: ['0'] } },
+  { solutions: [], diagnosis: { kind: 'clues', clues: [0, count] } },
+  { diagnosis: { kind: 'layout' } },
+  { solutions: [initial.solution], diagnosis: { kind: 'layout' } },
+]) {
+  test(`malformed conflict diagnosis is refused: ${JSON.stringify(bad)}`, async () => {
+    const h = fixture();
+    const pending = h.context.verify();
+    h.worker.resolve(bad);
+    await assert.rejects(pending, /invalid result/);
+    assert.equal(h.context.state().draftConflict, null);
+    assert.equal(h.context.state().draftVerified, false);
     assert.equal(h.calls.saves.length, 0);
   });
 }

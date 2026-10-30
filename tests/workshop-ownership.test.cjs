@@ -60,14 +60,14 @@ function fixture() {
       addEventListener: (name, callback) => {
         if (name === 'input') onInput = callback;
       },
-      querySelector: () => ({ scrollIntoView: () => scrolls.push('editor') }),
+      querySelector: () => ({ scrollIntoView: () => scrolls.push('editor'), focus() {} }),
     },
     settings: { reducedMotion: true },
   };
   const api = vm.runInNewContext(
     `(() => {
     let draftSave;
-    let draft = initial, draftVerified = false, draftBusy = false, draftComparison = null,
+    let draft = initial, draftVerified = false, draftBusy = false, draftComparison = null, draftConflict = null,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftEpoch = 0, draftShowSolution = false, routeSerial = 1, updateRequested = false,
       makerFields = {title:'Case'};
