@@ -10,8 +10,9 @@ This directory contains the authored HyperFrames source and delivery derivatives
 promotional films. Editable compositions remain development sources; the runtime uses their
 rendered derivatives.
 
-The films use the current local Alibi app at `http://127.0.0.1:8797` as their capture source. The
-captures were made on 2026-09-08. They show the current product surfaces and existing artwork:
+The films were captured from the local Alibi app on 2026-09-08. The historical capture port has
+not been independently verified; the current local server defaults to `http://127.0.0.1:8797`.
+The captures show the product surfaces and existing artwork from that date:
 116 puzzles, 13 families, four casebooks, Quiet Wing, companions, exportable saves, and the Tidal
 bridges collection. Online play is not enabled and is not claimed. Captures are still product
 screens; the films do not imply that a filmed person interacted with the app.
