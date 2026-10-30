@@ -229,7 +229,7 @@ with sync_playwright() as pw:
         history_page.locator('#clue-form button[type=submit]').click()
         check(history_page.locator('[data-action="export-draft"]').is_disabled(),f'{width}px: adding a contradiction revokes publication')
         history_page.locator('[data-action="verify-draft"]').focus();history_page.keyboard.press('Enter')
-        conflict=history_page.locator('#draft-conflict');conflict.wait()
+        conflict=history_page.locator('#draft-conflict');conflict.wait_for()
         check(history_page.evaluate('document.activeElement.id')=='draft-conflict',f'{width}px: keyboard verification focuses the conflict')
         check(conflict.locator('[data-action="focus-draft-clue"]').all_text_contents()==[f'Clue {june+1}',f'Clue {total+1}'],f'{width}px: conflict names exactly the two numbered clues')
         check(history_page.locator('[data-action="add-draft"]').is_disabled() and history_page.locator('[data-action="export-draft"]').is_disabled(),f'{width}px: conflicting drafts cannot play or export')
