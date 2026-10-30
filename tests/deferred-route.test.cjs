@@ -92,7 +92,7 @@ function fixture(saved = false) {
   });
   vm.runInContext(
     `var current=old, route={page:'play',id:'old'}, routeSerial=0, draftEpoch=0,
-    dialogOpener=null, bridgeAnchor=null, noteTimer=null, caseReturn=null, sessionSeconds=0,
+    rehearsal=null, dialogOpener=null, bridgeAnchor=null, noteTimer=null, caseReturn=null, sessionSeconds=0,
     selectedCell=0, selectedPerson=null, sceneMarkMode='', pencil=false, brush=1, paused=false,
     checking=false, reviewing=false, feedback='', evidenceTab='', dossierTab=0, zoomed=false,
     accuseChoice=null, trailValue=0, settings={}, practice={}, storageFatal=false, saveError=false,

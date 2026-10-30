@@ -101,6 +101,7 @@
     return sent;
   };
   g.AlibiJourney = (current, event, seconds) => {
+    if (current?.rehearsal) return false; // a workshop rehearsal is never counted
     const p = sdk();
     let state = null;
     try {
