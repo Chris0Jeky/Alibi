@@ -12,7 +12,7 @@
   const text = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
   const coordinate = (p, i) => C.at(p.islands[i].cell, p.size);
 
-  function graph(p) {
+  function lattice(p) {
     const xy = p.islands.map(({ cell }) => ({ x: cell % p.size, y: Math.floor(cell / p.size) }));
     const edges = [];
     for (let a = 0; a < xy.length; a++) {
@@ -28,6 +28,10 @@
         if (targets.length) edges.push({ a, b: targets[0].b, horizontal });
       }
     }
+    return { xy, edges };
+  }
+  function graph(p) {
+    const { xy, edges } = lattice(p);
     const incident = xy.map((_, i) => edges.flatMap((e, j) => (e.a === i || e.b === i ? [j] : [])));
     const crosses = edges.map(() => []);
     for (let i = 0; i < edges.length; i++)
@@ -136,7 +140,7 @@
       !s ||
       Array.isArray(s) ||
       !Array.isArray(s.cells) ||
-      s.cells.length !== graph(p).edges.length ||
+      s.cells.length !== lattice(p).edges.length ||
       !s.cells.every((v) => integer(v, 0, 2)) ||
       !s.notes ||
       Array.isArray(s.notes) ||
