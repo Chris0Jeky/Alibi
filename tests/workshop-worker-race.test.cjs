@@ -85,7 +85,7 @@ function fixture({ holdSave = false, puzzle = initial } = {}) {
     `
     let draft = initial, draftVerified = false, draftComparison = null, draftConflict = null, draftAudit = null,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
-      draftBusy = false, draftEpoch = 0, pendingDraft = null, draftShowSolution = true, routeSerial = 0,
+      draftBusy = false, draftEpoch = 0, makerEpoch = 0, pendingDraft = null, draftShowSolution = true, routeSerial = 0,
       dialogOpener = null, bridgeAnchor = null, noteTimer = null;
     ${workshop}
     ${routeEntry}

@@ -45,13 +45,14 @@ function fixture() {
     },
     inWorker: () => worker.promise,
     store: {
-      put: async (table, key, value) => {
+      saveDraft: async (value, rev) => {
         saves.push(structuredClone(value));
         if (holdSave) {
           holdSave = false;
           await save.promise;
         }
         persisted.push(structuredClone(value));
+        return { ...value, rev: rev + 1 };
       },
     },
     toast: (message) => notices.push(message),
@@ -70,7 +71,7 @@ function fixture() {
     let draft = initial, draftVerified = false, draftBusy = false, draftComparison = null, draftConflict = null,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftEpoch = 0, draftShowSolution = false, routeSerial = 1, updateRequested = false,
-      makerFields = {title:'Case'};
+      makerFields = {title:'Case'}, makerEpoch = 0, draftRev = 0, draftStale = null, channel = null, staleDraft = 'Draft changed in another tab.';
     ${helpers}
     ${input}
     return {
@@ -104,7 +105,19 @@ function fixture() {
   };
 }
 
-for (const operation of ['verify', 'generate']) {
+test('generator input leaves a pending Verify of the unchanged draft running', async () => {
+  const f = fixture(),
+    pending = f.verify();
+  f.formEdit();
+  f.worker.resolve({ solutions: [initial.solution] });
+  await pending;
+  assert.equal(f.state().draftVerified, true);
+  assert.equal(f.state().makerFields.title, 'New case');
+  assert.equal(f.saves.length, 1);
+  assert.deepEqual(f.notices, ['Verified. Exactly one arrangement satisfies these clues.']);
+});
+
+for (const operation of ['generate']) {
   for (const outcome of ['success', 'error']) {
     test(`${operation} discards ${outcome} after native generator input`, async () => {
       const f = fixture(),

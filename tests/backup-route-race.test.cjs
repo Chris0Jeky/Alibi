@@ -354,7 +354,10 @@ function draftBackupHarness(put) {
   let exported = 0;
   const context = {
     store: {
-      put,
+      saveDraft: async (value, rev) => {
+        await put();
+        return { ...value, rev: rev + 1 };
+      },
       async export() {
         exported++;
         return { runs: [], packs: [], workshopDraft: { puzzle: { id: 'other-tab-draft' } } };
@@ -370,11 +373,12 @@ function draftBackupHarness(put) {
     prefs: {},
     cfg: { version: 'test' },
     toast() {},
+    render() {},
   };
   vm.runInNewContext(
     `
     let draft = { id: 'local-draft' }, draftEpoch = 0, routeSerial = 0,
-      draftSave, draftVerified = false;
+      draftSave, draftVerified = false, makerEpoch = 0, draftRev = 0, draftStale = null, channel = null, staleDraft = 'Draft changed in another tab.';
     ${appFunction('saveDraft')}
     ${appFunction('cabinetBackup')}
     globalThis.api = { save: saveDraft, backup: cabinetBackup };
@@ -390,6 +394,19 @@ test('cabinet export refuses an unsaved draft instead of silently exporting the 
   });
   await h.save(); // normal editing already reports failure through its existing toast
   await assert.rejects(h.backup(), /quota exceeded/);
+  assert.equal(h.exported(), 0);
+});
+
+test('a draft conflict stops autosave and refuses to export the other tab draft as this one', async () => {
+  let puts = 0;
+  const h = draftBackupHarness(async () => {
+    puts++;
+    throw Object.assign(Error('stored draft changed'), { name: 'ConflictError' });
+  });
+  await h.save();
+  await h.save();
+  assert.equal(puts, 1, 'nothing is written after a conflict');
+  await assert.rejects(h.backup(), /changed in another tab/);
   assert.equal(h.exported(), 0);
 });
 
