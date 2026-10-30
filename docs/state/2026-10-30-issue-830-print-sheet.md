@@ -52,3 +52,27 @@ Branch `claude/print-sheet-830-b`, based on `f30c6090`. Acceptance target: Pictu
   so this branch carries a `-b` suffix.
 
 HUMAN_TODO.md: no item added or closed by this change.
+
+## Review fixes
+
+Ported from the #857 review (commits a7eb64ea and 5ed77993, written against that branch's
+different selectors) onto this branch's structural hiding. This closes the "Residual risk" and
+"NOT verified" notes above about the night theme and the Check/selection tints.
+
+- Night theme: `.shell.playing` now also resets `--green-soft`, `--water`, `--room-0..7` and
+  `color-scheme: light`; the night rules that hard-code pale ink (`.scene-cell`, `.furniture`,
+  `.room-label i`, `.tank-code`, lamp icons) print `#000`, and a lit Lantern floor prints light.
+- Crime scenes and Alibi files: the evidence column is shown only when it holds a clue list
+  (`.player-grid:has(.evidence-list)`); its tabs, play-context, info note and checkboxes stay
+  hidden and a ticked clue prints without its strike-through. `.logic-cell` was never hidden here
+  (no `button:not(.cell)` rule) and the browser test now proves it.
+- Tints: `.cell.error` and `.cell.selected` print white with the plain grid line. The
+  `.axis.target.met/.over` tints were already cleared by the existing `:is(.axis, .nono-clue)`
+  rule, which is now asserted.
+- Lantern walls print black with white numbers (print-color-adjust inherits from the shell).
+- Tests: `tests/browser_print_sheet.py` gains night sudoku and scene, Lantern, selected cell, scene
+  and Alibi-file clue checks; `tests/print-sheet.test.cjs` asserts the new rules.
+- Shell ceiling: the existing #830 entry now reads 1,426,795 -> 1,429,143 (+2,348; excess
+  2,078.68 over the pre-#830 ceiling); ceiling +45,120 (34 x 64 steps) leaves 97.32 bytes; no feature
+  room. Startup gzip 202,521 of 225,280.
+- Still not neutralised: the dashed hint-focus outline (the `.peer` tint is white now that `--green-soft` and `--cell` are).
