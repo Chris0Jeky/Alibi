@@ -39,8 +39,8 @@ family 0.
 - `tests/hint-reach.test.cjs` (21) with tightened ceilings; `tests/budget.test.cjs`,
   `tests/insights-delivery.test.cjs`, `tests/insights-loader.test.cjs`, the other insights suites,
   `tests/asset-catalogue.test.cjs` pass after `npm run build`.
-- Budgets: reasoning chunk 6,008 → 6,886 gzip (cap 6 → 7 KiB); precache shell +2,398 (ceiling
-  +2,176 over the composition's), both documented beside the assertions.
+- Budgets: reasoning chunk 6,008 → 6,886 gzip (cap 6 → 7 KiB); precache shell +2,397 on the tree
+  after #855 (ceiling +2,432, 98.32 bytes left), both documented beside the assertions.
 
 ## Limits
 

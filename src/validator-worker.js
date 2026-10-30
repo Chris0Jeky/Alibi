@@ -1,3 +1,41 @@
+const sceneShape = (puzzle) => {
+  const p = AlibiCore.clone(puzzle);
+  if (
+    p.type !== 'scene' ||
+    p.size !== 5 ||
+    !Array.isArray(p.people) ||
+    p.people.length !== 5 ||
+    !Array.isArray(p.clues) ||
+    p.clues.length > 40 ||
+    !Array.isArray(p.rooms) ||
+    p.rooms.length !== 25 ||
+    !Array.isArray(p.objects) ||
+    p.objects.length > 12
+  )
+    throw Error('Invalid edited scene dimensions.');
+  for (const room of new Set(p.rooms)) {
+    const cells = p.rooms.map((v, i) => (v === room ? i : -1)).filter((i) => i >= 0),
+      seen = new Set([cells[0]]),
+      q = [cells[0]];
+    while (q.length)
+      for (const j of AlibiCore.extras.adj(q.pop(), 5))
+        if (p.rooms[j] === room && !seen.has(j)) {
+          seen.add(j);
+          q.push(j);
+        }
+    if (seen.size !== cells.length)
+      throw Error('Each room must be a connected area. Join its painted squares before verifying.');
+  }
+  return p;
+};
+// Runs one solve and swaps the solver's generic budget refusal for the caller's honest message.
+const bounded = (run, message) => {
+  try {
+    return run();
+  } catch (error) {
+    throw /budget/.test(error.message) ? Error(message) : error;
+  }
+};
 self.onmessage = (e) => {
   try {
     let value;
@@ -114,35 +152,7 @@ self.onmessage = (e) => {
     } else if (m.type === 'pack') value = AlibiCore.validatePack(m.pack, true);
     else if (m.type === 'generate') value = AlibiCore.createSceneDraft(m.options);
     else if (m.type === 'draft') {
-      const p = AlibiCore.clone(m.puzzle);
-      if (
-        p.type !== 'scene' ||
-        p.size !== 5 ||
-        !Array.isArray(p.people) ||
-        p.people.length !== 5 ||
-        !Array.isArray(p.clues) ||
-        p.clues.length > 40 ||
-        !Array.isArray(p.rooms) ||
-        p.rooms.length !== 25 ||
-        !Array.isArray(p.objects) ||
-        p.objects.length > 12
-      )
-        throw Error('Invalid edited scene dimensions.');
-      for (const room of new Set(p.rooms)) {
-        const cells = p.rooms.map((v, i) => (v === room ? i : -1)).filter((i) => i >= 0),
-          seen = new Set([cells[0]]),
-          q = [cells[0]];
-        while (q.length)
-          for (const j of AlibiCore.extras.adj(q.pop(), 5))
-            if (p.rooms[j] === room && !seen.has(j)) {
-              seen.add(j);
-              q.push(j);
-            }
-        if (seen.size !== cells.length)
-          throw Error(
-            'Each room must be a connected area. Join its painted squares before verifying.',
-          );
-      }
+      const p = sceneShape(m.puzzle);
       const result = AlibiCore.solveDefinition(p, 2, 250000);
       value = {
         solutions: result.solutions.map((solution) => {
@@ -158,15 +168,16 @@ self.onmessage = (e) => {
         // budget refusal, so no partial conflict or suggestion is ever reported.
         let left = 250000 - result.nodes,
           core = p.clues.map((_, i) => i);
-        const fits = (keep) => {
-          const r = AlibiCore.solveDefinition(
-            { ...p, clues: keep.map((j) => p.clues[j]) },
-            1,
-            left,
-          );
-          left -= r.nodes;
-          return r.solutions.length > 0;
-        };
+        const fits = (keep) =>
+          bounded(() => {
+            const r = AlibiCore.solveDefinition(
+              { ...p, clues: keep.map((j) => p.clues[j]) },
+              1,
+              left,
+            );
+            left -= r.nodes;
+            return r.solutions.length > 0;
+          }, 'No arrangement fits, and the conflicting clues could not be identified within the search limit.');
         const layoutFits = fits([]);
         if (layoutFits)
           for (const i of core.slice()) {
@@ -175,6 +186,23 @@ self.onmessage = (e) => {
           }
         value.diagnosis = layoutFits ? { kind: 'clues', clues: core } : { kind: 'layout' };
       }
+    } else if (m.type === 'audit') {
+      // One 250,000-node ceiling covers the uniqueness proof and every clue-removal solve.
+      const p = sceneShape(m.puzzle);
+      let left = 250000;
+      const count = (clues) =>
+        bounded(() => {
+          const r = AlibiCore.solveDefinition({ ...p, clues }, 2, left);
+          left -= r.nodes;
+          return r.solutions.length;
+        }, 'The audit reached its search limit before checking every clue. No clue was marked.');
+      if (count(p.clues) !== 1)
+        throw Error('Verify the draft first; the audit needs exactly one solution.');
+      value = {
+        redundant: p.clues.flatMap((_, i) =>
+          count(p.clues.filter((_, j) => j !== i)) === 1 ? [i] : [],
+        ),
+      };
     } else throw Error('Unsupported validation request.');
     self.postMessage({ ok: true, value });
   } catch (error) {

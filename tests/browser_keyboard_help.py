@@ -33,14 +33,14 @@ with sync_playwright() as p:
         cdp = context.new_cdp_session(page)
         check(page.evaluate('matchMedia("(pointer: coarse)").matches') == touch, name + ' pointer profile')
         check(page.evaluate('matchMedia("(any-pointer: fine)").matches') != touch, name + ' fine-pointer profile')
-        for family in ('bridges', 'network'):
+        for family in ('bridges', 'network', 'nonogram'):
             puzzle = next(puzzle for puzzle in PUZZLES if puzzle['type'] == family)
             page.evaluate('(route) => location.hash = "#/" + route', f'play/{puzzle["id"]}@{puzzle["revision"]}')
             page.wait_for_function('(id) => AlibiDiagnostics.getCurrent()?.puzzle.id === id', arg=puzzle['id'])
             if page.locator('dialog[open]').count():
                 page.keyboard.press('Escape')
                 page.wait_for_function('!document.querySelector("dialog[open]")')
-            hints = page.locator('.control-note .kb' if family == 'bridges' else '.control-note.kb')
+            hints = page.locator('.control-note.kb' if family == 'network' else '.control-note .kb')
             check(hints.count() == 1, name + ' ' + family + ' rendered guidance')
             text = hints.inner_text().strip()
             measure = hints.evaluate('el => ({width: el.getBoundingClientRect().width, display: getComputedStyle(el).display, clip: getComputedStyle(el).clipPath})')
@@ -54,6 +54,19 @@ with sync_playwright() as p:
             negative = page.add_style_tag(content='.kb { display: none !important; }')
             check(not any(text in value for value in accessible_names(cdp)), name + ' ' + family + ' display:none negative control')
             negative.evaluate('el => el.remove()')
+            if family == 'nonogram':
+                page.locator('#cell-0').focus()
+                page.keyboard.press('ArrowDown')
+                page.keyboard.press('ArrowRight')
+                focused = page.locator(f'#cell-{puzzle["size"] + 1}').element_handle()
+                check(page.evaluate('el => document.activeElement === el', focused), name + ' clue target focused')
+                announcement = f'Row 2 clue: {" ".join(map(str, puzzle["rowClues"][1]))}. Column B clue: {" ".join(map(str, puzzle["colClues"][1]))}.'
+                before = page.evaluate('JSON.stringify(AlibiDiagnostics.getCurrent().state)')
+                page.keyboard.press('c')
+                check(page.locator('#toasts').inner_text() == announcement, name + ' clue toast')
+                check(any(announcement in value for value in accessible_names(cdp)), name + ' clues in accessibility tree')
+                check(page.evaluate('el => document.activeElement === el', focused), name + ' clue shortcut retains focus')
+                check(page.evaluate('JSON.stringify(AlibiDiagnostics.getCurrent().state)') == before, name + ' clue shortcut preserves progress')
             if family == 'network':
                 unlocked = [cell for cell in range(puzzle['size'] ** 2) if cell not in puzzle['locked']]
                 start = next(cell for cell in unlocked if any(other > cell for other in unlocked))
