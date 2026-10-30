@@ -338,8 +338,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // chunk wrapper add raw precached bytes while startup gzip falls) measure 1,426,795 bytes
       // (1.32 MiB + 42,674.68) on the composed tree. Ceiling 1.32 MiB + 42,944 (64-byte step)
       // leaves 269.32 bytes for identity/hash noise; startup gzip and content limits unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 42944,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 42,944 bytes',
+      // Alibi file and witness reasoning hints (#846) in the precached reasoning chunk:
+      // 1,426,791 -> 1,429,189 (+2,398). Excess
+      // 2,128.68 bytes; ceiling +2,176 (34 x 64) leaves 47.32 bytes; startup gzip unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45120,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 45,120 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

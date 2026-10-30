@@ -9,6 +9,7 @@ require('../src/core.js');
 const C = require('../src/engines.js');
 require('../src/bridges.js');
 require('../src/network-hints.js');
+require('../src/assist.js'); // scene hints reuse the Candidates exclusions
 const I = require('../src/insights.js');
 const { load } = require('./official-catalogue.cjs');
 

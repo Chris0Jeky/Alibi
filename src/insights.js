@@ -152,6 +152,121 @@
   }
   // Number trails: a missing number lies on the path between its nearest placed neighbours,
   // so it sits within reach of both through open squares. Distances never use the answer.
+  // Alibi files: record a direct clue, then a row or column with one option left, then follow a
+  // linked room/object clue. Marks are -1 open, 0 no, 1 yes; a yes rules out its row and column.
+  // Results carry `mark` but no `value`: these grids take 'mark' moves, not single-cell values.
+  function dossierDeduction(p, s) {
+    const n = p.size,
+      cell = (k, r, c) => k * n * n + r * n + c,
+      known = (k, r, c) => {
+        const m = s.marks[cell(k, r, c)];
+        if (m !== -1) return m;
+        for (let j = 0; j < n; j++)
+          if (
+            (j !== c && s.marks[cell(k, r, j)] === 1) ||
+            (j !== r && s.marks[cell(k, j, c)] === 1)
+          )
+            return 0;
+        return -1;
+      },
+      thing = (k, c) => `the ${p.categories[k].values[c]}`,
+      verb = (k, yes) => (k ? (yes ? 'carried' : 'did not carry') : yes ? 'was in' : 'was not in'),
+      hint = (rule, message, k, r, c, value) => ({
+        rule,
+        message,
+        cells: [cell(k, r, c)],
+        mark: { cell: cell(k, r, c), value },
+      });
+    const direct = p.clues.flatMap((cl, i) =>
+      cl.kind === 'link'
+        ? []
+        : [{ cl, i, want: cl.kind === 'eq' ? 1 : 0, have: known(cl.cat, cl.who, cl.value) }],
+    );
+    // A contradicted clue outranks a fresh suggestion.
+    for (const { cl, i, want, have } of direct)
+      if (have === 1 - want)
+        return conflict(`Clue ${i + 1} says: ${X.dossierClue(p, cl)} Your marks disagree.`, [
+          cell(cl.cat, cl.who, cl.value),
+        ]);
+    for (const { cl, i, want, have } of direct) {
+      if (have === -1)
+        return hint(
+          'A clue to record',
+          `Clue ${i + 1}: ${X.dossierClue(p, cl)} Mark ${want ? 'yes' : 'no'} for ${p.people[cl.who]} and ${thing(cl.cat, cl.value)}.`,
+          cl.cat,
+          cl.who,
+          cl.value,
+          want,
+        );
+    }
+    for (let k = 0; k < 2; k++)
+      for (let line = 0; line < n; line++)
+        for (const byPerson of [true, false]) {
+          const at = (j) => (byPerson ? [line, j] : [j, line]),
+            states = C.range(n).map((j) => known(k, ...at(j)));
+          if (states.includes(1)) continue;
+          const open = states.flatMap((v, j) => (v === -1 ? [j] : []));
+          if (!open.length)
+            return conflict(
+              `${byPerson ? p.people[line] : thing(k, line)} has no ${byPerson ? p.categories[k].name.toLowerCase() : 'person'} left.`,
+              [],
+            );
+          if (open.length > 1) continue;
+          const [r, c] = at(open[0]);
+          return hint(
+            'Only one option left',
+            byPerson
+              ? `Every other ${p.categories[k].name.toLowerCase()} is ruled out for ${p.people[r]}, so ${p.people[r]} ${verb(k, true)} ${thing(k, c)}.`
+              : `Everyone else is ruled out for ${thing(k, c)}, so ${p.people[r]} ${verb(k, true)} it.`,
+            k,
+            r,
+            c,
+            1,
+          );
+        }
+    for (const [i, cl] of p.clues.entries()) {
+      if (cl.kind !== 'link') continue;
+      for (let r = 0; r < n; r++) {
+        const room = known(0, r, cl.a),
+          object = known(1, r, cl.b),
+          [from, to, value] =
+            room !== -1 && object === -1
+              ? [0, 1, room]
+              : object !== -1 && room === -1
+                ? [1, 0, object]
+                : [];
+        if (from === undefined) continue;
+        const name = p.people[r],
+          ends = [thing(0, cl.a), thing(1, cl.b)];
+        return hint(
+          'Follow a linked clue',
+          `Clue ${i + 1}: ${X.dossierClue(p, cl)} ${name} ${verb(from, value)} ${ends[from]}, so ${name} ${verb(to, value)} ${ends[to]}.`,
+          to,
+          r,
+          to ? cl.b : cl.a,
+          value,
+        );
+      }
+    }
+    return null;
+  }
+  // Witness statements: test one suspect against "exactly N accounts are true" and say why it fails.
+  function witnessDeduction(p, s) {
+    for (let who = 0; who < p.people.length; who++) {
+      if (who === s.accused) continue;
+      const trueAccounts = p.statements.flatMap((c, i) => (X.truth(c, who) ? [i + 1] : []));
+      if (trueAccounts.length === p.trueCount) continue;
+      const listed = trueAccounts.length
+        ? `account${trueAccounts.length === 1 ? '' : 's'} ${trueAccounts.join(', ')} would be true`
+        : 'no account would be true';
+      return {
+        rule: 'Test one person',
+        message: `Suppose ${p.people[who]} ${X.witnessAction(p)}: ${listed}. The evidence says exactly ${p.trueCount}, so ${p.people[who]} is ruled out. Test the others the same way.`,
+        cells: [],
+      };
+    }
+    return null;
+  }
   function trailDeduction(p, s) {
     const n = p.size,
       last = n * n,
@@ -363,6 +478,8 @@
     if (issues.length) return conflict(issues[0].message, issues[0].cells || []);
     if (p.type === 'trail') return trailDeduction(p, s);
     if (p.type === 'scene') return sceneDeduction(p, s);
+    if (p.type === 'dossier') return dossierDeduction(p, s);
+    if (p.type === 'witness') return witnessDeduction(p, s);
     if (['sudoku', 'futoshiki'].includes(p.type)) {
       const groups = C.groups(p),
         // Futoshiki chains: a cell below k others cannot hold the top k values (and vice versa).
