@@ -95,6 +95,21 @@ def run():
                     stale.get_by_role('button', name='Puzzle packs', exact=True).click()
                     assert stale.evaluate('AlibiDiagnostics.getCounts()') == base
 
+                    # The optional adder chunk cannot load (#887): a plain message, not the module error.
+                    probe = context.new_page()
+                    probe.set_default_timeout(20000)
+                    probe.goto(URL + '/#/workshop')
+                    probe.wait_for_function('()=>globalThis.AlibiDiagnostics?.getStatus().mode==="indexeddb"')
+                    probe.get_by_role('button', name='Puzzle packs', exact=True).click()
+                    context.route('**/assets/workshop/add.*.js', lambda route: route.abort())
+                    probe.get_by_role('button', name='Add a curated collection', exact=True).click()
+                    expect(probe.locator('#toasts')).to_contain_text('Adding a collection needs a connection', timeout=20000)
+                    expect(probe.locator('#toasts')).not_to_contain_text('dynamically imported')
+                    expect(probe.locator('dialog.collections-add')).to_have_count(0)
+                    context.unroute('**/assets/workshop/add.*.js')
+                    probe.close()
+                    checks.append({'width': width, 'case': 'adder-chunk-offline-plain-message'})
+
                     # Keyboard entry, focus, phone layout and Escape return.
                     button, dialog = open_adder(page)
                     expect(page.locator('#collections-title')).to_be_focused()
@@ -231,6 +246,78 @@ def run():
                     context.set_offline(False)
                     checks.append({'width': width, 'case': 'lattice-played-undo-redo-offline-resume'})
 
+                    # Remove an imported pack (#887) through the real confirmation. Its saved run is kept,
+                    # still opens and still exports, and the same pack can be imported again.
+                    page.goto(URL + '/#/workshop')
+                    page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
+                    page.get_by_role('button', name='Puzzle packs', exact=True).click()
+                    twelve = json.loads((ROOT / 'examples/twelve-families.json').read_text())
+                    mine = next(p for p in twelve['puzzles'] if p['type'] == 'binary')
+                    pre_removal = page.evaluate(CATALOGUE)
+                    choose_pack(page, twelve)
+                    expect(page.locator('#dialog[open]')).to_contain_text(f"{len(twelve['puzzles'])} verified puzzles", timeout=45000)
+                    page.get_by_role('button', name='Keep browsing', exact=True).click()
+                    page.goto(URL + f"/#/play/{mine['id']}@{mine['revision']}")
+                    page.wait_for_function('(id)=>AlibiDiagnostics.getCurrent()?.puzzle.id===id', arg=mine['id'])
+                    driver.dismiss_lesson(page)
+                    driver.mutate_once(page, mine)
+                    page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
+                    played = driver.current(page)
+                    page.goto(URL + '/#/workshop')
+                    page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
+                    page.get_by_role('button', name='Puzzle packs', exact=True).click()
+                    runs_kept = page.evaluate(RUNS)
+                    assert any(mine['id'] in row for row in runs_kept)
+                    assert page.locator('.pack-row [data-action="remove-pack"]').count() == page.locator('.pack-row').count()
+                    remove = page.get_by_role('button', name=f"Remove {twelve['title']}", exact=True)
+                    assert remove.bounding_box()['height'] >= 36
+                    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+                    page.locator('.pack-row', has_text=twelve['title']).screenshot(path=str(OUT / f'pack-row-{width}.png'))
+                    remove.click()
+                    confirm = page.locator('#dialog[open]')
+                    expect(confirm).to_contain_text(f"Remove {twelve['title']}?")
+                    expect(confirm).to_contain_text(f"{len(twelve['puzzles'])} puzzles")
+                    expect(confirm).to_contain_text('Saved progress for them is kept')
+                    confirm.screenshot(path=str(OUT / f'remove-dialog-{width}.png'))
+                    confirm.get_by_role('button', name='Keep it', exact=True).click()
+                    expect(page.locator('#dialog[open]')).to_have_count(0)
+                    expect(remove).to_be_focused()
+                    assert page.evaluate(CATALOGUE)['customPacks'] == pre_removal['customPacks'] + 1
+                    remove.click()
+                    confirm.get_by_role('button', name='Remove pack', exact=True).click()
+                    expect(page.locator('#dialog[open]')).to_have_count(0)
+                    expect(page.locator('.pack-row', has_text=twelve['title'])).to_have_count(0)
+                    expect(page.locator('#toasts')).to_contain_text('Pack removed')
+                    expect(page.locator('.pack-row [data-action="remove-pack"]').first).to_be_focused()
+                    assert page.evaluate(CATALOGUE) == pre_removal, 'only the removed pack left the catalogue'
+                    assert page.evaluate(RUNS) == runs_kept, 'removal leaves saved runs byte-identical'
+                    assert twelve['id'] not in ''.join(page.evaluate(ROWS)['packs'])
+                    # The saved run still opens from its own pinned definition; the backup still carries it.
+                    page.goto(URL + f"/#/play/{mine['id']}@{mine['revision']}")
+                    page.wait_for_function('(id)=>AlibiDiagnostics.getCurrent()?.puzzle.id===id', arg=mine['id'])
+                    assert driver.current(page)['state'] == played['state']
+                    page.goto(URL + '/#/settings')
+                    with page.expect_download() as download:
+                        page.locator('[data-action="export"]').first.click()
+                    backup = json.loads(Path(download.value.path()).read_text())
+                    assert any(run['puzzle']['id'] == mine['id'] for run in backup['runs'])
+                    assert all(pack['id'] != twelve['id'] for pack in backup['packs'])
+                    # Adding the same pack again is not refused. Opening the run refreshed its clock; snapshot afresh.
+                    page.goto(URL + '/#/workshop')
+                    page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
+                    runs_kept = page.evaluate(RUNS)
+                    page.get_by_role('button', name='Puzzle packs', exact=True).click()
+                    choose_pack(page, twelve)
+                    expect(page.locator('#dialog[open]')).to_contain_text(f"{len(twelve['puzzles'])} verified puzzles", timeout=45000)
+                    page.get_by_role('button', name='Keep browsing', exact=True).click()
+                    assert page.evaluate(CATALOGUE)['customPacks'] == pre_removal['customPacks'] + 1
+                    page.get_by_role('button', name=f"Remove {twelve['title']}", exact=True).click()
+                    confirm.get_by_role('button', name='Remove pack', exact=True).click()
+                    expect(page.locator('.pack-row', has_text=twelve['title'])).to_have_count(0)
+                    assert page.evaluate(CATALOGUE) == pre_removal
+                    assert page.evaluate(RUNS) == runs_kept
+                    checks.append({'width': width, 'case': 'pack-removal-confirmed-runs-kept-readded'})
+
                     # Duplicate checks must use the current database in the write
                     # transaction, not the stale tab's original empty catalogue.
                     page.goto(URL + '/#/workshop')
@@ -315,8 +402,8 @@ def run():
                     context.close()
         finally:
             browser.close()
-    if len(checks) != 24:
-        failures.append({'coverage': len(checks), 'expected': 24})
+    if len(checks) != 28:
+        failures.append({'coverage': len(checks), 'expected': 28})
     receipt = {'sourceHead': os.environ.get('EXPECTED_HEAD', 'local'), 'passed': not failures,
                'checks': checks, 'failures': failures,
                'scope': 'Built origin, service worker and IndexedDB; no physical device or screen reader.'}
