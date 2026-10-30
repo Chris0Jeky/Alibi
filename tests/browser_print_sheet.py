@@ -89,6 +89,33 @@ def run():
                     pdf = page.pdf(format='A4')
                     (OUT / f'{family}-A4.pdf').write_bytes(pdf)
                     checks.append(f'{family} prints {pages(pdf)} A4 page(s), chrome hidden')
+                # Night theme on screen still prints black ink on white paper.
+                open_print(page, 'sudoku-01')
+                page.emulate_media(media='screen')
+                page.evaluate("document.documentElement.dataset.theme = 'night'")
+                page.emulate_media(media='print')
+                given = page.locator('.cell.given').first
+                assert given.evaluate('e => getComputedStyle(e).color') == 'rgb(0, 0, 0)', (
+                    'Night-theme givens print black'
+                )
+                page.evaluate("document.documentElement.dataset.theme = 'light'")
+                checks.append('night theme prints black givens on white')
+                # Crime scenes and Alibi files print their clue list beside the board.
+                for family in ('scene-01', 'dossier-01'):
+                    open_print(page, family)
+                    puzzle = page.evaluate('AlibiDiagnostics.getCurrent().puzzle')
+                    expect(page.locator('.play-title h1')).to_have_text(puzzle['title'])
+                    expect(page.locator('.evidence-list')).to_be_visible()
+                    assert page.locator('.evidence-list .clue-text:visible').count() == len(
+                        puzzle['clues']
+                    ), f'{family}: every clue prints'
+                    for selector in ('.evidence-tabs', '.sidebar', '.main-tools'):
+                        assert not page.locator(selector).first.is_visible(), selector
+                    if family == 'dossier-01':
+                        assert page.locator('.logic-cell:visible').count() > 0, 'Grid cells print'
+                    html = page.evaluate('document.documentElement.outerHTML')
+                    assert json.dumps(puzzle['solution']) not in html
+                    checks.append(f'{family} prints its clues and board')
                 context.close()
             finally:
                 browser.close()

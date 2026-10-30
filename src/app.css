@@ -4555,7 +4555,7 @@ html[data-reduced='true'] *:after {
   .save-state,
   #timer,
   .board-wrap ~ *,
-  .board-card button:not(.cell) {
+  .board-card button:not(.cell):not(.logic-cell) {
     display: none !important;
   }
   .shell.playing,
@@ -4597,6 +4597,54 @@ html[data-reduced='true'] *:after {
   }
   .board-scroll {
     overflow: visible;
+  }
+  /* Paper is light whatever the screen theme: night colours would print pale on white. */
+  html[data-theme] {
+    --bg: #fff;
+    --paper: #fff;
+    --cell: #fff;
+    --ink: #000;
+    --muted: #333;
+    --line: #000;
+    --num: #000;
+    --board-border: #000;
+    --room-0: #ece3d3;
+    --room-1: #dfe8d5;
+    --room-2: #e8d9d0;
+    --room-3: #dbe5eb;
+    --room-4: #e8e1ed;
+    --room-5: #e6e8cc;
+    --room-6: #ebdbdd;
+    --room-7: #d7e6df;
+    --water: #95c4d4;
+    --wall: #34473e;
+    color-scheme: light;
+  }
+  /* Crime scenes and Alibi files keep their clues beside the board: print the clue list. */
+  .player-grid:has(.evidence-list) .evidence-column {
+    display: block !important;
+  }
+  .evidence-column :is(.evidence-tabs, .play-context, .info-note, .checkbox),
+  .evidence-column .evidence-body > :not(.evidence-list, h2, .case-intro) {
+    display: none !important;
+  }
+  .evidence-list .clue {
+    display: block;
+    border: 0;
+    background: none;
+    color: #000;
+    text-align: left;
+  }
+  /* Checking and selection are progress, not puzzle. */
+  .cell.error,
+  .cell.selected {
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+  .axis.target.met,
+  .axis.target.over {
+    color: #000 !important;
+    background: none !important;
   }
   /* A sheet to fill in by hand: marks from a saved run are not printed. */
   .nono-cell > * {

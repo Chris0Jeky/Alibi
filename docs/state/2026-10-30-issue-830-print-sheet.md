@@ -41,3 +41,20 @@ refresh). Printing a play route (`#/play/<id>`) gives one black-on-white sheet:
 ## Remaining gates
 
 Review per the repository PR gate. Owner decisions: see `HUMAN_TODO.md` (none added here).
+
+## Review fixes (2026-10-30, driver)
+
+Independent review found three print defects, fixed in the same `@media print` block:
+
+- Night theme: theme variables are reset to light values for print, so givens, axes and room
+  tints no longer print pale on white (browser check: a night-theme Sudoku given prints
+  `rgb(0, 0, 0)`).
+- Crime scenes and Alibi files keep their clues beside the board: the evidence column prints
+  its clue list (tabs, notes and controls hidden), and Alibi-file grid cells (`.logic-cell`
+  buttons) are no longer hidden. `scene-01` prints board, room key and all six clues (2 A4 pages).
+- Check and selection tints (`.cell.error`, `.cell.selected`, met/over targets) do not print.
+
+`tests/browser_print_sheet.py` now has 9 checks (adds night theme, `scene-01`, `dossier-01`); the
+night check fails on the previous CSS. Shell ceiling raised to +1,600 over the composed base
+(25 × 64, 64.32 bytes left). Not verified: Firefox/Safari print, physical printer, the evidence
+column when a player left the Notes tab open (the clue list is then not in the DOM).
