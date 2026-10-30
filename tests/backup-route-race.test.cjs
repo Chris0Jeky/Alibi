@@ -350,11 +350,20 @@ test('a queued old dialog close cannot dismiss the reopened restore note', async
   assert.equal(harness.reloads(), 1, 'the real notice close still reloads');
 });
 
+function restoredBranch() {
+  const start = source.indexOf("if (e.data?.type === 'restored') {");
+  assert.notEqual(start, -1, 'the restored broadcast branch exists');
+  return source.slice(start, source.indexOf('return;', start) + 'return;'.length) + ' }';
+}
+
 function draftBackupHarness(put) {
   let exported = 0;
   const context = {
     store: {
-      put,
+      saveDraft: async (value, rev) => {
+        await put();
+        return { ...value, rev: rev + 1 };
+      },
       async export() {
         exported++;
         return { runs: [], packs: [], workshopDraft: { puzzle: { id: 'other-tab-draft' } } };
@@ -370,14 +379,20 @@ function draftBackupHarness(put) {
     prefs: {},
     cfg: { version: 'test' },
     toast() {},
+    render() {},
   };
   vm.runInNewContext(
     `
     let draft = { id: 'local-draft' }, draftEpoch = 0, routeSerial = 0,
-      draftSave, draftVerified = false;
+      draftSave, draftVerified = false, makerEpoch = 0, draftRev = 0, draftStale = null, channel = null, staleDraft = 'Draft changed in another tab.';
+    let saveError = null;
+    function restored() {
+      const e = { data: { type: 'restored' } };
+      ${restoredBranch()}
+    }
     ${appFunction('saveDraft')}
     ${appFunction('cabinetBackup')}
-    globalThis.api = { save: saveDraft, backup: cabinetBackup };
+    globalThis.api = { save: saveDraft, backup: cabinetBackup, restored };
   `,
     context,
   );
@@ -391,6 +406,34 @@ test('cabinet export refuses an unsaved draft instead of silently exporting the 
   await h.save(); // normal editing already reports failure through its existing toast
   await assert.rejects(h.backup(), /quota exceeded/);
   assert.equal(h.exported(), 0);
+});
+
+test('a draft conflict stops autosave but still exports runs with the stored device draft', async () => {
+  let puts = 0;
+  const h = draftBackupHarness(async () => {
+    puts++;
+    throw Object.assign(Error('stored draft changed'), { name: 'ConflictError' });
+  });
+  await h.save();
+  await h.save();
+  assert.equal(puts, 1, 'nothing is written after a conflict');
+  const { data } = await h.backup();
+  assert.equal(h.exported(), 1, 'a stale draft must not block exporting run progress');
+  assert.equal(
+    data.workshopDraft.puzzle.id,
+    'other-tab-draft',
+    'the stored device draft is exported',
+  );
+});
+
+test('a restore after a draft conflict keeps the stale error so export still proceeds', async () => {
+  const h = draftBackupHarness(async () => {
+    throw Object.assign(Error('stored draft changed'), { name: 'ConflictError' });
+  });
+  await h.save();
+  h.restored();
+  const { data } = await h.backup();
+  assert.equal(data.workshopDraft.puzzle.id, 'other-tab-draft');
 });
 
 test('cabinet export awaits a pending draft failure and successful edit permits retry without resaving', async () => {

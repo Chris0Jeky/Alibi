@@ -45,6 +45,7 @@ ORIGIN_SCENARIOS = (
     "durability",
     "backup_restore",
     "cross_tab",
+    "workshop_draft_cross_tab",
     "keyboard",
     "offline",
     "shared_paths",
@@ -669,6 +670,64 @@ def scenario_cross_tab(pw: Any, root: Path) -> None:
         stored = wait_run(first, "nonogram-01@1", 1)
         check(stored["state"] == first_after["state"], "IndexedDB retains tab A's winning state")
         check(stored["state"]["cells"][second_cell] == -1, "tab B's stale cell never reaches IndexedDB")
+    finally:
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
+def scenario_workshop_draft_cross_tab(pw: Any, root: Path) -> None:
+    profile = root / "workshop-draft-cross-tab"
+    context = launch_profile(pw, profile)
+    try:
+        catalogue = json.loads((ROOT / "content/catalog.json").read_text(encoding="utf-8"))
+        scene = next(p for p in catalogue["puzzles"] if p["type"] == "scene")
+        count = len(scene["clues"])
+        seed = new_page(context, "workshop-draft-seed")
+        # A draft saved before #877 has no revision; both tabs load it as revision 0.
+        seed_database(seed, meta_value={"puzzle": scene})
+        seed.close()
+        first = new_page(context, "workshop-draft-a")
+        second = new_page(context, "workshop-draft-b")
+        # Tab B never hears tab A's broadcast: only the IndexedDB compare-and-swap protects A.
+        second.add_init_script("delete globalThis.BroadcastChannel;")
+        for page in (first, second):
+            boot(page)
+            route(page, "workshop")
+            page.locator(".draft-editor").wait_for()
+        check(
+            second.evaluate("typeof BroadcastChannel") == "undefined",
+            "tab B runs without the cross-tab broadcast",
+        )
+        first.locator('[data-action="remove-draft-clue"][data-index="0"]').click()
+        stored = wait_idb(
+            first,
+            "meta",
+            "workshop-draft",
+            lambda v: bool(v) and v.get("rev") == 1 and len(v["puzzle"]["clues"]) == count - 1,
+            "tab A saves its edit over the legacy draft at revision 1",
+        )
+        second.locator('[data-action="remove-draft-clue"][data-index="1"]').click()
+        wait_page(
+            second,
+            "() => document.querySelector('.draft-editor [role=alert]')?.textContent.includes('another tab')",
+            what="tab B shows the stale-draft notice",
+        )
+        second.locator('[data-action="remove-draft-clue"][data-index="0"]').click()
+        second.wait_for_timeout(400)
+        check(
+            read_idb(second, "meta", "workshop-draft") == stored,
+            "tab B's stale edits never overwrite tab A's saved draft",
+        )
+        check(
+            f"{count - 2} clues in this draft" in page_text(second),
+            "tab B keeps its own edits in memory",
+        )
+        check(
+            second.locator('[data-action="export-scene-draft"]:enabled').count() == 1,
+            "tab B can still export its draft",
+        )
     finally:
         try:
             context.close()
@@ -2333,6 +2392,7 @@ def run() -> int:
                 scenario_durability,
                 scenario_backup_restore,
                 scenario_cross_tab,
+                scenario_workshop_draft_cross_tab,
                 scenario_keyboard,
                 scenario_offline,
                 scenario_shared_paths,
