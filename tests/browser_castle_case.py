@@ -163,6 +163,8 @@ def start_playtest_receipt(page, requests, width):
     assert read(page) == before
     assert len(requests) == request_count + len(module_requests)
     case_click(page, 'receipt-start')
+    # Starting the receipt must leave keyboard focus on the new Review control, not on nothing.
+    expect(page.locator('[data-case-action="receipt-review"]')).to_be_focused()
 
 
 def finish_playtest_receipt(page, requests):
@@ -340,6 +342,20 @@ def run():
                 record(width, 'complete wrong drafts, hint/reveal history and source choices survive story switches')
                 finish_playtest_receipt(page, requests)
                 record(width, 'receipt separates hint/reveal and reasoning counts, copies the exact edited preview, and leaves saves/network untouched')
+
+                # Hints stop at three: later presses are neither saved, counted in the receipt nor reported as shown.
+                case_click(page, 'receipt-start')
+                shown = read(page)['state']['caseStudy']['hints'][0]
+                for _ in range(5):
+                    case_click(page, 'hint')
+                expect(page.locator('[data-case-status]')).to_have_text('All hints are shown.')
+                assert read(page)['state']['caseStudy']['hints'][0] == 3
+                assert page.locator('#case-stage ~ aside.card').count() == 3 + 1  # three hints and the worked answer shown earlier
+                case_click(page, 'receipt-review')
+                assert json.loads(page.locator('#case-receipt-preview').inner_text())['stages'][0]['hints'] == 3 - shown
+                case_click(page, 'receipt-close')
+                case_click(page, 'receipt-cancel')
+                record(width, 'a hint pressed after the last one is not counted in the receipt or saved, and says all hints are shown')
 
                 # The header preference must refresh the mounted case without remounting it.
                 for story in [False, True]:
