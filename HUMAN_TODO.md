@@ -16,6 +16,16 @@ No owner input is needed to continue the authorized browser-game launch.
 
 Answer in the estate cockpit or in chat; rendered with `py -3 scripts/decisions.py render --repo alibi` in agent-hq.
 
+- [ ] **alibi-release-20261030: May an agent release Alibi's merged main to the primary Cloudflare site now, using the new release script?**
+  - (a) Yes: an agent releases main after #879 lands (recommended): After #879 merges green, an agent runs the Pulseboard collector deploy (q-13), then npm run cloudflare:release -- --deploy from clean origin/main, verifies the probe, headers, saves and offline play on the primary origin, and reports the Worker version id. On a failed probe it rolls back to the version in release-receipt.previous.json.
+    + Players get 2.5 weeks of fixes, including a data-loss fix; + Unblocks the q-11 phone session; + First use of the recorded, probed release path; - The release script's --deploy path has never run; its first run is in production; - Installed players' service workers update on their next visit (never mid-game, per the app's update rule)
+  - (b) Yes, but I will run the deploy myself: An agent prepares the exact commands and a checklist in HUMAN_TODO; the owner runs them and an agent verifies the live origin with the probe afterwards.
+    + Owner sees the first --deploy run; - Waits for the owner's time
+  - (c) Not yet: Production stays on 030d5812; agents keep merging to main.
+    + No production change; - Players keep the 13 October build; the q-11 phone session stays blocked
+  - Why: The gap is large and includes a data-loss fix; the release script fails closed (dirty tree, unmerged commit, probe mismatch) and rollback is one wrangler command to a recorded version.
+  - Why an agent may not decide: A production deploy is a public effect on real players' installed app; the builder brief authorises push and merge, not deploys.
+  - Source: `decisions/alibi-release-20261030.json`
 - [ ] **alibi-sharing-features-20261030: May Alibi add player-initiated sharing (a spoiler-free 'Share' link after a solve, and later Workshop puzzles shared by link) before the Postern name and publisher are confirmed?**
   - (a) Yes: build the share card now (#827); Workshop links later (recommended): An agent builds #827 behind the existing primary-origin checks; #834 stays a tracked bet.
     + Cheapest route to more players and more ratings for calibration; + Player-initiated only; no new telemetry; - Spreads the working name and the workers.dev address before q-3 closes
