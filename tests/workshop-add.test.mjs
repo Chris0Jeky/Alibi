@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
-import { fetchPack, handOff, COLLECTIONS } from '../src/workshop-add.mjs';
+import { fetchPack, handOff, open, COLLECTIONS } from '../src/workshop-add.mjs';
 
 const require = createRequire(import.meta.url);
 const root = path.resolve(import.meta.dirname, '..');
@@ -192,6 +192,89 @@ test('cancelling while reading stops the stream and never returns bytes for inst
     assert.equal(cancelled, true);
   } finally {
     clearTimeout(timer);
+  }
+});
+
+// #881: the body read has an inactivity deadline. Mock the clock so no test waits ten seconds.
+const flush = () => new Promise((resolve) => setImmediate(resolve));
+const stalled = () => new Response(new ReadableStream({}));
+
+test('a body that stalls is stopped with a clear refusal, and one that keeps moving is not', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let cancelled = false;
+  const body = new ReadableStream({
+    cancel() {
+      cancelled = true;
+    },
+  });
+  const pending = fetchPack(listed('lattice'), BASE, async () => new Response(body));
+  const settled = assert.rejects(pending, /stalled.*Nothing was installed/);
+  await flush();
+  t.mock.timers.tick(10000);
+  await settled;
+  assert.equal(cancelled, true, 'the stalled stream is cancelled, not left open');
+
+  const bytes = source('lattice'),
+    third = Math.ceil(bytes.length / 3);
+  let feed;
+  const slow = new ReadableStream({
+    start(controller) {
+      feed = controller;
+    },
+  });
+  const slowPending = fetchPack(listed('lattice'), BASE, async () => new Response(slow));
+  for (let at = 0; at < bytes.length; at += third) {
+    await flush();
+    t.mock.timers.tick(6000); // each gap is under the deadline; the total is well over it
+    feed.enqueue(bytes.subarray(at, at + third));
+  }
+  feed.close();
+  assert.deepEqual(Buffer.from(await slowPending), bytes);
+});
+
+test('a stalled shelf download reports failure and re-enables Add so the user can retry', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const status = { textContent: '' },
+    add = { dataset: { add: 'lattice' }, disabled: false },
+    on = {},
+    dialog = {
+      open: false,
+      setAttribute() {},
+      addEventListener: (type, fn) => (on[type] = fn),
+      querySelector: (sel) => (sel === '[role="status"]' ? status : { focus() {} }),
+      querySelectorAll: (sel) => (sel === '[data-add]' ? [add] : []),
+      showModal() {
+        this.open = true;
+      },
+      close() {
+        this.open = false;
+        on.close();
+      },
+      remove() {},
+    },
+    doc = {
+      activeElement: null,
+      querySelector: () => null,
+      getElementById: () => ({ isConnected: true }),
+      createElement: () => dialog,
+      body: { append() {} },
+      defaultView: { addEventListener() {} },
+    },
+    entry = { ...listed('lattice'), count: 1, families: [], description: '' },
+    realFetch = globalThis.fetch;
+  globalThis.fetch = async () => stalled();
+  try {
+    open(doc, [entry]);
+    const click = on.click({ target: { closest: (sel) => (sel === '[data-add]' ? add : null) } });
+    await flush();
+    assert.equal(add.disabled, true, 'Add is disabled while downloading');
+    t.mock.timers.tick(10000);
+    await click;
+    assert.match(status.textContent, /stalled.*Nothing was installed/);
+    assert.equal(add.disabled, false, 'the shelf can be retried');
+    assert.equal(dialog.open, true, 'a stall is not a cancel: the dialog stays open');
+  } finally {
+    globalThis.fetch = realFetch;
   }
 });
 
