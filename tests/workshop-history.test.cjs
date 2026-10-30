@@ -44,10 +44,9 @@ function fixture(puzzle = initial) {
       }
     },
     store: {
-      put: async (table, key, value) => {
-        assert.equal(table, 'meta');
-        assert.equal(key, 'workshop-draft');
+      saveDraft: async (value, rev) => {
         saves.push(structuredClone(value));
+        return { ...value, rev: rev + 1 };
       },
     },
     inWorker: (message) =>
@@ -70,6 +69,7 @@ function fixture(puzzle = initial) {
     `(() => {
     let draft = initial, draftVerified = true, draftComparison = null, draftConflict = null, draftShowSolution = false,
       draftBusy = false, draftEpoch = 0, draftSave, routeSerial = 0,
+      makerEpoch = 0, draftRev = 0, draftStale = null, channel = null, staleDraft = 'Draft changed in another tab.',
       draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftMode = 'room', draftPaint = 0, draftObject = 'plant', updateRequested = false, restoreBusy = false;
     ${helpers}
@@ -328,7 +328,7 @@ test('one room-name editing session is one step, including a return to its origi
   assert.deepEqual(h.state().draft, initial);
 });
 
-test('reverification preserves history; successful generation clears both branches', async () => {
+test('reverification preserves history; generation keeps the replaced draft on Undo', async () => {
   const h = fixture();
   h.name('Garden');
   h.blur();
@@ -341,12 +341,16 @@ test('reverification preserves history; successful generation clears both branch
   assert.equal(h.state().draftVerified, true);
   assert.equal(h.state().undo, 1);
   assert.equal(h.state().redo, 1);
+  const replaced = h.state().draft;
   const generated = h.generate();
-  h.workers[1].resolve(C.createSceneDraft({ seed: 7 }));
+  h.workers[1].resolve(C.createSceneDraft({ seed: 8 }));
   await generated;
-  assert.equal(h.state().undo, 0);
+  assert.equal(h.state().undo, 2, 'the replaced draft joins the existing history');
   assert.equal(h.state().redo, 0);
   assert.equal(h.state().draftVerified, true);
+  await h.action('undo-draft');
+  assert.deepEqual(h.state().draft, replaced, 'Undo restores the hand-edited draft');
+  assert.equal(h.state().redo, 1);
 });
 
 test('Redo invalidates a pending unique result and preserves the edited draft', async () => {

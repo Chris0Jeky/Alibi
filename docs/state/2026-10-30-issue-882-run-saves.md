@@ -31,6 +31,9 @@ handler is not a defect.
   (860 x 64), leaves 31.32. Startup gzip 134,462 -> 134,484/134,485 (+22/23) stays under its
   127 KiB + 4,480 ceiling (134,528), 43 bytes left, so that ceiling is unchanged. The catalogue is
   regenerated.
+- Re-measured after merging main (#879): startup gzip 134,754 -> 134,773, ceiling 127 KiB + 4,800
+  (75 x 64; 74 x 64 would leave 11), 75 left; shell 1,440,158 -> 1,440,319, ceiling 1.32 MiB +
+  56,256 (879 x 64), 57.32 left. These replace the entries above.
 
 ## Verified
 
