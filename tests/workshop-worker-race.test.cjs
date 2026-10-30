@@ -453,3 +453,43 @@ for (const operation of ['generate', 'verify']) {
     assert.equal(h.calls.renders.at(-1).draft.rooms[0], 1);
   });
 }
+
+// Issue #844: the conflict list links to a clue's remove button, so that button must name its clue,
+// and a one-clue conflict must not read as a plural. Both templates run from the real app source.
+const slicedSource = (from, to) =>
+  source.slice(source.indexOf(from), source.indexOf(to, source.indexOf(from)));
+const helpers = [
+  slicedSource('  const B = (label', '  const round = '),
+  slicedSource('  const round = ', '  const tool = '),
+  slicedSource('  function clueLinks(', '  function draftAuditView()'),
+].join('\n');
+const eachClue = slicedSource('p.clues.map((cl, i) => `<div class="draft-clue">', "join('')");
+
+test('each clue remove button is named for its clue, so a Clue N link lands on it', () => {
+  const html = vm.runInNewContext(`${helpers}; ${eachClue}join('')`, {
+    p: { clues: [{}, {}, {}] },
+    C: { clueText: () => 'text' },
+    esc: String,
+    icon: () => '',
+  });
+  for (const n of [1, 2, 3])
+    assert.match(html, new RegExp(`aria-label="Remove clue ${n}" title="Remove clue ${n}"`));
+  assert.doesNotMatch(html, /aria-label="Remove clue"/);
+  assert.equal(html.match(/data-action="remove-draft-clue"/g).length, 3);
+});
+
+test('the conflict heading is singular for one clue, plural for several, layout-only for none', () => {
+  const heading = (draftConflict) => {
+    const html = vm.runInNewContext(`${helpers}; draftConflictView()`, {
+      draftConflict,
+      draft: { clues: [{}, {}] },
+      C: { clueText: () => 'text' },
+      esc: String,
+      icon: () => '',
+    });
+    return html.match(/<h3[^>]*>(.*?)<\/h3>/)[1];
+  };
+  assert.equal(heading([1]), 'This clue cannot hold with this floor plan');
+  assert.equal(heading([0, 1]), 'These clues cannot all hold with this floor plan');
+  assert.equal(heading([]), 'No arrangement fits this floor plan, even without clues');
+});
