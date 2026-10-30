@@ -240,8 +240,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #882 run saves (restore quiesces this tab, paint strokes stop when frozen, a damaged row
       // reports damage, restore refuses over unsaved progress) on main after #879: 134,754 -> 134,777
       // (+23). 74 x 64 would leave 7 bytes, so 127 KiB + 4,800 (75 x 64) leaves 71. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 4800,
-      'Application bundle stays under 127 KiB + 4,800 bytes gzip',
+      // #887 remove a locally added pack (the Remove control, its confirmation naming the pack and
+      // its puzzle count, the focus return, Store.removePack) on main after #886: 134,777 ->
+      // 135,011 (+234). Excess 163; ceiling 127 KiB + 4,992 (78 x 64) leaves 29 for identity/hash
+      // noise. The confirmation copy is required. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 4992,
+      'Application bundle stays under 127 KiB + 4,992 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -445,8 +449,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 1.32 MiB + 56,064 (876 x 64) leaves 26.32 for identity/hash noise. No feature room.
       // #882 run saves on main after #879: 1,440,158 -> 1,440,408 (+250; 1.32 MiB + 56,287.68).
       // Excess 223.68; ceiling 1.32 MiB + 56,320 (880 x 64) leaves 32.32. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 56320,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 56,320 bytes',
+      // #887 remove a locally added pack (Remove control, confirmation, Store.removePack, the
+      // wrapped pack-row rules) on main after #886: 1,440,408 -> 1,441,780 (+1,372; 1.32 MiB +
+      // 57,659.68). Excess 1,339.68; 21 x 64 would leave 4.32, so 1.32 MiB + 57,728 (902 x 64)
+      // leaves 68.32 for identity/hash noise. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 57728,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 57,728 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
