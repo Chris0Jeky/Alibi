@@ -1125,7 +1125,25 @@
     root.AlibiCore.validateState(p, state);
     return root.AlibiCore.solve(p, state, limit, maxNodes);
   }
+  // "Another puzzle": the same family, nearest tier first (the current tier, one up after
+  // 'easy', one down after 'hard'), unstarted before unfinished, catalogue order after the
+  // current one and wrapping. Ties between tiers go toward the way the player asked to move.
+  function pickNext(puzzles, currentId, isSolved, isStarted, feel) {
+    const cur = puzzles.find((p) => p.id === currentId);
+    if (!cur) return;
+    const family = puzzles.filter((p) => p.type === cur.type),
+      i = family.findIndex((p) => p.id === currentId),
+      rest = [...family.slice(i + 1), ...family.slice(0, i)],
+      tier = (p) => DIFFICULTIES.indexOf(p.difficulty),
+      dir = feel === 'hard' ? -1 : 1,
+      want = tier(cur) + (feel === 'easy' || feel === 'hard' ? dir : 0),
+      far = (p) => Math.abs(tier(p) - want) + ((tier(p) - want) * dir < 0 ? 0.5 : 0),
+      near = (list) => list.reduce((a, p) => (!a || far(p) < far(a) ? p : a), undefined),
+      open = rest.filter((p) => !isSolved(p));
+    return near(open.filter((p) => !isStarted(p))) || near(open) || rest[0];
+  }
   root.AlibiCore = {
+    pickNext,
     TYPES,
     DIFFICULTIES,
     MAX_PACK_PUZZLES,

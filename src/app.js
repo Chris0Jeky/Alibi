@@ -2026,10 +2026,13 @@
       navigate('library');
       return;
     }
-    const ps = all().filter((p) => p.type === current.puzzle.type),
-      i = ps.findIndex((p) => p.id === current.puzzle.id),
-      rest = [...ps.slice(i + 1), ...ps.slice(0, i)],
-      p = rest.find((p) => !solved(rec(p))) || rest[0];
+    const p = C.pickNext(
+      all(),
+      current.puzzle.id,
+      (p) => solved(rec(p)),
+      (p) => activeRun(rec(p)),
+      globalThis.AlibiVoices?.feel?.(current.puzzle.id),
+    );
     if (p) navigate('play', keyFor(p));
     else navigate('library', current.puzzle.type);
   }

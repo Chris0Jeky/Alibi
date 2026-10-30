@@ -23,6 +23,17 @@ place appears, on first use, or when messages are waiting. Nothing is sent from 
     const p = catalogue.get(run?.puzzle?.id);
     return p && { subject: p.id, family: p.type, tier: String(p.difficulty).toLowerCase() };
   });
+  // The player's own last "Too easy / Too hard" for a puzzle, read from the local rating record
+  // (written by the chunk); used only to choose the next puzzle. Nothing is sent from here.
+  A.feel = (id) => {
+    try {
+      const d = JSON.parse(g.localStorage.getItem('alibi:voices:state:v1'))?.rated?.[id]
+        ?.difficulty;
+      return d === 'too-easy' ? 'easy' : d === 'too-hard' ? 'hard' : null;
+    } catch {
+      return null;
+    }
+  };
   const ensure = () =>
     (chunk ||= new Promise((resolve, reject) => {
       const s = document.createElement('script'),
