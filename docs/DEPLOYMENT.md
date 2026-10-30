@@ -41,7 +41,7 @@ paid external service is needed. Never create another project just to publish an
 2. Review the exact change, resolve confirmed blockers, and merge with CI green.
 3. From a clean checkout of the merged `main` (fetch first), run `npm run cloudflare:release`. It
    refuses a dirty tree or detached HEAD, builds, checks that `dist/` carries this exact commit, runs
-   the `wrangler deploy --dry-run` and writes `release-receipt.json` (git-ignored, repository root):
+   the `wrangler deploy --dry-run` and writes `release-receipt.dry-run.json` (git-ignored, root):
    full SHA, branch, `build-info.json`, a sha256 for every `dist/` file and the timestamp. Nothing is
    published yet.
 4. Run `npm run cloudflare:release -- --deploy` to publish exactly that `dist/`. It records the Worker

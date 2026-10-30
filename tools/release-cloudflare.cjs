@@ -6,7 +6,7 @@
 // Writes release-receipt.json (git-ignored) with the SHA, branch, build-info, a sha256 per dist/
 // file, the Worker version id, a status and the probe result. A dry run writes
 // release-receipt.dry-run.json instead, so it never overwrites the last real release's receipt.
-// --deploy first copies that receipt to release-receipt.previous.json (the known-good version).
+// --deploy first copies a successfully deployed receipt to release-receipt.previous.json.
 // Rollback: `wrangler rollback <version id>`.
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -109,7 +109,12 @@ async function release(root, { deploy = false } = {}) {
     deploy ? 'release-receipt.json' : 'release-receipt.dry-run.json',
   );
   const write = () => fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-  if (deploy && fs.existsSync(receiptPath))
+  // Keep only a receipt whose deploy succeeded, so a failed redeploy cannot replace the rollback target.
+  let prior = null;
+  try {
+    if (deploy) prior = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+  } catch {}
+  if (deploy && prior?.status === 'deployed' && prior.workerVersionId)
     fs.copyFileSync(receiptPath, path.join(root, 'release-receipt.previous.json'));
   write();
   if (!deploy) {
