@@ -2663,13 +2663,14 @@
   }
   function recordDraft(before, name = null) {
     if (C.equal(before, draft)) return false;
-    if (name === null || draftNameEdit !== name) {
+    if (name === null || draftNameEdit?.name !== name) {
       draftUndo.push(before);
-      if (draftUndo.length > 50) draftUndo.shift();
+      const evicted = draftUndo.length > 50 ? draftUndo.shift() : null;
+      draftNameEdit = name === null ? null : { name, evicted };
     }
-    draftNameEdit = name;
     if (name !== null && C.equal(draftUndo.at(-1), draft)) {
       draftUndo.pop();
+      if (draftNameEdit.evicted) draftUndo.unshift(draftNameEdit.evicted);
       draftNameEdit = null;
     }
     draftRedo = [];
