@@ -42,6 +42,7 @@ function setup() {
   );
   return {
     Store: ctx.AlibiStorage.Store,
+    draftRevision: ctx.AlibiStorage.draftRevision,
     validateBackup: ctx.AlibiBackupValidation(ctx.AlibiCore, { puzzles: [] }).validateBackup,
     C: ctx.AlibiCore,
     validateRun: ctx.AlibiBackupValidation(ctx.AlibiCore, { puzzles: [] }).validateRun,
@@ -541,3 +542,64 @@ for (const [currentRev, importedRev] of [
     assert.equal(snap(disk), before, 'runs, packs, settings and recovery remain untouched');
   });
 }
+
+// Workshop draft compare-and-swap (#877): two tabs share one database and neither may
+// silently overwrite a draft the other saved. These saves run one transaction at a time.
+function draftTabs(stored) {
+  const { Store } = setup(),
+    { disk, db } = restoreFixture({ meta: stored ? { 'workshop-draft': stored } : {} });
+  const tabA = new Store(),
+    tabB = new Store();
+  for (const tab of [tabA, tabB]) {
+    tab.db = db;
+    tab.mode = 'indexeddb';
+  }
+  return { tabA, tabB, disk };
+}
+const titled = (title) => {
+  const d = unfinishedDraft();
+  d.puzzle.title = title;
+  return d;
+};
+
+test('a stale tab cannot overwrite a workshop draft another tab saved', async () => {
+  const legacy = unfinishedDraft(),
+    { tabA, tabB, disk } = draftTabs(legacy);
+  // A draft saved before revisions loads as revision 0 in both tabs and stays until overwritten.
+  assert.equal(setup().draftRevision(legacy), 0);
+  assert.equal((await tabA.saveDraft(titled('Tab A'), 0)).rev, 1);
+  await assert.rejects(tabB.saveDraft(titled('Tab B'), 0), { name: 'ConflictError' });
+  assert.equal(disk.meta.get('workshop-draft').puzzle.title, 'Tab A');
+  assert.equal(disk.meta.get('workshop-draft').rev, 1);
+  // Tab B reloads (revision 1) and writes; now tab A is the stale one.
+  assert.equal((await tabB.saveDraft(titled('Tab B'), 1)).rev, 2);
+  await assert.rejects(tabA.saveDraft(titled('Tab A again'), 1), { name: 'ConflictError' });
+  assert.equal(disk.meta.get('workshop-draft').puzzle.title, 'Tab B');
+});
+
+test("a tab's own unconfirmed draft saves follow each other without a false conflict", async () => {
+  const { tabA, tabB, disk } = draftTabs();
+  await tabA.saveDraft(titled('first'), 0);
+  // The next edit was issued before the first write confirmed, so it still expects 0.
+  assert.equal((await tabA.saveDraft(titled('second'), 0)).rev, 2);
+  await assert.rejects(tabB.saveDraft(titled('other'), 0), { name: 'ConflictError' });
+  assert.equal(disk.meta.get('workshop-draft').puzzle.title, 'second');
+});
+
+test('fallback storage also refuses a stale workshop draft write', async () => {
+  const { Store } = setup(),
+    tabA = await new Store().init(),
+    tabB = await new Store().init();
+  assert.notEqual(tabA.mode, 'indexeddb');
+  await tabA.saveDraft(titled('Tab A'), 0);
+  await assert.rejects(tabB.saveDraft(titled('Tab B'), 0), { name: 'ConflictError' });
+  assert.equal((await tabA.get('meta', 'workshop-draft')).puzzle.title, 'Tab A');
+});
+
+test('restoring a backup of the same draft ignores the local save revision', async () => {
+  const draft = { ...unfinishedDraft(), rev: 3, tab: 'x' },
+    { store, disk } = await seededStore({ meta: { 'workshop-draft': draft } });
+  const result = await store.restore({ ...validBackup(), workshopDraft: unfinishedDraft() });
+  assert.equal(result.note, '');
+  assert.deepEqual(disk.meta.get('workshop-draft'), draft);
+});

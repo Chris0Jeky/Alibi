@@ -20,6 +20,8 @@
         throw Error('Revision limit or damaged revision history.');
       return next;
     },
+    // A workshop draft's compare-and-swap token. Drafts saved before revisions count as 0.
+    draftRevision = (v) => (Number.isSafeInteger(v?.rev) && v.rev > 0 ? v.rev : 0),
     blocked = (message) => Object.assign(Error(message), { name: 'BlockedError' }),
     aborted = () => Error('Storage transaction aborted.'),
     badDraft = (v) => {
@@ -67,6 +69,8 @@
       this.damaged = {};
       this.legacyInventory = [];
       this.legacyProblem = null;
+      // Identifies this tab's draft writes for the workshop compare-and-swap.
+      this.tab = Math.random().toString(36).slice(2);
     }
     legacyRunEntries() {
       // Only local mode reads settings and packs from these keys itself; elsewhere every entry is unmigrated data.
@@ -307,6 +311,45 @@
         tx.onabort = () => reject(failure || tx.error || aborted());
       });
     }
+    async saveDraft(value, expectedRevision) {
+      // Write over the revision this tab loaded or last confirmed, or over this tab's own later
+      // write (edits save before earlier saves confirm). Never over another tab's draft.
+      const key = 'workshop-draft',
+        write = (old) => {
+          if (draftRevision(old) !== expectedRevision && old?.tab !== this.tab)
+            throw new ConflictError();
+          return { ...value, rev: nextRevision(draftRevision(old)), tab: this.tab };
+        };
+      if (this.db)
+        return new Promise((resolve, reject) => {
+          let bad = null,
+            next;
+          const tx = this.db.transaction('meta', 'readwrite'),
+            os = tx.objectStore('meta'),
+            r = os.get(key);
+          this.watch(tx, reject);
+          r.onsuccess = () => {
+            try {
+              next = write(r.result?.value);
+              os.put({ key, value: next });
+            } catch (e) {
+              bad = e;
+              tx.abort();
+            }
+          };
+          tx.oncomplete = () => resolve(next);
+          tx.onabort = () => reject(bad || tx.error || aborted());
+        });
+      // Fallback storage belongs to this tab's Store: compare and write without yielding.
+      let old;
+      try {
+        old =
+          this.mode === 'local'
+            ? JSON.parse(localStorage.getItem(PREFIX + 'meta.' + key))
+            : this.memory.meta[key];
+      } catch {}
+      return this.put('meta', key, write(old));
+    }
     async saveRun(record, expectedRevision) {
       // Validate the input and its increment before cloning or writing an unsafe revision.
       const revision = nextRevision(expectedRevision);
@@ -463,7 +506,8 @@
               backup.workshopDraft !== undefined &&
               cD !== undefined &&
               !cDbad &&
-              !root.AlibiCore.equal(cD, backup.workshopDraft);
+              // Revisions are device-local save tokens; only the draft itself can differ.
+              !root.AlibiCore.equal(cD.puzzle, backup.workshopDraft?.puzzle);
             if (draftConflict)
               note =
                 'Your local workshop draft was kept. The backup workshop draft was not applied because it differs, and is kept in Recovery copy. Keep the original backup file; the next restore replaces Recovery copy.';
@@ -531,5 +575,5 @@
       });
     }
   }
-  root.AlibiStorage = { Store, ConflictError };
+  root.AlibiStorage = { Store, ConflictError, draftRevision };
 })(globalThis);
