@@ -419,7 +419,10 @@ test('application lifecycle calls the journey helper with fixed names and elapse
     appSource,
     /\$\('#app'\)\.innerHTML = shell\([^;]+;\s*globalThis\.AlibiUsageSlot\?\.\(\);/,
   );
-  assert.equal(appSource.match(/id="usage-sharing-slot"/g).length, 2, 'Settings and Privacy');
+  // Settings is in the application; Privacy moved to the cold-pages chunk (#825).
+  const coldSource = fs.readFileSync(path.join(root, 'src/cold-pages.js'), 'utf8');
+  assert.equal(appSource.match(/id="usage-sharing-slot"/g).length, 1, 'Settings');
+  assert.equal(coldSource.match(/id="usage-sharing-slot"/g).length, 1, 'Privacy');
 });
 
 // The real pinned SDK and the real host glue together, on the registered origin at phone width.

@@ -193,10 +193,48 @@ test('shell and content stay inside the existing ceilings', async (t) => {
     // #738 protected-load recovery, required Duel engine loading and unchanged Add-missing rows:
     // clean composed source measures 135,616 -> 135,755 (+139). Ceiling +128 covers the
     // 75-byte excess and leaves 53 bytes for identity/hash noise; validation remains strict.
+    // #825 cold pages: Privacy & credits, About and the sign-in note moved to a deferred, precached
+    // chunk (tests below). Main 134,165 -> 131,422 gzip (-2,743). The ceiling drops by that saving
+    // (135,808 -> 133,065) so the 1,643 bytes of headroom it had on main stay real, not spent.
     assert.ok(
-      info.javascriptGzipBytes < 127 * 1024 + 5760,
-      'Application bundle stays under 127 KiB + 5,760 bytes gzip',
+      info.javascriptGzipBytes < 127 * 1024 + 3017,
+      'Application bundle stays under 127 KiB + 3,017 bytes gzip',
     );
+  });
+  await t.test('cold pages are deferred, precached and out of the startup bundle', () => {
+    // Privacy & credits, About and the sign-in note: one chunk loaded when their routes open (#825).
+    const matches = assetNames.filter((name) => /^cold-pages\.[a-f0-9]{12}\.js$/.test(name));
+    assert.equal(matches.length, 1, 'One hashed cold-pages chunk is emitted');
+    const chunk = fs.readFileSync(path.join(root, 'dist/assets', matches[0]), 'utf8');
+    assert.equal(Buffer.byteLength(chunk), info.coldChunkBytes, 'Cold chunk bytes are reported');
+    assert.ok(serviceWorker.includes(`"./assets/${matches[0]}"`), 'The cold chunk is precached');
+    assert.ok(
+      !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
+      'The cold chunk is not a startup script',
+    );
+    // Unique sentences from each page live only in the chunk, never in the application bundle.
+    const bundle = fs.readFileSync(
+      path.join(
+        root,
+        'dist/assets',
+        assetNames.find((name) => /^alibi\.[a-f0-9]{12}\.js$/.test(name)),
+      ),
+      'utf8',
+    );
+    assert.ok(
+      bundle.includes(`"cold":"./assets/${matches[0]}"`),
+      'The config names the cold chunk',
+    );
+    for (const sentence of [
+      'The small print, in plain language',
+      'Beta usage data.',
+      'No accounts here.',
+      'is a device-local collection of thirteen puzzle families',
+    ]) {
+      assert.ok(chunk.includes(sentence), `The chunk carries: ${sentence}`);
+      assert.ok(!bundle.includes(sentence), `The startup bundle no longer carries: ${sentence}`);
+    }
+    assert.ok(info.coldChunkBytes < 10 * 1024, 'The cold chunk stays under 10 KiB');
   });
   await t.test('Voices is deferred, precached and within its budgets', () => {
     // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -288,6 +326,8 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #738 load-only recovery and atomic Add-missing revision preservation measure
       // 1,418,911 -> 1,419,648 (+737). Ceiling +704 covers the 615.68-byte excess and leaves
       // 88.32 bytes for identity/hash noise; initial payload and content limits stay unchanged.
+      // #825 cold pages: moving code into a precached chunk cannot shrink this raw shell total; the
+      // loader, retry state and chunk wrapper add +711 (1,418,442 -> 1,419,153). Ceiling unchanged.
       contentBytes.shellBytes < 1.32 * 1024 * 1024 + 35616,
       'Precached code and shell excluding official content stay under 1.32 MiB + 35,616 bytes',
     );

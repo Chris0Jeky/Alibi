@@ -58,6 +58,7 @@ function fixture(saved = false) {
     enabledCell: () => true,
     keyFor: (p) => p.id + '@' + p.revision,
     esc: String,
+    COLD: [],
     AlibiActivities: {
       leave: async () => {
         left++;
