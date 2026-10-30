@@ -37,7 +37,8 @@ function fixture(puzzle = initial) {
     scrollIntoView() {},
     disabled: false,
     dataset: {},
-    ariaLabel: '',
+    getAttribute: () => '',
+    setAttribute() {},
   };
   const context = {
     C,

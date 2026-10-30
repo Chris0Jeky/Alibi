@@ -2989,8 +2989,13 @@
     badge.textContent = 'Edited draft · recheck required';
     for (const b of document.querySelectorAll('[data-action="draft-paint"]'))
       b.textContent = `${String.fromCharCode(65 + +b.dataset.value)} · ${n[b.dataset.value]}`;
-    for (const b of document.querySelectorAll('.draft-cell'))
-      b.ariaLabel = b.ariaLabel.replace(/room .*$/, () => `room ${n[draft.rooms[b.dataset.cell]]}`);
+    for (const b of document.querySelectorAll('button.draft-cell'))
+      b.setAttribute(
+        'aria-label',
+        b
+          .getAttribute('aria-label')
+          .replace(/room .*$/, () => `room ${n[draft.rooms[b.dataset.cell]]}`),
+      );
     document
       .querySelectorAll('.draft-clue > span:first-child')
       .forEach((s, i) => (s.textContent = `${i + 1}. ${C.clueText(draft, draft.clues[i])}`));
