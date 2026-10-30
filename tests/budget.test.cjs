@@ -207,14 +207,23 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #831 resume previews (Picture logic cards drawn from saved marks in src/presentation.js,
       // which ships in the startup bundle): 133,579 -> 133,705 (+126). Excess 105; ceiling +128
       // leaves 23; no feature room.
+      // #864 Scene Maker draft file (Import draft and Export draft controls, the confirm-then-
+      // replace step that goes through Undo, the stale-reply guard and the placeholder-answer
+      // check): 133,705 -> 134,098 (+393) after merging the worker's two refusals into one and
+      // trimming the dialog and toast copy. The answer is deliberately never in the file, so the
+      // import must supply a placeholder and the editor must not show it as an author solution.
+      // Excess 371; ceiling +416 (to 131 KiB) leaves 45 for identity/hash noise; no feature room.
       // Third composition: #862's completed-record technique names and #858's print-only revision
       // line in the startup bundle measure 133,773 (+68 over 133,705). Excess 45; ceiling +64
       // leaves 19, still 2,016 below the pre-#845 ceiling; no feature room.
-      // #866 print clues on the Notes and Rules tabs: one shared clueList() helper plus the
-      // print-only heading, intro and list copy measure 133,773 -> 133,852 (+79). Excess 60;
-      // ceiling +96 leaves 36; the copy is required for a solvable sheet; no feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 3840,
-      'Application bundle stays under 127 KiB + 3,840 bytes gzip',
+      // #864 Scene Maker draft file on main after #863 (export/import controls, replace step,
+      // stale-reply guards and the review fixes): 133,773 -> 134,213 (+440). Excess 421; ceiling
+      // +448 leaves 27, still 1,568 below the pre-#845 ceiling. No feature room.
+      // #866 print clues on the Notes and Rules tabs (clueList() helper plus print-only heading,
+      // intro and list copy) on main after #867: 134,213 -> 134,296 (+83). Excess 56; ceiling
+      // +96 leaves 40; the copy is required for a solvable printed sheet. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 4288,
+      'Application bundle stays under 127 KiB + 4,288 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -379,6 +388,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 274.68; ceiling +320 (5 x 64) leaves 45.32 for identity/hash noise; no feature room.
       // #831 resume previews on the composed tree: 1,430,091 -> 1,430,393 (+302). Excess 256.68;
       // ceiling +320 (5 x 64) leaves 63.32 for identity/hash noise; no feature room.
+      // #864 Scene Maker draft file (the 'scene-draft-import' worker request, the two controls, the
+      // replace step, the hidden file input in the shell): 1,430,393 -> 1,432,234 (+1,841). The
+      // placeholder answer, the byte-accurate cap and the refusal copy are required. Excess
+      // 1,777.68; ceiling +1,824 (57 x 32) leaves 46.32 for identity/hash noise; no feature room.
+      // #864 review fixes (room-brush clamp, real-solution guard, seed stripped on export):
+      // 1,432,234 -> 1,432,301 (+67). Excess 20.68; ceiling +64 leaves 43.32; no feature room.
       // Alibi file and witness reasoning hints (#846) in the precached reasoning chunk:
       // 1,426,791 -> 1,429,189 (+2,398), 2,124.68 bytes over the composed ceiling. Ceiling
       // +2,176 (34 x 64) leaves 51.32 bytes; startup gzip unchanged.
@@ -395,11 +410,13 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // scene hint chain (#860) and Quiet Wing radius roles (#861) measure 1,435,972 bytes
       // (1.32 MiB + 51,851.68) on the composed tree. Ceiling 1.32 MiB + 51,968 (812 x 64) leaves
       // 116.32 bytes for identity/hash noise; no feature room.
-      // #866 print clues on the Notes and Rules tabs (clueList() helper, print-only copy and
-      // three print rules): 1,435,972 -> 1,436,444 (+472; shell 1.32 MiB + 52,323.68). Excess
-      // 355.68; ceiling 1.32 MiB + 52,416 (819 x 64) leaves 92.32; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 52416,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 52,416 bytes',
+      // #864 measured on main after #863: 1,435,972 -> 1,437,882 (+1,910). Excess 1,793.68; ceiling
+      // 1.32 MiB + 53,824 (841 x 64) leaves 62.32 for identity/hash noise; no feature room.
+      // #866 on main after #867 (clueList() helper, print-only copy, three print rules):
+      // 1,437,882 -> 1,438,353 (+471; 1.32 MiB + 54,232.68). Excess 408.68; ceiling 1.32 MiB
+      // + 54,272 (848 x 64) leaves 39.32; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54272,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 54,272 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
