@@ -115,7 +115,15 @@ with sync_playwright() as pw:
                 for _ in range(value):
                     cell(p['islands'][edge['a']]['cell']);cell(p['islands'][edge['b']]['cell'])
         completed();check(bool(state()['completedAt']),typ+' completed entirely through UI')
-        action('review-record');check(page.locator('.debrief-list li').count()>0,typ+' completed record can be reopened');dismiss()
+        action('review-record');check(page.locator('.debrief-list li').count()>0,typ+' completed record can be reopened')
+        if typ=='sudoku':
+            # #835: a technique in the record opens the family filtered to puzzles whose hints use it.
+            rule=page.locator('dialog[open] [data-action="practise"]').first.get_attribute('data-value');action('practise')
+            expect(page.locator('#library-filter-status')).to_be_focused()
+            meta=page.locator('#library-filter-status').inner_text();shown=int(meta.split()[0])
+            action('reset-filters');total=int(page.locator('#library-filter-status').inner_text().split()[0])
+            check(f'whose hints use {rule}' in meta and 0<shown<total,f'Practise list for {rule}: {meta} of {total}')
+        else:dismiss()
         if typ in ['dossier','lightup','aquarium','network']:page.screenshot(path=str(shots/f'desktop-{typ}.png'),full_page=True)
     # In-progress pencil/erase/pause/hint and routing durability (same document, not reload).
     page.set_viewport_size({'width':1440,'height':1000})

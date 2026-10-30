@@ -55,6 +55,7 @@
     privacyLoad = '',
     routeFocusSerial = 0,
     routeFocusRequests = new Map(),
+    practising = false,
     selectedCell = 0,
     bridgeAnchor = null,
     selectedPerson = null,
@@ -617,6 +618,7 @@
       group: 'all',
       difficulty: 'all',
       status: 'all',
+      technique: '',
       limit: 24,
     };
   }
@@ -657,6 +659,11 @@
         (library.status === 'favorites' && prefs.favorites.includes(p.id))
       );
     });
+    // Practise a technique (#835): set only from the completed record, so the reasoning
+    // chunk is loaded. ponytail: walks the family once (memoised); Picture logic takes ~0.7 s
+    // on a desktop, so yield between puzzles if phones stall.
+    if (library.technique && C.insights)
+      ps = ps.filter((p) => C.insights.techniques(p).some(([rule]) => rule === library.technique));
     return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${C.DIFFICULTIES.map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
       ['all', 'All puzzles'],
       ['new', 'Not started'],
@@ -689,7 +696,7 @@
             )
             .join('')}</div>`
         : ''
-    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'}${ps.length ? ` · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}` : ''}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, ${m ? 'difficulty' : 'puzzle type'} or progress filter.</p>${B('Reset filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Previews show saved marks or decorative art, never solutions.</p>`;
+    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'}${library.technique ? ` whose hints use ${esc(library.technique)}` : ''}${ps.length ? ` · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}` : ''}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, ${m ? 'difficulty' : 'puzzle type'} or progress filter.</p>${B('Reset filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Previews show saved marks or decorative art, never solutions.</p>`;
   }
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
@@ -2009,7 +2016,7 @@
       used = reasoning.techniques?.(current.puzzle) || [];
     dialog(
       'The completed record.',
-      `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>${used.length ? `<p class="fine">Techniques the hints use here: ${esc(used.map(([rule, n]) => `${rule} (${n})`).join(', '))}.</p>` : ''}`,
+      `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>${used.length ? `<p class="fine">Techniques the hints use here. Choose one to practise it on other puzzles.</p><div class="row wrap">${used.map(([rule, n]) => B(`${esc(rule)} (${n})`, 'practise', '', 'ghost small', `data-value="${esc(rule)}"`)).join('')}</div>` : ''}`,
       [
         {
           label: current.rehearsal
@@ -3314,6 +3321,15 @@
         caseReturn = null;
         nextPuzzle();
         break;
+      case 'practise': {
+        const type = current.puzzle.type;
+        closeDialog();
+        clearFilters(type);
+        library.technique = v;
+        practising = true;
+        navigate('library', type);
+        break;
+      }
       case 'lesson':
         startLesson(el.dataset.type || current?.puzzle.type);
         break;
@@ -4226,6 +4242,9 @@
       if (route.page !== 'quiet' || !AlibiActivities.focusDestination?.())
         $('#main')?.focus({ preventScroll: true });
     }
+    // Practise (#835): land on the filtered count, which sits below the family art on a phone.
+    if (practising && route.page === 'library') $('#library-filter-status')?.focus();
+    practising = false;
   }
   window.addEventListener('hashchange', () => {
     const focusSerial = routeFocusRequests.get(location.hash) || 0;
