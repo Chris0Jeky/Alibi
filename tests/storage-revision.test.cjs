@@ -153,7 +153,7 @@ for (const [label, old] of [
   test(`IndexedDB preserves an existing ${label} run on revision-zero save`, async () => {
     const fixture = indexedRun(old);
     const before = fixture.persisted();
-    await assert.rejects(fixture.store.saveRun(savedRun(0), 0), { name: 'ConflictError' });
+    await assert.rejects(fixture.store.saveRun(savedRun(0), 0), { name: 'DamagedRecordError' });
     assert.deepEqual(fixture.persisted(), before);
   });
 }
@@ -166,7 +166,7 @@ test('IndexedDB distinguishes absence from an invalid envelope key and preserves
   assert.equal(empty.persisted().value.rev, 2);
   const wrongKey = indexedRun(savedRun(1), 'another-study@1');
   const before = wrongKey.persisted();
-  await assert.rejects(wrongKey.store.saveRun(savedRun(1), 1), { name: 'ConflictError' });
+  await assert.rejects(wrongKey.store.saveRun(savedRun(1), 1), { name: 'DamagedRecordError' });
   assert.deepEqual(wrongKey.persisted(), before);
 });
 

@@ -237,8 +237,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // and the review fold-in that lets a backup pass a stale draft; Generate onto Undo; a separate
       // generator-form epoch) on main after #876: 134,462 -> 134,754 (+292). Excess 226; ceiling
       // 127 KiB + 4,736 (74 x 64) leaves 30 for identity/hash noise. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 4736,
-      'Application bundle stays under 127 KiB + 4,736 bytes gzip',
+      // #882 run saves (restore quiesces this tab, paint strokes stop when frozen, a damaged row
+      // reports damage, restore refuses over unsaved progress) on main after #879: 134,754 -> 134,777
+      // (+23). 74 x 64 would leave 7 bytes, so 127 KiB + 4,800 (75 x 64) leaves 71. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 4800,
+      'Application bundle stays under 127 KiB + 4,800 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -440,8 +443,10 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // broadcast, the backup fold-in, Generate onto Undo, the generator-form epoch) on main after
       // #876: 1,438,967 -> 1,440,158 (+1,191; 1.32 MiB + 56,037.68). Excess 1,125.68; ceiling
       // 1.32 MiB + 56,064 (876 x 64) leaves 26.32 for identity/hash noise. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 56064,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 56,064 bytes',
+      // #882 run saves on main after #879: 1,440,158 -> 1,440,408 (+250; 1.32 MiB + 56,287.68).
+      // Excess 223.68; ceiling 1.32 MiB + 56,320 (880 x 64) leaves 32.32. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 56320,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 56,320 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
