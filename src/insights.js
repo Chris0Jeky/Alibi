@@ -282,7 +282,13 @@
             const chain = pairClues.get(me);
             chain.add(cl);
             for (const dep of pairClues.get(them) || []) chain.add(dep);
-            for (const own of p.clues) if (own.who === them && !own.other) chain.add(own);
+            // ...including pair clues that tie them to someone already placed.
+            for (const own of p.clues)
+              if (
+                (own.who === them && (!own.other || isPlaced(own.other))) ||
+                (own.other === them && isPlaced(own.who))
+              )
+                chain.add(own);
             changed = true;
           }
         }

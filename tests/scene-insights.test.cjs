@@ -102,7 +102,7 @@ test('pair clues prune candidates and the forced square names the clue', () => {
   assert.match(hint.message, /Ada can only stand at A1/);
   assert.match(hint.message, /Ada was in a higher row than Ben/);
   // The clue that pinned Ben is part of the chain too (#851).
-  assert.match(hint.message, new RegExp(C.clueText(p, p.clues[1]).replace('.', '\.')));
+  assert.ok(hint.message.includes(C.clueText(p, p.clues[1])), hint.message);
 });
 
 test('a person with nowhere left to stand reports a conflict', () => {
