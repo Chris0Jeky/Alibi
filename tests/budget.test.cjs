@@ -383,8 +383,10 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // replace step, the hidden file input in the shell): 1,430,393 -> 1,432,234 (+1,841). The
       // placeholder answer, the byte-accurate cap and the refusal copy are required. Excess
       // 1,777.68; ceiling +1,824 (57 x 32) leaves 46.32 for identity/hash noise; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 48160,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 48,160 bytes',
+      // #864 review fixes (room-brush clamp, real-solution guard, seed stripped on export):
+      // 1,432,234 -> 1,432,301 (+67). Excess 20.68; ceiling +64 leaves 43.32; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 48224,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 48,224 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

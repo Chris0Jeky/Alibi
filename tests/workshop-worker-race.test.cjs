@@ -640,9 +640,38 @@ test('Export draft downloads the draft without its answer, even while unverified
   assert.equal(body.format, 'alibi-scene-draft');
   assert.equal(body.schema, 1);
   assert.equal('solution' in body.draft, false);
-  const { solution, ...rest } = initial;
+  assert.equal('authorSeed' in body.draft, false);
+  const { solution, authorSeed, ...rest } = initial;
   assert.deepEqual(plain(body.draft), plain(rest));
   assert.ok(draft.solution, 'the stored draft keeps its own answer');
   run(true);
   assert.equal(downloads.length, 1, 'no download while a check is running');
+});
+
+test('a room brush beyond the current floor plan paints the last room, never an invalid index', () => {
+  const start = source.indexOf("      case 'draft-cell':"),
+    block = source.slice(
+      start,
+      source.indexOf('            const old = draft.objects.find', start),
+    );
+  assert.ok(start > 0 && block.includes('Math.min(draftPaint'));
+  const draft = structuredClone(initial),
+    ctx = {
+      a: 'draft-cell',
+      draft,
+      draftMode: 'room',
+      draftPaint: 7,
+      el: { dataset: { cell: '0' } },
+      C,
+    };
+  // The slice opens the case's if and else blocks; close them, the switch and the function.
+  vm.runInNewContext(`(function () { switch (a) { ${block} } } } })()`, ctx);
+  assert.equal(draft.rooms[0], draft.roomNames.length - 1);
+  assert.equal(ctx.draftPaint, draft.roomNames.length - 1);
+  assert.doesNotThrow(() => C.validateSceneDraft(draft));
+});
+
+test('the author solution is drawn only when it is real', () => {
+  const line = source.split('\n').find((l) => l.includes('draftShowSolution && ('));
+  assert.match(line, /draftShowSolution && \(draftVerified \|\| !blankSolution\(p\)\)/);
 });

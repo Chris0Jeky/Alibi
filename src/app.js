@@ -1341,7 +1341,10 @@
     }</div><div class="draft-board" aria-label="Editable floor plan">${range(25)
       .map((i) => {
         const o = p.objects.find((o) => o.cell === i),
-          who = draftShowSolution ? p.people.find((x) => p.solution[x.id] === i) : null;
+          who =
+            draftShowSolution && (draftVerified || !blankSolution(p))
+              ? p.people.find((x) => p.solution[x.id] === i)
+              : null;
         return `<button class="draft-cell" data-action="draft-cell" data-cell="${i}" aria-label="Edit row ${Math.floor(i / 5) + 1}, column ${String.fromCharCode(65 + (i % 5))}, room ${esc(p.roomNames[p.rooms[i]])}" style="background:var(--room-${p.rooms[i]})"><span class="draft-room">${String.fromCharCode(65 + p.rooms[i])}</span>${who ? token(who, p) : o ? icon(o.kind) : ''}</button>`;
       })
       .join(
@@ -3523,7 +3526,8 @@
         if (draft) {
           const i = Number(el.dataset.cell),
             before = C.clone(draft);
-          if (draftMode === 'room') draft.rooms[i] = draftPaint;
+          if (draftMode === 'room')
+            draft.rooms[i] = draftPaint = Math.min(draftPaint, draft.roomNames.length - 1);
           else {
             const old = draft.objects.find((o) => o.cell === i);
             if (old ? old.kind === draftObject : draftObject === 'none') break;
@@ -3593,7 +3597,8 @@
       case 'export-scene-draft':
         if (draft && !draftBusy) {
           const d = C.clone(draft);
-          delete d.solution; // A shared draft never carries its answer.
+          delete d.solution; // A shared draft never carries its answer, nor the seed that regenerates it.
+          delete d.authorSeed;
           download(draft.id + '.draft.json', { format: 'alibi-scene-draft', schema: 1, draft: d });
         }
         break;
