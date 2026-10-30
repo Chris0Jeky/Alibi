@@ -31,6 +31,8 @@
     "cloudflare:preview": "wrangler dev --config wrangler.jsonc",
     "cloudflare:check": "wrangler deploy --dry-run --config wrangler.jsonc",
     "cloudflare:deploy": "wrangler deploy --config wrangler.jsonc",
+    "cloudflare:release": "node tools/release-cloudflare.cjs",
+    "cloudflare:probe": "node tools/probe-origin.cjs",
     "pretest": "node tools/check-test-build.cjs"
   },
   "devDependencies": {
