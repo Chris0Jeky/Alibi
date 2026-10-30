@@ -80,7 +80,9 @@ test('witness hints rule out an innocent person, never the culprit', () => {
   for (const p of official.filter((q) => q.type === 'witness')) {
     const h = I.deduction(hidden(p), C.registry.witness.initial(p));
     assert.equal(h?.rule, 'Test one person', p.id);
+    assert.match(h.message, /^Suppose /, p.id);
     const named = p.people.findIndex((name) => h.message.startsWith(`Suppose ${name} `));
+    assert.notEqual(named, -1, `${p.id}: the suspect is named`);
     assert.notEqual(named, p.solution, p.id);
     assert.notEqual(p.statements.filter((c) => C.extras.truth(c, named)).length, p.trueCount, p.id);
   }
