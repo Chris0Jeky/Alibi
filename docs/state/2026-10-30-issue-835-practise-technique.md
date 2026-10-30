@@ -18,11 +18,12 @@
 - `tests/browser_ui.py`: after solving a Sudoku through the UI, the first technique button opens the
   Sudoku collection with focus on the count; the filtered count is above zero and below the
   unfiltered count. Measured: 37 puzzles use "Only one number fits".
-- Budgets on main after #868: startup gzip 134,296 -> 134,438 (+142; ceiling +128), shell
-  1,438,353 -> 1,438,888 (+535; ceiling +576). The reasoning chunk is unchanged.
+- Budgets on main after #868: startup gzip 134,296 -> 134,450 (+154; ceiling +128), shell
+  1,438,353 -> 1,438,909 (+556; ceiling +576). The reasoning chunk is unchanged.
 - Review fixes: *practise* waits for deferred definitions before the first walk (the walk caches
   per revision, so a listing stub would otherwise cache an empty list), the filter skips any stub
   still unloaded, and the selected collection is cleared so the count means the whole family.
+  Codex: leaving the page while that wait is pending cancels the jump (route serial check).
 - Phone screenshots (390 x 844) of the record and the filtered list were inspected locally.
 
 ## Measured spread (one hint walk per official puzzle)

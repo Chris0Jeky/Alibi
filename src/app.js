@@ -3326,10 +3326,13 @@
         nextPuzzle();
         break;
       case 'practise': {
-        const type = current.puzzle.type;
+        const type = current.puzzle.type,
+          serial = routeSerial;
         closeDialog();
         // The walk caches per revision, so let deferred definitions arrive before it runs.
+        // Leaving the page meanwhile cancels the jump.
         await deferred?.ensure().catch(() => 0);
+        if (serial !== routeSerial) break;
         clearFilters(type);
         library.venue = '';
         library.technique = v;
