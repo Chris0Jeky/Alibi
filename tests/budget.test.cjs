@@ -222,8 +222,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #866 print clues on the Notes and Rules tabs (clueList() helper plus print-only heading,
       // intro and list copy) on main after #867: 134,213 -> 134,296 (+83). Excess 56; ceiling
       // +96 leaves 40; the copy is required for a solvable printed sheet. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 4288,
-      'Application bundle stays under 127 KiB + 4,288 bytes gzip',
+      // #835 practise a technique (record technique buttons, the family filter, the focus on its
+      // count, the deferred-definition wait and its route check): 134,296 -> 134,450 (+154).
+      // Excess 114; ceiling +128 leaves 14. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 4416,
+      'Application bundle stays under 127 KiB + 4,416 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
