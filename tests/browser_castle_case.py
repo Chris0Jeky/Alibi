@@ -355,6 +355,7 @@ def run():
                 assert json.loads(page.locator('#case-receipt-preview').inner_text())['stages'][0]['hints'] == 3 - shown
                 case_click(page, 'receipt-close')
                 case_click(page, 'receipt-cancel')
+                retained = read(page)['state']['caseStudy']
                 record(width, 'a hint pressed after the last one is not counted in the receipt or saved, and says all hints are shown')
 
                 # The header preference must refresh the mounted case without remounting it.

@@ -17,7 +17,7 @@ with sync_playwright() as p:
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.on('request',lambda r:requests.append(r.url))
     blocked=[]
-    page.on('console',lambda m:blocked.append(m.text) if m.type in ('error','warning') and any(k in m.text for k in ('Content Security Policy','violates','Couldn't load texture','connect-src')) else None)
+    page.on('console',lambda m:blocked.append(m.text) if m.type in ('error','warning') and any(k in m.text for k in ('Content Security Policy','violates',"Couldn't load texture",'connect-src')) else None)
     page.goto(URL+'#/home');page.wait_for_selector('.club-welcome')
     page.wait_for_timeout(300)
     check(not any('/folio-' in u for u in requests),'Puzzle startup requests no optional field-notes media')
