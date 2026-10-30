@@ -294,7 +294,7 @@ export function mount({ root, store, save }) {
                 n.caseStudy.answers.push(structuredClone(answers));
               });
               if (receipt?.enabled) receipt.submission(step.id, true, receiptShape());
-              message = 'Stage accepted and saved. Choose the next stage above.';
+              message = `Stage accepted and saved.${stage < 2 ? ' Choose the next stage above.' : ''}`;
             }
           } else if (action === 'hint') {
             if (record().hints[stage] >= 3) {
