@@ -1615,7 +1615,7 @@
     return !current?.rehearsal && (storageFatal || saveError);
   }
   function blocked() {
-    if (!current || paused || updateRequested) return true;
+    if (!current || paused || updateRequested || restoreBusy) return true;
     if (locked()) {
       toast('Export this session or reload before making more changes.', true);
       return true;
@@ -1695,7 +1695,7 @@
     }
   }
   function commit(next, { reveal = false, history = true } = {}) {
-    if (updateRequested || !current || C.equal(next, current.state)) return false;
+    if (updateRequested || restoreBusy || !current || C.equal(next, current.state)) return false;
     try {
       globalThis.AlibiJourney?.(current);
     } catch {}
@@ -2053,7 +2053,7 @@
     render();
   }
   function undo(redo = false) {
-    if (!current || paused || locked() || updateRequested) return;
+    if (!current || paused || locked() || updateRequested || restoreBusy) return;
     const from = redo ? current.redo : current.undo,
       to = redo ? current.undo : current.redo;
     if (!from.length) return;
@@ -2601,6 +2601,9 @@
         throw Error(
           'Safe restoration requires IndexedDB. Open the deployed app in a normal browser, then restore.',
         );
+      // Quiesce this tab's own writers, then flush, so only a real other-tab write can conflict.
+      clearTimeout(noteTimer);
+      await enqueueSave();
       await queue;
       let b = pendingBackup,
         expected;
@@ -3754,7 +3757,7 @@
       library.limit = 24;
       render();
     } else if ((el.id === 'play-notes' || el.id === 'quick-notes') && current) {
-      if (locked()) {
+      if (restoreBusy || locked()) {
         el.value = current.note;
         toast('Export this session or reload before making more changes.', true);
         return;
@@ -3832,7 +3835,7 @@
   });
   // A drag stroke is one undo step. The same brush is used throughout the stroke.
   function paintTo(i) {
-    if (locked()) return;
+    if (locked() || paused || updateRequested || restoreBusy) return;
     if (!drag || !current || drag.key !== current.key || drag.visited.has(i)) return;
     drag.visited.add(i);
     if (AlibiClub.assistance() !== 'off' && drag.value === 1) {
@@ -3861,7 +3864,7 @@
     drag = null;
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key) return;
-    if (locked()) {
+    if (locked() || updateRequested || restoreBusy) {
       if (!C.equal(current.state, d.before)) {
         current.state = d.before;
         render();
