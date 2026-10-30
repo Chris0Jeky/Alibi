@@ -340,7 +340,7 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // leaves 269.32 bytes for identity/hash noise; startup gzip and content limits unchanged.
       // Alibi file and witness reasoning hints (#846) in the precached reasoning chunk:
       // 1,426,791 -> 1,429,189 (+2,398). Excess
-      // 2,128.68 bytes; ceiling +2,176 (34 x 64) leaves 47.32 bytes; startup gzip unchanged.
+      // 2,124.68 bytes over the composed ceiling; +2,176 (34 x 64) leaves 51.32 bytes; startup gzip unchanged.
       contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45120,
       'Precached code and shell excluding official content stay under 1.32 MiB + 45,120 bytes',
     );
