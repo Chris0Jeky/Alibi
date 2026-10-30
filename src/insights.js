@@ -393,7 +393,17 @@
             );
           if (keep.length < cand.get(me).length) {
             cand.set(me, keep);
-            pairClues.get(me).add(cl);
+            // Name the whole chain: this clue, plus whatever narrowed the other person.
+            const chain = pairClues.get(me);
+            chain.add(cl);
+            for (const dep of pairClues.get(them) || []) chain.add(dep);
+            // ...including pair clues that tie them to someone already placed.
+            for (const own of p.clues)
+              if (
+                (own.who === them && (!own.other || isPlaced(own.other))) ||
+                (own.other === them && isPlaced(own.who))
+              )
+                chain.add(own);
             changed = true;
           }
         }
@@ -419,7 +429,7 @@
       }
       return {
         rule: 'Only one square left',
-        message: `${name(id)} can only stand at ${at(cell, n)}. The rest are blocked by ${blocked.filter(Boolean).join(' and ') || 'the clues'}.${texts.size ? ` Clues: ${[...texts].slice(0, 3).join(' ')}` : ''}`,
+        message: `${name(id)} can only stand at ${at(cell, n)}. The rest are blocked by ${blocked.filter(Boolean).join(' and ') || 'the clues'}.${texts.size ? ` Clues: ${[...texts].join(' ')}` : ''}`,
         cells: [cell],
         person: id,
         // Deliberately no value: a scene move is a placement, not a single-cell value.
