@@ -38,9 +38,9 @@ Branch `claude/workshop-draft-877`, based on `origin/main` b577ce41 (#874). Not 
    `generateDraft` now declare the new variables and stub `store.saveDraft`; `browser_ui.py`
    accepts the `rev`/`tab` fields.
 5. Budgets (`tests/budget.test.cjs`), base b577ce41, final branch on main after #876 (includes the
-   review fold-in): startup gzip 134,462 -> 134,748 (+286), excess 220, ceiling 127 KiB + 4,736
-   (74 x 64) leaves 36; precached shell 1,438,967 -> 1,440,155 (+1,188), excess 1,122.68, ceiling
-   1.32 MiB + 56,064 (876 x 64) leaves 29.32. No feature room. Catalogue receipt regenerated.
+   review fold-in): startup gzip 134,462 -> 134,754 (+292), excess 226, ceiling 127 KiB + 4,736
+   (74 x 64) leaves 30; precached shell 1,438,967 -> 1,440,158 (+1,191), excess 1,125.68, ceiling
+   1.32 MiB + 56,064 (876 x 64) leaves 26.32. No feature room. Catalogue receipt regenerated.
 
 ## Verified
 

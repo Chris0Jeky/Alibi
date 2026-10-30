@@ -417,7 +417,8 @@
       return;
     }
     if (e.data?.type === 'restored') {
-      draftStale = Error(staleDraft);
+      // Keep an existing stale error: a rejected draftSave holds it, and backup matches it by identity.
+      draftStale ||= Error(staleDraft);
       saveError =
         'Progress was restored in another tab. Export this session or reload before playing.';
       render();
@@ -2776,7 +2777,7 @@
             channel?.postMessage({ type: 'draft', rev: draftRev });
           },
           (e) => {
-            throw e?.name === 'ConflictError' ? (draftStale = Error(staleDraft)) : e;
+            throw e?.name === 'ConflictError' ? (draftStale ||= Error(staleDraft)) : e;
           },
         );
     await draftSave.catch((e) => {

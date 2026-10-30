@@ -230,8 +230,8 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // byte for hash noise, so 70 x 64 = 4,480 leaves 65. No feature room.
       // #877 Workshop draft integrity (cross-tab compare-and-swap with its stale notice, broadcast
       // and the review fold-in that lets a backup pass a stale draft; Generate onto Undo; a separate
-      // generator-form epoch) on main after #876: 134,462 -> 134,748 (+286). Excess 220; ceiling
-      // 127 KiB + 4,736 (74 x 64) leaves 36 for identity/hash noise. No feature room.
+      // generator-form epoch) on main after #876: 134,462 -> 134,754 (+292). Excess 226; ceiling
+      // 127 KiB + 4,736 (74 x 64) leaves 30 for identity/hash noise. No feature room.
       info.javascriptGzipBytes < 127 * 1024 + 4736,
       'Application bundle stays under 127 KiB + 4,736 bytes gzip',
     );
@@ -433,8 +433,8 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // (858 x 64) leaves 64.32 for identity/hash noise. No feature room.
       // #877 Workshop draft integrity (Store.saveDraft compare-and-swap, the stale notice and
       // broadcast, the backup fold-in, Generate onto Undo, the generator-form epoch) on main after
-      // #876: 1,438,967 -> 1,440,155 (+1,188; 1.32 MiB + 56,034.68). Excess 1,122.68; ceiling
-      // 1.32 MiB + 56,064 (876 x 64) leaves 29.32 for identity/hash noise. No feature room.
+      // #876: 1,438,967 -> 1,440,158 (+1,191; 1.32 MiB + 56,037.68). Excess 1,125.68; ceiling
+      // 1.32 MiB + 56,064 (876 x 64) leaves 26.32 for identity/hash noise. No feature room.
       contentBytes.shellBytes < 1.32 * 1024 * 1024 + 56064,
       'Precached code and shell excluding official content stay under 1.32 MiB + 56,064 bytes',
     );
