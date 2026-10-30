@@ -224,21 +224,17 @@
       // Explain what removed the other squares, naming the clues that did it.
       const furniture = new Set(p.objects.map((o) => o.cell)),
         taken = Object.values(placed),
-        reasons = [],
+        blocked = [],
         texts = new Set([...pairClues.get(id)].map((cl) => C.clueText(p, cl)));
       for (const c of C.range(n * n)) {
-        if (furniture.has(c)) reasons[0] = 'furniture';
+        if (furniture.has(c)) blocked[0] = 'furniture';
         else if (taken.some((j) => Math.floor(j / n) === Math.floor(c / n) || j % n === c % n))
-          reasons[1] = 'rows and columns already taken';
-        else {
-          const why = assist.reason(p, s, c, null, id);
-          if (why) texts.add(why);
-        }
+          blocked[1] = 'rows and columns already taken';
+        else if (assist.reason(p, s, c, null, id)) texts.add(assist.reason(p, s, c, null, id));
       }
-      const parts = [...reasons.filter(Boolean), ...[...texts].slice(0, 3).map((t) => `“${t}”`)];
       return {
         rule: 'Only one square left',
-        message: `${name(id)} can only stand at ${at(cell, n)}.${parts.length ? ` The rest are ruled out by ${parts.join(', ')}.` : ''}`,
+        message: `${name(id)} can only stand at ${at(cell, n)}. The rest are blocked by ${blocked.filter(Boolean).join(' and ') || 'the clues'}.${texts.size ? ` Clues: ${[...texts].slice(0, 3).join(' ')}` : ''}`,
         cells: [cell],
         person: id,
         // Deliberately no value: a scene move is a placement, not a single-cell value.
