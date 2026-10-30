@@ -311,6 +311,23 @@
         tx.onabort = () => reject(failure || tx.error || aborted());
       });
     }
+    async removePack(id) {
+      // Packs only: saved runs pin their own definitions and stay untouched.
+      if (this.fatal) throw Error(this.problem || 'Saved data is unavailable.');
+      if (!this.db && this.mode === 'local')
+        throw Error('Removing packs requires IndexedDB. Existing local data is unchanged.');
+      if (!this.db) {
+        delete this.memory.packs[id];
+        return;
+      }
+      return new Promise((resolve, reject) => {
+        const tx = this.db.transaction('packs', 'readwrite');
+        this.watch(tx, reject);
+        tx.objectStore('packs').delete(id);
+        tx.oncomplete = () => resolve();
+        tx.onabort = () => reject(tx.error || aborted());
+      });
+    }
     async saveDraft(value, expectedRevision) {
       // Write over the revision this tab loaded or last confirmed, or over this tab's own later
       // write (edits save before earlier saves confirm). Never over another tab's draft.

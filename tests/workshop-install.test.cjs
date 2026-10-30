@@ -72,6 +72,12 @@ function disk(seed = []) {
           return {
             put: (row) => write(row, false),
             add: (row) => write(row, true),
+            delete: (key) =>
+              enqueue(() => {
+                if (state.failWrite) throw Error('simulated quota failure');
+                working.delete(key);
+                state.writes++;
+              }),
             openCursor() {
               const request = {};
               let entries,
@@ -320,4 +326,53 @@ test('session-only installation remains local to its Store and rejects duplicate
   await b.install(pack());
   assert.equal(a.packs().length, 2);
   assert.equal(b.packs().length, 2);
+});
+
+test('removing a pack deletes only that record and allows the same pack to be added again', async () => {
+  const db = disk(),
+    current = tab(db),
+    keep = pack('keep-pack', 'keep-picture'),
+    gone = pack('gone-pack', 'gone-picture');
+  await current.install(keep);
+  await current.install(gone);
+  const kept = db.rows().find((row) => row.key === keep.id);
+  await current.store.removePack(gone.id);
+  assert.deepEqual(
+    db.rows().map((row) => row.key),
+    [keep.id],
+  );
+  assert.deepEqual(db.rows()[0], kept, 'the other pack is byte-identical');
+  await current.store.removePack(gone.id);
+  assert.equal(db.rows().length, 1, 'removing an absent pack is harmless');
+  await current.install(gone);
+  assert.deepEqual(
+    db
+      .rows()
+      .map((row) => row.key)
+      .sort(),
+    [gone.id, keep.id],
+  );
+});
+
+test('failed removal leaves the stored pack in place', async () => {
+  const db = disk(),
+    current = tab(db);
+  await current.install(pack());
+  db.state.failWrite = true;
+  await assert.rejects(current.store.removePack('test-pack'), /quota/);
+  assert.equal(db.rows().length, 1);
+});
+
+test('session-only removal stays in its Store; localStorage fallback refuses it', async () => {
+  const a = tab(null);
+  a.store.mode = 'session';
+  await a.install(pack());
+  await a.store.removePack('test-pack');
+  assert.deepEqual(Object.keys(a.store.memory.packs), []);
+  const local = tab(null);
+  local.store.mode = 'local';
+  local.local.set('alibi.v1.packs.legacy', '{"unreadable-future-pack":true}');
+  const before = [...local.local];
+  await assert.rejects(local.store.removePack('legacy'), /IndexedDB/);
+  assert.deepEqual([...local.local], before);
 });
