@@ -102,6 +102,9 @@ async function probe(origin, distDir, { timeoutMs = 15000 } = {}) {
         problems.push(
           `identity ${field}: served ${identity[field]} local ${localIdentity.identity[field]}`,
         );
+    // Fields alone miss changes elsewhere in the script, so compare its bytes as well.
+    if (identityRel && !servedIdentity.equals(local(identityRel)))
+      problems.push('platform identity script bytes differ from the local build');
     lines.push(
       `identity: served ${String(identity.sourceSha).slice(0, 12)} v${identity.appVersion}; ` +
         `local ${localIdentity.identity.sourceSha.slice(0, 12)} v${localIdentity.identity.appVersion}`,

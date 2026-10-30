@@ -73,6 +73,21 @@ test('probe reports a different release by field, not just "differs"', async (t)
   assert.match(text, /^FAIL /m);
 });
 
+test('probe fails when the identity script differs outside its compared fields', async (t) => {
+  const local = makeDist(tmp(t, 'alibi-probe-local-'));
+  const served = makeDist(tmp(t, 'alibi-probe-served-'));
+  const html = fs.readFileSync(path.join(served, 'index.html'), 'utf8');
+  const rel = html
+    .split('src="./')
+    .find((part) => part.includes('identity'))
+    .split('"')[0];
+  const file = path.join(served, rel);
+  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('{', '{"extra":1,'));
+  const result = await probe(await serve(t, served), local);
+  assert.equal(result.ok, false, result.lines.join('\n'));
+  assert.match(result.lines.join('\n'), /platform identity script bytes differ/);
+});
+
 test('probe fails on a missing asset (404) and an unreachable origin', async (t) => {
   const local = makeDist(tmp(t, 'alibi-probe-local-'));
   const served = makeDist(tmp(t, 'alibi-probe-served-'));
