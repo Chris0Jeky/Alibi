@@ -216,9 +216,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // Third composition: #862's completed-record technique names and #858's print-only revision
       // line in the startup bundle measure 133,773 (+68 over 133,705). Excess 45; ceiling +64
       // leaves 19, still 2,016 below the pre-#845 ceiling; no feature room.
-      // COMPOSE4-GZIP
-      info.javascriptGzipBytes < 127 * 1024 + 99999,
-      'COMPOSE4-GZIP',
+      // #864 Scene Maker draft file on main after #863 (export/import controls, replace step,
+      // stale-reply guards and the review fixes): 133,773 -> 134,213 (+440). Excess 421; ceiling
+      // +448 leaves 27, still 1,568 below the pre-#845 ceiling. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 4192,
+      'Application bundle stays under 127 KiB + 4,192 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -405,9 +407,10 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // scene hint chain (#860) and Quiet Wing radius roles (#861) measure 1,435,972 bytes
       // (1.32 MiB + 51,851.68) on the composed tree. Ceiling 1.32 MiB + 51,968 (812 x 64) leaves
       // 116.32 bytes for identity/hash noise; no feature room.
-      // COMPOSE4-SHELL
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 99999,
-      'COMPOSE4-SHELL',
+      // #864 measured on main after #863: 1,435,972 -> 1,437,882 (+1,910). Excess 1,793.68; ceiling
+      // 1.32 MiB + 53,824 (841 x 64) leaves 62.32 for identity/hash noise; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 53824,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 53,824 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
