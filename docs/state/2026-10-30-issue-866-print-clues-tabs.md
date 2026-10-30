@@ -12,8 +12,9 @@
   still hides the copy.
 - `tests/print-sheet.test.cjs`, `tests/browser_print_sheet.py`: source and CSS assertions, plus a
   real-tab check for scene-01 and dossier-01 on Notes and Rules.
-- `tests/budget.test.cjs`: documented raises, startup gzip +96 and shell +448 (measured
-  133,773 -> 133,852 gzip; 1,435,972 -> 1,436,444 shell).
+- `tests/budget.test.cjs`: documented raises re-measured on main after #867: startup gzip
+  134,213 -> 134,296 (ceiling 127 KiB + 4,288, 40 left); shell 1,437,882 -> 1,438,353 (ceiling
+  1.32 MiB + 54,272, 39.32 left).
 - `assets-source/library/catalogue.json`: refreshed by `node tools/assets/catalogue.cjs`.
 
 ## Verified
@@ -26,6 +27,12 @@
   equals the puzzle's clues, one heading and intro show, no notes textarea or rules text, tabs and
   foot hidden; on screen the print-only list exists, is not visible, and the tab's own content
   shows. Screenshots are in `test-results/` (ignored).
+
+After merging main (#867): `build:android` + full Node suite 2,448 pass / 7 fail, the 7 all in
+`tests/android-build.test.cjs`, which then passed 15/15 alone (load from a concurrent worktree
+build). `browser_ui.py` 286/286. `browser_print_sheet.py` failed once in that loaded run on the
+night-theme `.room-label i` ink check and passed on an immediate rerun; untouched by this change
+(the #830 rule), noted here rather than dismissed.
 
 ## NOT verified
 
