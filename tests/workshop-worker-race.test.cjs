@@ -13,7 +13,7 @@ const source = fs.readFileSync(
   'utf8',
 );
 const workshop = source.slice(
-  source.indexOf('  function dirtyDraft()'),
+  source.indexOf('  function recordDraft('),
   source.indexOf('  function clueValues()'),
 );
 // Execute the real route entry through its first await. The rest of routing is
@@ -37,7 +37,7 @@ function fixture({ holdSave = false, puzzle = initial } = {}) {
   const worker = deferred(),
     persistence = deferred(),
     saveStarted = deferred();
-  const calls = { workers: [], saves: [], renders: [], toasts: [], scrolls: [] };
+  const calls = { workers: [], saves: [], renders: [], toasts: [], scrolls: [], dialogs: [] };
   const context = vm.createContext({
     C,
     initial: structuredClone(puzzle),
@@ -60,6 +60,8 @@ function fixture({ holdSave = false, puzzle = initial } = {}) {
     location: { hash: '#/workshop' },
     $: () => ({ open: false }),
     closeDialog() {},
+    esc: String,
+    dialog: (title, body, actions) => calls.dialogs.push({ title, body, actions }),
     endPaint() {},
     clearTimeout() {},
     enqueueSave: async () => {},
@@ -83,7 +85,7 @@ function fixture({ holdSave = false, puzzle = initial } = {}) {
     `
     let draft = initial, draftVerified = false, draftComparison = null, draftConflict = null, draftAudit = null,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
-      draftBusy = false, draftEpoch = 0, draftShowSolution = true, routeSerial = 0,
+      draftBusy = false, draftEpoch = 0, pendingDraft = null, draftShowSolution = true, routeSerial = 0,
       dialogOpener = null, bridgeAnchor = null, noteTimer = null;
     ${workshop}
     ${routeEntry}
@@ -95,6 +97,13 @@ function fixture({ holdSave = false, puzzle = initial } = {}) {
     globalThis.verify = verifyDraft;
     globalThis.audit = auditDraft;
     globalThis.navigate = loadRoute;
+    globalThis.importFile = importDraft;
+    globalThis.apply = applyDraftImport;
+    globalThis.undo = () => undoDraft();
+    globalThis.dropDraft = () => { draft = null; };
+    globalThis.set = (v) => { if ('draftBusy' in v) draftBusy = v.draftBusy; if ('draftComparison' in v) draftComparison = v.draftComparison; if ('draftConflict' in v) draftConflict = v.draftConflict; if ('draftAudit' in v) draftAudit = v.draftAudit; };
+    globalThis.pending = () => pendingDraft;
+    globalThis.undoDepth = () => draftUndo.length;
   `,
     context,
     { filename: 'workshop-app-fixture.js' },
@@ -492,4 +501,148 @@ test('the conflict heading is singular for one clue, plural for several, layout-
   assert.equal(heading([1]), 'This clue cannot hold with this floor plan');
   assert.equal(heading([0, 1]), 'These clues cannot all hold with this floor plan');
   assert.equal(heading([]), 'No arrangement fits this floor plan, even without clues');
+});
+
+// Issue #864: a draft file import is a recorded draft change, never a silent overwrite.
+const placeholder = Object.fromEntries(initial.people.map((p, i) => [p.id, i]));
+const imported = { ...structuredClone(initial), title: 'Imported draft', solution: placeholder };
+const fileOf = (size = 100) => ({ size, text: async () => '{"file":true}' });
+const plain = (value) => JSON.parse(JSON.stringify(value));
+const settle = async () => {
+  for (let i = 0; i < 5; i++) await Promise.resolve();
+};
+
+test('replacing an existing draft asks first and changes nothing until confirmed', async () => {
+  const h = fixture(),
+    original = h.context.state().draft;
+  const pending = h.context.importFile(fileOf());
+  await settle();
+  assert.deepEqual(plain(h.calls.workers), [{ type: 'scene-draft-import', text: '{"file":true}' }]);
+  h.worker.resolve(structuredClone(imported));
+  await pending;
+  assert.equal(h.calls.dialogs.length, 1);
+  assert.match(h.calls.dialogs[0].body, /Imported draft/);
+  assert.deepEqual(plain(h.calls.dialogs[0].actions.map((a) => a.action)), [
+    'replace-draft',
+    'close-dialog',
+  ]);
+  assert.equal(h.context.state().draft, original);
+  assert.equal(h.calls.saves.length, 0);
+  assert.equal(h.context.undoDepth(), 0);
+});
+
+test('a confirmed import goes through Undo, clears every derived result and saves', async () => {
+  const h = fixture(),
+    original = plain(h.context.state().draft);
+  h.context.markCurrentVerified();
+  h.context.set({ draftComparison: [{}], draftConflict: [1], draftAudit: [0] });
+  const pending = h.context.importFile(fileOf());
+  h.worker.resolve(structuredClone(imported));
+  await pending;
+  h.context.apply();
+  const state = h.context.state();
+  assert.equal(state.draft.title, 'Imported draft');
+  assert.equal(state.draftVerified, false);
+  assert.equal(state.draftComparison, null);
+  assert.equal(state.draftConflict, null);
+  assert.equal(state.draftAudit, null);
+  assert.equal(state.draftShowSolution, false);
+  assert.equal(h.calls.saves.length, 1);
+  assert.equal(h.calls.saves[0].title, 'Imported draft');
+  assert.equal(h.context.pending(), null);
+  assert.equal(h.context.undoDepth(), 1);
+  h.context.undo();
+  assert.deepEqual(plain(h.context.state().draft), original);
+  assert.equal(h.context.state().draftVerified, false);
+});
+
+test('a reply after a newer edit is ignored and a stale confirmation is refused', async () => {
+  const h = fixture(),
+    pending = h.context.importFile(fileOf());
+  h.context.edit();
+  const edited = plain(h.context.state().draft);
+  h.worker.resolve(structuredClone(imported));
+  await pending;
+  assert.equal(h.calls.dialogs.length, 0);
+  assert.equal(h.context.pending(), null);
+  h.context.apply();
+  assert.deepEqual(plain(h.context.state().draft), edited);
+
+  const g = fixture(),
+    later = g.context.importFile(fileOf());
+  g.worker.resolve(structuredClone(imported));
+  await later;
+  assert.equal(g.calls.dialogs.length, 1);
+  g.context.edit();
+  const current = plain(g.context.state().draft);
+  g.context.apply();
+  assert.deepEqual(plain(g.context.state().draft), current);
+  assert.equal(g.calls.toasts.at(-1).error, true);
+});
+
+test('a reply after leaving the workshop is ignored', async () => {
+  const h = fixture(),
+    pending = h.context.importFile(fileOf());
+  await h.context.navigate();
+  h.worker.resolve(structuredClone(imported));
+  await pending;
+  assert.equal(h.calls.dialogs.length, 0);
+  assert.equal(h.context.pending(), null);
+});
+
+test('with no draft the import applies at once, unverified', async () => {
+  const h = fixture();
+  h.context.dropDraft();
+  const pending = h.context.importFile(fileOf());
+  h.worker.resolve(structuredClone(imported));
+  await pending;
+  assert.equal(h.calls.dialogs.length, 0);
+  assert.equal(h.context.state().draft.title, 'Imported draft');
+  assert.equal(h.context.state().draftVerified, false);
+  assert.equal(h.calls.saves.length, 1);
+});
+
+test('oversize files and a busy editor never reach the worker; refusals leave the draft', async () => {
+  const h = fixture(),
+    original = h.context.state().draft;
+  await assert.rejects(h.context.importFile(fileOf(256 * 1024 + 1)), /256 KiB/);
+  h.context.set({ draftBusy: true });
+  await h.context.importFile(fileOf());
+  assert.equal(h.calls.workers.length, 0);
+  h.context.set({ draftBusy: false });
+  const pending = h.context.importFile(fileOf());
+  h.worker.reject(
+    Error('This is not an Alibi Scene Maker draft. Your current draft is unchanged.'),
+  );
+  await assert.rejects(pending, /not an Alibi Scene Maker draft/);
+  assert.equal(h.context.state().draft, original);
+  assert.equal(h.calls.dialogs.length + h.calls.saves.length, 0);
+  assert.equal(h.context.pending(), null);
+});
+
+test('Export draft downloads the draft without its answer, even while unverified', () => {
+  const start = source.indexOf("      case 'export-scene-draft':"),
+    block = source.slice(start, source.indexOf("      case 'import-draft':", start));
+  const downloads = [],
+    draft = structuredClone(initial),
+    run = (draftBusy) =>
+      vm.runInNewContext(`(function () { switch (a) { ${block} } })()`, {
+        a: 'export-scene-draft',
+        draft,
+        draftBusy,
+        C,
+        download: (...args) => downloads.push(args),
+      });
+  run(false);
+  assert.equal(downloads.length, 1);
+  const [name, body] = downloads[0];
+  assert.equal(name, `${initial.id}.draft.json`);
+  assert.equal(body.format, 'alibi-scene-draft');
+  assert.equal(body.schema, 1);
+  assert.equal('solution' in body.draft, false);
+  const { solution, ...rest } = initial;
+  assert.deepEqual(plain(body.draft), plain(rest));
+  assert.ok(draft.solution, 'the stored draft keeps its own answer');
+  run(true);
+  assert.equal(downloads.length, 1, 'no download while a check is running');
 });
