@@ -30,11 +30,11 @@ def pdf_pages(data):
     return len(re.findall(rb'/Type\s*/Page(?![A-Za-z])', data))
 
 
-def open_puzzle(browser, puzzle):
+def open_puzzle(browser, puzzle, ready='.nono-cell'):
     context = browser.new_context(viewport={'width': 1280, 'height': 900}, reduced_motion='reduce')
     page = context.new_page()
     page.goto(URL + '/#/play/' + puzzle['id'])
-    page.wait_for_selector('.nono-cell')
+    page.wait_for_selector(ready)
     if page.locator('dialog[open] [data-action="close-dialog"]').count():
         page.locator('dialog[open] [data-action="close-dialog"]').click()
     return context, page
@@ -75,6 +75,79 @@ def check_no_solution(page, puzzle, label):
     html = page.evaluate('document.documentElement.outerHTML')
     assert 'solution' not in html.lower(), (label, 'solution word in DOM')
     assert ','.join(map(str, puzzle['solution'])) not in html, (label, 'solution list in DOM')
+
+
+def computed(page, selector, prop):
+    return page.locator(selector).first.evaluate('(e, p) => getComputedStyle(e)[p]', prop)
+
+
+def check_other_families(browser):
+    """Review fixes: night theme, Lantern walls, and the scene and Alibi-file clue lists."""
+    done = []
+    # Night theme on screen still prints dark ink on white paper, scene text included.
+    for pid, ready, inks in (
+        ('sudoku-01', '.cell.given', ['.cell.given']),
+        ('scene-01', '.scene-cell', ['.scene-cell', '.scene-cell .furniture', '.room-label i']),
+    ):
+        puzzle = load('content/catalog.json', pid)
+        context, page = open_puzzle(browser, puzzle, ready)
+        try:
+            page.evaluate("document.documentElement.dataset.theme = 'night'")
+            page.emulate_media(media='print')
+            assert computed(page, '.shell', 'backgroundColor') == 'rgb(255, 255, 255)', (pid, 'night paper')
+            for selector in inks:
+                assert computed(page, selector, 'color') == 'rgb(0, 0, 0)', (pid, selector, 'night ink')
+            page.screenshot(path=str(OUT / f'print-night-{pid}.png'))
+            done.append(f'{pid} prints dark ink on white in the night theme')
+        finally:
+            context.close()
+    # Lantern walls stay solid black with white numbers; selection tint is cleared.
+    puzzle = load('content/catalog.json', 'lightup-01')
+    context, page = open_puzzle(browser, puzzle, '.light-wall')
+    try:
+        page.emulate_media(media='print')
+        assert computed(page, '.light-wall', 'backgroundColor') == 'rgb(0, 0, 0)', 'wall fill'
+        assert computed(page, '.light-wall', 'color') == 'rgb(255, 255, 255)', 'wall number'
+        assert computed(page, '.light-wall', 'printColorAdjust') == 'exact', 'wall keeps its fill'
+        page.screenshot(path=str(OUT / 'print-lightup-01.png'))
+        done.append('lightup-01 prints black walls with white numbers')
+    finally:
+        context.close()
+    puzzle = load('content/catalog.json', 'sudoku-01')
+    context, page = open_puzzle(browser, puzzle, '.cell')
+    try:
+        page.locator('.cell:not(.given)').first.click()
+        assert page.locator('.cell.selected').count() == 1
+        page.emulate_media(media='print')
+        cell = page.locator('.cell.selected').first
+        assert cell.evaluate('e => getComputedStyle(e).backgroundColor') == 'rgb(255, 255, 255)', 'tint'
+        ring = cell.evaluate('e => getComputedStyle(e).boxShadow')
+        assert ring == 'rgb(85, 85, 85) -1px -1px 0px 0px inset', ('selection ring', ring)
+        done.append('selected cell prints without its tint or ring')
+    finally:
+        context.close()
+    # Crime scenes and Alibi files print the clue list and nothing else from the evidence column.
+    for pid in ('scene-01', 'dossier-01'):
+        puzzle = load('content/catalog.json', pid)
+        context, page = open_puzzle(browser, puzzle, '.evidence-list')
+        try:
+            page.locator('.clue').first.click()
+            page.emulate_media(media='print')
+            assert page.locator('.evidence-list .clue-text:visible').count() == len(puzzle['clues']), pid
+            assert page.locator('.evidence-body h2:visible').count() == 1, (pid, 'heading')
+            assert page.locator('.case-intro:visible').count() == 1, (pid, 'intro')
+            for selector in ('.evidence-tabs', '.play-context', '.info-note', '.checkbox', '.main-tools'):
+                assert not page.locator(selector).first.is_visible(), (pid, selector)
+            assert computed(page, '.clue-text', 'textDecorationLine') == 'none', (pid, 'struck clue')
+            if pid == 'dossier-01':
+                assert page.locator('.logic-cell:visible').count() > 0, 'grid cells print'
+            html = page.evaluate('document.documentElement.outerHTML')
+            assert json.dumps(puzzle['solution']) not in html, (pid, 'solution in DOM')
+            page.screenshot(path=str(OUT / f'print-{pid}.png'), full_page=True)
+            done.append(f'{pid} prints its clue list and board')
+        finally:
+            context.close()
+    return done
 
 
 def run():
@@ -128,11 +201,18 @@ def run():
                     failures.append(repr(error))
                 finally:
                     context.close()
+            try:
+                extras = check_other_families(browser)
+            except AssertionError as error:
+                failures.append(repr(error))
+                extras = []
         finally:
             browser.close()
     if failures:
         raise AssertionError('\n'.join(failures))
     print('print sheet ok: A4 and Letter, fresh and marked, one page each')
+    for line in extras:
+        print('  ' + line)
 
 
 if __name__ == '__main__':
