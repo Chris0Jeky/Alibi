@@ -3862,7 +3862,7 @@
     if (e.key !== 'Tab') return;
     const d = e.currentTarget,
       stops = [
-        ...d.querySelectorAll('button, a[href], input, select, textarea, [tabindex]'),
+        ...d.querySelectorAll('button, summary, a[href], input, select, textarea, [tabindex]'),
       ].filter(
         (el) =>
           el.tabIndex >= 0 &&
