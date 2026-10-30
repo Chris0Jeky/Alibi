@@ -637,6 +637,26 @@
       limit: 24,
     };
   }
+  // Walks puzzles in slices under the 50 ms long-task line, yielding between them, then draws the
+  // finished list. Leaving the page, a new walk or clearing the technique drops a stale one (#896).
+  const walkedPuzzles = new WeakSet();
+  let walkRun = 0;
+  async function walkTechniques(todo) {
+    const run = ++walkRun,
+      serial = routeSerial,
+      rule = library.technique;
+    for (let i = 0; i < todo.length;) {
+      for (const end = performance.now() + 8; i < todo.length && performance.now() < end; i++) {
+        C.insights.techniques(todo[i]);
+        walkedPuzzles.add(todo[i]);
+      }
+      // setTimeout, not scheduler.yield(): its continuation outranks the hashchange that cancels us.
+      await new Promise((r) => setTimeout(r));
+      if (run !== walkRun || library.technique !== rule) return;
+      if (serial !== routeSerial) return void (library.technique = '');
+    }
+    render();
+  }
   function libraryPage() {
     const type = route.id,
       m = M[type];
@@ -675,14 +695,22 @@
       );
     });
     // Practise a technique (#835): set only from the completed record, so the reasoning
-    // chunk is loaded. ponytail: walks the family once (memoised); Picture logic takes ~0.7 s
-    // on a desktop, so yield between puzzles if phones stall.
-    if (library.technique && C.insights)
-      ps = ps.filter(
-        (p) =>
-          !deferred?.has(p) &&
-          C.insights.techniques(p).some(([rule]) => rule === library.technique),
-      );
+    // chunk is loaded. The walk is memoised per puzzle and runs in yielding slices (#896); until
+    // the family has been walked the page says so instead of freezing the tap.
+    let finding = false;
+    if (library.technique && C.insights) {
+      const todo = ps.filter((p) => !deferred?.has(p) && !walkedPuzzles.has(p));
+      if (todo.length) {
+        finding = true;
+        ps = [];
+        walkTechniques(todo);
+      } else
+        ps = ps.filter(
+          (p) =>
+            !deferred?.has(p) &&
+            C.insights.techniques(p).some(([rule]) => rule === library.technique),
+        );
+    }
     return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${C.DIFFICULTIES.map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
       ['all', 'All puzzles'],
       ['new', 'Not started'],
@@ -715,7 +743,7 @@
             )
             .join('')}</div>`
         : ''
-    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${ps.length} puzzle${ps.length === 1 ? '' : 's'}${library.technique ? ` whose hints use ${esc(library.technique)}` : ''}${ps.length ? ` · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}` : ''}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, ${m ? 'difficulty' : 'puzzle type'} or progress filter.</p>${B('Reset filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Previews show saved marks or decorative art, never solutions.</p>`;
+    }<div id="library-filter-status" class="filter-meta" tabindex="-1"><span>${finding ? `Finding puzzles that use ${esc(library.technique)}…` : `${ps.length} puzzle${ps.length === 1 ? '' : 's'}${library.technique ? ` whose hints use ${esc(library.technique)}` : ''}${ps.length ? ` · ${m ? 'Choose a level below.' : 'No locked levels. Follow your curiosity.'}` : ''}`}</span>${B('Reset filters', 'reset-filters', '', 'ghost small', 'id="library-reset-filters" data-focus-fallback="library-filter-status"')}</div></div><div class="puzzle-grid">${ps.length ? ps.slice(0, library.limit).map(puzzleCard).join('') : finding ? '' : `<div class="empty"><h2>No matches just yet.</h2><p>Try a different title, ${m ? 'difficulty' : 'puzzle type'} or progress filter.</p>${B('Reset filters', 'reset-filters', 'refresh', 'secondary', 'id="library-clear-filters" data-focus-fallback="library-filter-status"')}</div>`}</div>${ps.length > library.limit ? `<div class="show-more">${B(`Show ${Math.min(24, ps.length - library.limit)} more puzzles`, 'show-more', 'arrow', 'secondary', 'id="library-show-more" data-focus-fallback="library-filter-status"')}</div>` : ''}<p class="cover-note">Difficulty and time labels are estimates. Previews show saved marks or decorative art, never solutions.</p>`;
   }
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
