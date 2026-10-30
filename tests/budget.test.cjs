@@ -440,7 +440,7 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #876: 1,438,967 -> 1,440,158 (+1,191; 1.32 MiB + 56,037.68). Excess 1,125.68; ceiling
       // 1.32 MiB + 56,064 (876 x 64) leaves 26.32 for identity/hash noise. No feature room.
       // #885 Workshop room names patched in place (see the JavaScript note above): main 1,440,159 ->
-      // 1,440,819 (+660; 1.32 MiB + 56,698.68). Excess 634.68; 887 x 64 = 56,768 leaves 69.32 for
+      // 1,440,820 (+661; 1.32 MiB + 56,699.68). Excess 635.68; 887 x 64 = 56,768 leaves 68.32 for
       // identity/hash noise (886 x 64 would leave 5.32). No feature room.
       contentBytes.shellBytes < 1.32 * 1024 * 1024 + 56768,
       'Precached code and shell excluding official content stay under 1.32 MiB + 56,768 bytes',
