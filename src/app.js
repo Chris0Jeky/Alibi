@@ -88,6 +88,7 @@
     draftObject = 'plant',
     draftBusy = false,
     draftEpoch = 0,
+    pendingDraft = null,
     draftSave,
     pendingBackup = null,
     restoreBusy = false,
@@ -1304,7 +1305,7 @@
       )}</div>${workTab === 'scene' ? sceneMaker() : workTab === 'packs' ? packDesk() : authorGuide()}`;
   }
   function sceneMaker() {
-    return `<div class="workshop-grid"><section class="panel"><h2>A story of your own.</h2><p>Start with a solver-checked draft. Then edit rooms, furniture and clues in the visual editor below.</p><form id="scene-form"><div class="form-grid"><div class="field"><label for="draft-title">Case title</label><input id="draft-title" name="title" maxlength="90" value="${esc(makerFields.title)}" required></div><div class="field"><label for="draft-setting">Setting</label><input id="draft-setting" name="setting" maxlength="120" value="${esc(makerFields.setting)}" required></div><div class="field full"><label for="draft-story">Opening story</label><textarea id="draft-story" name="story" maxlength="1200" required>${esc(makerFields.story)}</textarea></div><div class="field full"><label for="draft-names">Five names, separated by commas</label><input id="draft-names" name="names" value="${esc(makerFields.names)}" required><span class="fine">The last person is the victim.</span></div><div class="field"><label for="draft-seed">Puzzle seed</label><input id="draft-seed" name="seed" type="number" min="1" max="2147483647" value="${esc(makerFields.seed)}" required></div><div class="field" style="align-self:end"><button type="submit" class="btn wide" ${draftBusy ? 'disabled' : ''}>${draftBusy ? '<span class="spinner"></span>' : icon('star')} Generate draft</button></div></div></form></section><section class="panel"><h2>From idea to playable.</h2><div class="workshop-step"><i>1</i><span><strong>Name the case.</strong> Set the scene, people and seed.</span></div><div class="workshop-step"><i>2</i><span><strong>Shape the floor plan.</strong> Paint rooms, move furniture and revise clues.</span></div><div class="workshop-step"><i>3</i><span><strong>Check the logic.</strong> Verify that the edited rules still allow exactly one solution.</span></div><div class="workshop-step"><i>4</i><span><strong>Play or share.</strong> Add it locally, or export a JSON pack for another player.</span></div><div class="verification"><strong>A useful boundary</strong><br>The generator provides a mechanical draft, not a fully edited mystery. Human playtesting still determines whether the clues feel elegant, the story makes sense, and the difficulty is right.</div><div class="docs-card"><h3>Already have a puzzle pack?</h3><p>Any supported puzzle family can be imported as data. Packs cannot execute code or fetch remote assets.</p>${B('Open the pack desk', 'work-tab', 'upload', 'secondary small', 'data-value="packs"')}</div></section></div>${draft ? draftEditor() : ''}`;
+    return `<div class="workshop-grid"><section class="panel"><h2>A story of your own.</h2><p>Start with a solver-checked draft. Then edit rooms, furniture and clues in the visual editor below.</p><form id="scene-form"><div class="form-grid"><div class="field"><label for="draft-title">Case title</label><input id="draft-title" name="title" maxlength="90" value="${esc(makerFields.title)}" required></div><div class="field"><label for="draft-setting">Setting</label><input id="draft-setting" name="setting" maxlength="120" value="${esc(makerFields.setting)}" required></div><div class="field full"><label for="draft-story">Opening story</label><textarea id="draft-story" name="story" maxlength="1200" required>${esc(makerFields.story)}</textarea></div><div class="field full"><label for="draft-names">Five names, separated by commas</label><input id="draft-names" name="names" value="${esc(makerFields.names)}" required><span class="fine">The last person is the victim.</span></div><div class="field"><label for="draft-seed">Puzzle seed</label><input id="draft-seed" name="seed" type="number" min="1" max="2147483647" value="${esc(makerFields.seed)}" required></div><div class="field" style="align-self:end"><button type="submit" class="btn wide" ${draftBusy ? 'disabled' : ''}>${draftBusy ? '<span class="spinner"></span>' : icon('star')} Generate draft</button></div></div></form><div class="row actions">${B('Import draft', 'import-draft', 'upload', 'secondary small', draftBusy ? 'disabled' : '')}</div></section><section class="panel"><h2>From idea to playable.</h2><div class="workshop-step"><i>1</i><span><strong>Name the case.</strong> Set the scene, people and seed.</span></div><div class="workshop-step"><i>2</i><span><strong>Shape the floor plan.</strong> Paint rooms, move furniture and revise clues.</span></div><div class="workshop-step"><i>3</i><span><strong>Check the logic.</strong> Verify that the edited rules still allow exactly one solution.</span></div><div class="workshop-step"><i>4</i><span><strong>Play or share.</strong> Add it locally, or export a JSON pack for another player.</span></div><div class="verification"><strong>A useful boundary</strong><br>The generator provides a mechanical draft, not a fully edited mystery. Human playtesting still determines whether the clues feel elegant, the story makes sense, and the difficulty is right.</div><div class="docs-card"><h3>Already have a puzzle pack?</h3><p>Any supported puzzle family can be imported as data. Packs cannot execute code or fetch remote assets.</p>${B('Open the pack desk', 'work-tab', 'upload', 'secondary small', 'data-value="packs"')}</div></section></div>${draft ? draftEditor() : ''}`;
   }
   function draftEditor() {
     const p = draft;
@@ -1340,12 +1341,15 @@
     }</div><div class="draft-board" aria-label="Editable floor plan">${range(25)
       .map((i) => {
         const o = p.objects.find((o) => o.cell === i),
-          who = draftShowSolution ? p.people.find((x) => p.solution[x.id] === i) : null;
+          who =
+            draftShowSolution && (draftVerified || !blankSolution(p))
+              ? p.people.find((x) => p.solution[x.id] === i)
+              : null;
         return `<button class="draft-cell" data-action="draft-cell" data-cell="${i}" aria-label="Edit row ${Math.floor(i / 5) + 1}, column ${String.fromCharCode(65 + (i % 5))}, room ${esc(p.roomNames[p.rooms[i]])}" style="background:var(--room-${p.rooms[i]})"><span class="draft-room">${String.fromCharCode(65 + p.rooms[i])}</span>${who ? token(who, p) : o ? icon(o.kind) : ''}</button>`;
       })
       .join(
         '',
-      )}</div><div class="row wrap">${B(draftShowSolution ? 'Hide author solution' : 'Show author solution', 'draft-solution', 'eye', 'secondary small')}</div><p class="fine" style="margin-top:12px">Click squares to edit. Room letters remain visible independently of colour. Editing invalidates the verification. The shown solution is the last verified arrangement.</p><div class="form-grid" style="margin-top:17px">${p.roomNames.map((name, i) => `<div class="field"><label for="room-name-${i}">Room ${String.fromCharCode(65 + i)}</label><input id="room-name-${i}" value="${esc(name)}" data-room-name="${i}" maxlength="40"></div>`).join('')}</div></div><div><h3 style="margin-bottom:12px">${p.clues.length} clues in this draft</h3><div class="draft-clues" data-scroll-key="draft-clues">${p.clues.map((cl, i) => `<div class="draft-clue"><span>${i + 1}. ${esc(C.clueText(p, cl))}</span>${round('remove-draft-clue', 'close', `Remove clue ${i + 1}`, `data-index="${i}"`)}</div>`).join('')}</div><form id="clue-form" class="clue-builder"><div class="eyebrow">Add a clue</div><div class="row"><select name="who" id="clue-who" aria-label="Person">${p.people.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><select name="kind" id="clue-kind" aria-label="Clue relation">${[
+      )}</div><div class="row wrap">${B(draftShowSolution ? 'Hide author solution' : 'Show author solution', 'draft-solution', 'eye', 'secondary small', !draftVerified && blankSolution(p) ? 'disabled' : '')}</div><p class="fine" style="margin-top:12px">Click squares to edit. Room letters remain visible independently of colour. Editing invalidates the verification. The shown solution is the last verified arrangement.</p><div class="form-grid" style="margin-top:17px">${p.roomNames.map((name, i) => `<div class="field"><label for="room-name-${i}">Room ${String.fromCharCode(65 + i)}</label><input id="room-name-${i}" value="${esc(name)}" data-room-name="${i}" maxlength="40"></div>`).join('')}</div></div><div><h3 style="margin-bottom:12px">${p.clues.length} clues in this draft</h3><div class="draft-clues" data-scroll-key="draft-clues">${p.clues.map((cl, i) => `<div class="draft-clue"><span>${i + 1}. ${esc(C.clueText(p, cl))}</span>${round('remove-draft-clue', 'close', `Remove clue ${i + 1}`, `data-index="${i}"`)}</div>`).join('')}</div><form id="clue-form" class="clue-builder"><div class="eyebrow">Add a clue</div><div class="row"><select name="who" id="clue-who" aria-label="Person">${p.people.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><select name="kind" id="clue-kind" aria-label="Clue relation">${[
       ['room', 'Was in room'],
       ['notRoom', 'Not in room'],
       ['row', 'Was in row'],
@@ -1360,7 +1364,7 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Rehearse', 'rehearse-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Audit clues', 'audit-draft', '', 'secondary small', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}${draftAuditView()}</section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Rehearse', 'rehearse-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Audit clues', 'audit-draft', '', 'secondary small', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export draft', 'export-scene-draft', 'download', 'secondary small', draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}${draftAuditView()}</section>`;
   }
   function clueLinks(list) {
     return `<ul class="draft-comparison-text">${list.map((i) => `<li>${B(`Clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul>`;
@@ -2889,6 +2893,37 @@
       document.querySelector('#draft-audit')?.focus();
     }
   }
+  // Placeholder answer of an imported draft: person i on square i (keep in sync with the worker).
+  const blankSolution = (p) => p.people.every((x, i) => p.solution[x.id] === i);
+  async function importDraft(file) {
+    if (draftBusy) return;
+    if (file.size > 256 * 1024) throw Error('Draft file exceeds the 256 KiB import limit.');
+    const epoch = draftEpoch,
+      next = await inWorker({ type: 'scene-draft-import', text: await file.text() });
+    if (epoch !== draftEpoch) return;
+    pendingDraft = { next, epoch };
+    if (!draft) return applyDraftImport();
+    dialog(
+      'Replace your draft?',
+      `<p>Replace <strong>${esc(draft.title)}</strong> with <strong>${esc(next.title)}</strong>? The new draft is unverified. Undo brings the old one back.</p>`,
+      [
+        { label: 'Replace draft', action: 'replace-draft', danger: true },
+        { label: 'Keep my draft', action: 'close-dialog', secondary: true },
+      ],
+    );
+  }
+  function applyDraftImport() {
+    const { next, epoch } = pendingDraft || {},
+      before = draft && C.clone(draft);
+    pendingDraft = null;
+    if (!next) return;
+    if (epoch !== draftEpoch) return toast('Your draft changed. Import the file again.', true);
+    draft = next;
+    draftShowSolution = false;
+    before ? recordDraft(before) : dirtyDraft();
+    render();
+    toast('Draft imported. Verify its logic next.');
+  }
   function clueValues() {
     if (!draft) return;
     const kind = $('#clue-kind')?.value,
@@ -3492,7 +3527,8 @@
         if (draft) {
           const i = Number(el.dataset.cell),
             before = C.clone(draft);
-          if (draftMode === 'room') draft.rooms[i] = draftPaint;
+          if (draftMode === 'room')
+            draft.rooms[i] = draftPaint = Math.min(draftPaint, draft.roomNames.length - 1);
           else {
             const old = draft.objects.find((o) => o.cell === i);
             if (old ? old.kind === draftObject : draftObject === 'none') break;
@@ -3558,6 +3594,21 @@
         break;
       case 'export-draft':
         if (draft && draftVerified) download(draft.id + '.json', draftPack());
+        break;
+      case 'export-scene-draft':
+        if (draft && !draftBusy) {
+          const d = C.clone(draft);
+          delete d.solution; // A shared draft never carries its answer, nor the seed that regenerates it.
+          delete d.authorSeed;
+          download(draft.id + '.draft.json', { format: 'alibi-scene-draft', schema: 1, draft: d });
+        }
+        break;
+      case 'import-draft':
+        $('#draft-input').click();
+        break;
+      case 'replace-draft':
+        closeDialog();
+        applyDraftImport();
         break;
       case 'feedback-report':
         issueReport();
@@ -3732,6 +3783,9 @@
         render();
       } else if (el.id === 'pack-input' && el.files[0]) {
         await importPack(el.files[0]);
+        el.value = '';
+      } else if (el.id === 'draft-input' && el.files[0]) {
+        await importDraft(el.files[0]);
         el.value = '';
       } else if (el.id === 'backup-input' && el.files[0]) {
         await importBackup(el.files[0]);
