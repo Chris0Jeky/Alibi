@@ -4,6 +4,16 @@ Routine pull-request handoffs now live in uniquely named files under
 [docs/state/](state/README.md). This overview retains project baselines and existing history;
 new per-change notes follow the fragment guide without editing a shared index (#693).
 
+## 2026-10-30: baseline after the 30 October builder push
+
+`main` now carries the Workshop draft cross-tab compare-and-swap, pack removal, the phone first-puzzle
+starter, run-save restore/damage fixes, Field notes 3D textures (CSP `connect-src blob:`), 3–8× faster
+startup validation for many saves, and release identity tooling (`npm run cloudflare:release`,
+`cloudflare:probe`). Production still serves `030d5812` (13 October, v0.15.2) pending owner decision
+`alibi-release-20261030`. Open: #898 (Practise freeze, landing) and #899 (Club conflict guard, needs a main
+merge). Full list by value tier, parked work and follow-ups:
+[2026-10-30-pr-900-builder-session-close.md](state/2026-10-30-pr-900-builder-session-close.md).
+
 ## 2026-10-19: retain native WebView callback failure context (#133)
 
 The merged native foundation and its documentation have source-specific passing receipts,
