@@ -806,7 +806,7 @@
       };
       document.head.append(s);
     }
-    return `<div class="privacy-copy"><h1>Privacy & credits.</h1>${privacyLoad === 'failed' ? `<p role="alert">This page could not load.</p>${B('Retry', 'privacy-retry', 'refresh', 'secondary')}` : '<p role="status">Opening the small print…</p>'}</div>`;
+    return `<div class="privacy-copy"><h1>Privacy & credits.</h1>${privacyLoad === 'failed' ? `<p role="alert">This page could not load.</p><div class="row actions">${B('Retry', 'privacy-retry', 'refresh', 'secondary')}${B('Reload Alibi', 'reload', 'refresh', 'secondary')}</div>` : '<p role="status">Opening the small print…</p>'}</div>`;
   }
 
   function aboutPage() {

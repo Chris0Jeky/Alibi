@@ -415,8 +415,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #866 on main after #867 (clueList() helper, print-only copy, three print rules):
       // 1,437,882 -> 1,438,353 (+471; 1.32 MiB + 54,232.68). Excess 408.68; ceiling 1.32 MiB
       // + 54,272 (848 x 64) leaves 39.32; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54272,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 54,272 bytes',
+      // #848 Reload Alibi beside Retry on a failed Privacy chunk, on main after #868: 1,438,353 ->
+      // 1,438,435 (+82; 1.32 MiB + 54,314.68). Excess 42.68; ceiling 1.32 MiB + 54,336 (849 x 64)
+      // leaves 21.32; recovery from a purged chunk needs the control. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54336,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 54,336 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

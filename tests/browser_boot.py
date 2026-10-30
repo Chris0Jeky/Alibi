@@ -22,6 +22,9 @@ def check_named_pages(page, load):
         expect(page.locator('#route-not-found')).to_have_count(0)
         page.locator('#main .privacy-copy').get_by_role('button', name=action, exact=True).click()
         expect(page.locator('#main h1')).to_have_text(destination)
+        if destination == 'Privacy & credits.':
+            # The loading and failed placeholders share this h1; only the loaded copy has an h2.
+            expect(page.locator('#main .privacy-copy h2').first).to_be_visible()
     for route in ['#/ABOUT-other', '#/%61bout', '#/constructor', '#/<img-src=x-onerror=alert(1)>']:
         load(route)
         expect(page.locator('#route-not-found')).to_be_visible()
@@ -32,6 +35,22 @@ def check_named_pages(page, load):
         expect(page.locator('#main h1')).to_be_visible()
         assert page.evaluate('location.hash') == '#/library'
     return len(cases) + 4
+
+
+def check_privacy_recovery(ctx):
+    """A purged privacy chunk shows the alert with Retry and Reload Alibi; Retry recovers once it returns (#848)."""
+    page = ctx.new_page()
+    page.route('**/assets/privacy.*.js', lambda route: route.abort())
+    page.goto(BASE + '#/privacy')
+    expect(page.locator('#main [role=alert]')).to_have_text('This page could not load.')
+    retry = page.locator('#main .privacy-copy').get_by_role('button', name='Retry', exact=True)
+    expect(retry).to_be_visible()
+    expect(page.locator('#main .privacy-copy').get_by_role('button', name='Reload Alibi', exact=True)).to_be_visible()
+    page.unroute('**/assets/privacy.*.js')
+    retry.click()
+    expect(page.locator('#main .privacy-copy h2').first).to_be_visible()
+    expect(page.locator('#usage-sharing-slot')).to_have_count(1)
+    page.close()
 
 
 def main():
@@ -78,16 +97,18 @@ def main():
                 q.onsuccess = () => { resolve(q.result.value); db.close(); };
             };
         })""") == 'keep'
+        check_privacy_recovery(ctx)
         named_cases = check_named_pages(page, lambda route: page.goto(BASE + route))
         browser.close()
     out = Path(__file__).resolve().parents[1] / 'test-results' / 'browser-boot'
     out.mkdir(parents=True, exist_ok=True)
     (out / 'results.json').write_text(json.dumps({
-        'passed': True, 'checks': 6, 'namedRouteCases': named_cases, 'url': BASE,
+        'passed': True, 'checks': 7, 'namedRouteCases': named_cases, 'url': BASE,
         'scope': 'Blocked main JS; recovery retains IndexedDB, localStorage and unrelated cache; '
-                 'cold named/unknown routes assert rendered content and working exits; disposable profile',
+                 'cold named/unknown routes assert rendered content and working exits; '
+                 'purged privacy chunk offers Retry and Reload Alibi and Retry recovers; disposable profile',
     }))
-    print(f'PASS 6 startup recovery checks and {named_cases} named-route cases', flush=True)
+    print(f'PASS 7 startup recovery checks and {named_cases} named-route cases', flush=True)
 
 
 if __name__ == '__main__':
