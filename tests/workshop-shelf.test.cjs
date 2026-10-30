@@ -97,7 +97,7 @@ test('a broken source refuses shelf generation without touching an existing outp
 });
 
 test('entry composition changes only pack-desk copy and fails on unknown source boundaries', () => {
-  const { composePackDesk } = require('../tools/workshop-entry.cjs');
+  const { composePackDesk, offline } = require('../tools/workshop-entry.cjs');
   const source = fs.readFileSync(path.join(root, 'src/app.js'), 'utf8');
   const start = source.indexOf('  function packDesk() {');
   const end = source.indexOf('  function authorGuide()', start);
@@ -105,7 +105,7 @@ test('entry composition changes only pack-desk copy and fails on unknown source 
   const compiled = composePackDesk(source, adder);
   assert.equal(compiled.slice(0, start), source.slice(0, start));
   // Outside the desk, the only addition is the one adder action before the existing importer.
-  const action = `      case 'collections':\n        (await import("./workshop/add.0123456789ab.js")).open(document, undefined, store);\n        break;\n`;
+  const action = `      case 'collections':\n        (await import("./workshop/add.0123456789ab.js").catch(() => Promise.reject(Error(${JSON.stringify(offline)})))).open(document, undefined, store);\n        break;\n`;
   assert.equal(compiled.split(action).length, 2);
   assert.ok(compiled.replace(action, '').endsWith(source.slice(end)));
   assert.equal((compiled.match(/'collections'/g) || []).length, 2);

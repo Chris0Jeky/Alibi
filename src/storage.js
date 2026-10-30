@@ -336,6 +336,47 @@
         tx.onabort = () => reject(failure || tx.error || aborted());
       });
     }
+    async removePack(id, expected) {
+      // Packs only: saved runs pin their own definitions and stay untouched. Delete only the pack the
+      // player confirmed: another tab may have replaced it under the same ID since this tab loaded it.
+      if (this.fatal) throw Error(this.problem || 'Saved data is unavailable.');
+      if (!this.db && this.mode === 'local')
+        throw Error('Removing packs requires IndexedDB. Existing local data is unchanged.');
+      const C = root.AlibiCore,
+        changed = () =>
+          Object.assign(Error('This pack changed in another tab. Reload before removing it.'), {
+            name: 'ConflictError',
+          }),
+        same = (stored) => {
+          if (!stored || !expected) return true;
+          try {
+            return C.equal(C.validatePack(stored, false), C.validatePack(expected, false));
+          } catch {
+            return false;
+          }
+        };
+      if (!this.db) {
+        if (!same(this.memory.packs[id])) throw changed();
+        delete this.memory.packs[id];
+        return;
+      }
+      return new Promise((resolve, reject) => {
+        const tx = this.db.transaction('packs', 'readwrite'),
+          os = tx.objectStore('packs'),
+          get = os.get(id);
+        let refused = null;
+        this.watch(tx, reject);
+        get.onsuccess = () => {
+          if (same(get.result?.value)) os.delete(id);
+          else {
+            refused = changed();
+            tx.abort();
+          }
+        };
+        tx.oncomplete = () => resolve();
+        tx.onabort = () => reject(refused || tx.error || aborted());
+      });
+    }
     async saveDraft(value, expectedRevision) {
       // Write over the revision this tab loaded or last confirmed, or over this tab's own later
       // write (edits save before earlier saves confirm). Never over another tab's draft.

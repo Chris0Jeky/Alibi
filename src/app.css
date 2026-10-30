@@ -2695,10 +2695,15 @@ input[type='checkbox'] {
 .pack-row {
   display: flex;
   align-items: center;
-  gap: 13px;
+  flex-wrap: wrap;
+  gap: 8px 13px;
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
   font-size: 12px;
+}
+.pack-row > div {
+  flex: 1 1 9em;
+  min-width: 0;
 }
 .pack-row .icon {
   color: var(--green);
@@ -2709,6 +2714,9 @@ input[type='checkbox'] {
 }
 .pack-row .btn {
   margin-left: auto;
+}
+.pack-row .btn + .btn {
+  margin-left: 0;
 }
 .verification {
   font-size: 11px;

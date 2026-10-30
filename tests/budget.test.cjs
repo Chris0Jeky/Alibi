@@ -244,8 +244,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // clue menu) so the next click and Tab are not swallowed, on main after #886: 134,777 ->
       // 135,029 (+252). 78 x 64 would leave 11 bytes, so 127 KiB + 5,056 (79 x 64) leaves 75.
       // No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 5056,
-      'Application bundle stays under 127 KiB + 5,056 bytes gzip',
+      // #887 remove a local pack (Store.removePack, the Remove control and confirmation, stored-pack
+      // backups, the confirmed-pack compare, the offline Add message) on main after #888: 135,029 ->
+      // 135,376 (+347). Excess 328; ceiling 127 KiB + 5,376 (84 x 64) leaves 48. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 5376,
+      'Application bundle stays under 127 KiB + 5,376 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -452,8 +455,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #885 room names patched in place, on main after #886: 1,440,408 -> 1,441,109 (+701;
       // 1.32 MiB + 56,988.68). Excess 668.68; ceiling 1.32 MiB + 57,024 (891 x 64) leaves 35.32.
       // No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 57024,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 57,024 bytes',
+      // #887 remove a local pack, on main after #888: 1,441,109 -> 1,442,994 (+1,885; 1.32 MiB +
+      // 58,873.68). Excess 1,849.68; 920 x 64 would leave 6.32, so 1.32 MiB + 58,944 (921 x 64)
+      // leaves 70.32. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 58944,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 58,944 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

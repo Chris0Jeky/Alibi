@@ -1442,7 +1442,7 @@
         .slice(1)
         .map(
           (p) =>
-            `<div class="pack-row">${icon('dossier')}<div><strong>${esc(p.title)}</strong><small>${p.puzzles.length} puzzles · v${p.version}</small></div>${B('Export', 'export-pack', 'download', 'secondary small', `data-id="${esc(p.id)}"`)}</div>`,
+            `<div class="pack-row">${icon('dossier')}<div><strong>${esc(p.title)}</strong><small>${p.puzzles.length} puzzles · v${p.version}</small></div>${B('Export', 'export-pack', 'download', 'secondary small', `data-id="${esc(p.id)}"`)}${B('Remove', 'remove-pack', '', 'ghost small', `data-id="${esc(p.id)}" aria-label="Remove ${esc(p.title)}"`)}</div>`,
         )
         .join('') ||
       '<div class="verification">No custom packs yet. Make a scene in the editor or import a pack to begin.</div>'
@@ -2362,9 +2362,11 @@
       else divergentByKey.set(key, local);
     }
     data.runs = [...deviceByKey.values()];
-    data.packs = [
-      ...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, C.clone(p)])).values(),
-    ];
+    // IndexedDB is the record of installed packs; a tab that has not seen another tab's removal must
+    // not write the removed pack back into the backup. Memory adds packs only in session mode.
+    const stored = new Set(data.packs.map((p) => p.id)),
+      local = packs.slice(1).filter((p) => store.mode !== 'indexeddb' || stored.has(p.id));
+    data.packs = [...new Map([...data.packs, ...local].map((p) => [p.id, C.clone(p)])).values()];
     data.settings = C.clone(settings);
     data.preferences = C.clone(prefs);
     data.applicationVersion = cfg.version;
@@ -3614,6 +3616,35 @@
           const p = packs.find((p) => p.id === id);
           if (p) download(p.id + '.json', p);
         }
+        break;
+      case 'remove-pack':
+        {
+          const p = packs.find((p) => p.id === id);
+          if (p)
+            dialog(
+              `Remove ${p.title}?`,
+              `<p>This removes the pack and its ${p.puzzles.length} puzzle${p.puzzles.length === 1 ? '' : 's'} from your collection. Saved progress for them is kept, and you can add the pack again later.</p>`,
+              [
+                { label: 'Keep it', action: 'close-dialog', secondary: true },
+                {
+                  label: 'Remove pack',
+                  action: 'remove-pack-confirm',
+                  danger: true,
+                  attrs: `data-id="${esc(p.id)}"`,
+                },
+              ],
+            );
+        }
+        break;
+      case 'remove-pack-confirm':
+        const confirmed = packs.slice(1).find((p) => p.id === id);
+        if (!confirmed) break;
+        await store.removePack(id, confirmed);
+        packs = packs.filter((p) => p.id !== id);
+        closeDialog();
+        render();
+        ($('.pack-row [data-action="remove-pack"]') || $('[data-action="import-pack"]'))?.focus();
+        toast('Pack removed. Your saved progress is kept.');
         break;
       case 'draft-mode':
         draftMode = v;

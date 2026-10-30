@@ -1,6 +1,7 @@
 'use strict';
 // Build-only composition into the existing pack desk. No runtime observer or new route owner.
 // #433: one action imports the optional adder module, which hands verified bytes to #pack-input.
+const offline = 'Adding a collection needs a connection. Reconnect and try again.';
 function composePackDesk(source, adder) {
   if (typeof adder !== 'string' || !/^\.\/assets\/workshop\/add\.[a-f0-9]{12}\.js$/.test(adder))
     throw Error('Invalid collection adder URL');
@@ -39,9 +40,9 @@ function composePackDesk(source, adder) {
       anchor,
       // import() in the classic application script resolves against its ./assets/ URL.
       () =>
-        `      case 'collections':\n        (await import(${JSON.stringify('.' + adder.slice(8))})).open(document, undefined, store);\n        break;\n` +
+        `      case 'collections':\n        (await import(${JSON.stringify('.' + adder.slice(8))}).catch(() => Promise.reject(Error(${JSON.stringify(offline)})))).open(document, undefined, store);\n        break;\n` +
         anchor,
     )
   );
 }
-module.exports = { composePackDesk };
+module.exports = { composePackDesk, offline };
