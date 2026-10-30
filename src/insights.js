@@ -150,8 +150,6 @@
       // Deliberately no value: Club interprets that field as an applicable cell move.
     };
   }
-  // Number trails: a missing number lies on the path between its nearest placed neighbours,
-  // so it sits within reach of both through open squares. Distances never use the answer.
   // Alibi files: record a direct clue, then a row or column with one option left, then follow a
   // linked room/object clue. Marks are -1 open, 0 no, 1 yes; a yes rules out its row and column.
   // Results carry `mark` but no `value`: these grids take 'mark' moves, not single-cell values.
@@ -267,6 +265,8 @@
     }
     return null;
   }
+  // Number trails: a missing number lies on the path between its nearest placed neighbours,
+  // so it sits within reach of both through open squares. Distances never use the answer.
   function trailDeduction(p, s) {
     const n = p.size,
       last = n * n,
@@ -760,11 +760,11 @@
   }
   // The named steps a hint walk takes from the fresh board (#835). Only applicable steps count:
   // cell values, Alibi-file marks and scene placements; corrections and nudges end the walk.
-  // Memoised per revision (a 15x15 walk is tens of ms); a failure only hides the line.
-  const walked = new Map();
+  // Memoised per puzzle object (a 15x15 walk is tens of ms): a Workshop rehearsal keeps the draft's
+  // id and revision while its clues change, but each run clones the puzzle. A failure only hides the line.
+  const walked = new WeakMap();
   function techniques(p) {
-    const key = p.id + '@' + p.revision;
-    if (walked.has(key)) return walked.get(key);
+    if (walked.has(p)) return walked.get(p);
     const used = new Map();
     try {
       const s = C.registry[p.type].initial(p);
@@ -782,7 +782,7 @@
       used.clear();
     }
     const result = [...used].sort((x, y) => y[1] - x[1]);
-    walked.set(key, result);
+    walked.set(p, result);
     return result;
   }
   C.insights = { deduction, recap, techniques };
