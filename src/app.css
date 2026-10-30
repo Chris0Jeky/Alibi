@@ -4628,6 +4628,16 @@ html[data-reduced='true'] *:after {
   .playing .evidence-body > :not(.evidence-list, h2, .case-intro) {
     display: none !important;
   }
+  /* #866: on the Notes or Rules tab the clues ride along as a print-only copy; show it, drop the tab's own content. */
+  .playing .evidence-body > :is(h2, .case-intro).print-only {
+    display: block;
+  }
+  .playing .evidence-body > .evidence-list.print-only {
+    display: grid;
+  }
+  .playing .evidence-body:has(> .evidence-list.print-only) > :not(.print-only) {
+    display: none !important;
+  }
   .playing .evidence-card {
     border: 0;
   }
