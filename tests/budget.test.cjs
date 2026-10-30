@@ -463,11 +463,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 58,873.68). Excess 1,849.68; 920 x 64 would leave 6.32, so 1.32 MiB + 58,944 (921 x 64)
       // leaves 70.32. No feature room.
       // #896 Practise in yielding slices (walkTechniques, the stale-walk guard, the "Finding
-      // puzzles" status), on main after #894: 1,442,894 -> 1,443,368 (+474; 1.32 MiB +
-      // 59,247.68). Excess 303.68; ceiling 1.32 MiB + 59,264 (926 x 64) leaves 16.32 for
-      // identity/hash noise; the next step is 927 x 64 if it shrinks below 16. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 59264,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 59,264 bytes',
+      // puzzles" status), on main after #897: 1,443,050 -> 1,443,524 (+474; 1.32 MiB +
+      // 59,403.68). Excess 139.68; ceiling 1.32 MiB + 59,456 (929 x 64) leaves 52.32 for
+      // identity/hash noise. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 59456,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 59,456 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

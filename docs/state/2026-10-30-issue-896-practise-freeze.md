@@ -58,6 +58,8 @@ under the 250 ms mark but above 50 ms at 4x; at 1x they are a quarter of that.
 - Phone (390 x 844, touch) and desktop (1440 x 1000) screenshots of record -> technique -> list in the
   "Finding puzzles that use ..." state and the finished list; both read correctly, focus is on the count line.
 
+Re-measured after merging main (#897): startup gzip 135,594 under 127 KiB + 5,568 (22 left, unchanged ceiling); shell 1,443,050 -> 1,443,524, ceiling 1.32 MiB + 59,456 (929 x 64), 52.32 left. These replace the shell entry above.
+
 ## NOT verified
 
 - A physical Android device or a real throttled phone; CDP throttling slows only the main thread.
