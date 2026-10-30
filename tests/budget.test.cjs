@@ -409,8 +409,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 116.32 bytes for identity/hash noise; no feature room.
       // #864 measured on main after #863: 1,435,972 -> 1,437,882 (+1,910). Excess 1,793.68; ceiling
       // 1.32 MiB + 53,824 (841 x 64) leaves 62.32 for identity/hash noise; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 53824,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 53,824 bytes',
+      // #848 Reload Alibi beside Retry in the failed privacy state (the row wrapper and the second
+      // button reuse the existing reload action): re-measured on that base 1,437,881 -> 1,437,964
+      // (+83); startup gzip 134,213 -> 134,230 of 134,240. Excess 19.68 bytes; ceiling +64 to
+      // 1.32 MiB + 53,888 (842 x 64) leaves 44.32 for identity/hash noise; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 53888,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 53,888 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
