@@ -33,7 +33,14 @@ function fixture(saved = false) {
   let ready = false,
     requests = 0,
     left = 0;
-  const element = { open: false, focus() {} };
+  const element = {
+    open: false,
+    focus() {},
+    scrolled: 0,
+    scrollIntoView() {
+      this.scrolled++;
+    },
+  };
   const context = vm.createContext({
     URLSearchParams,
     location: { hash: '#/play/vault-test' },
@@ -107,6 +114,7 @@ function fixture(saved = false) {
     dialogs,
     created,
     messages,
+    element,
     gate,
     run,
     puzzle,
@@ -208,4 +216,30 @@ test('an explicitly pinned old revision resumes without downloading the newer li
   assert.equal(f.requests(), 0);
   assert.equal(f.context.current.puzzle.revision, 1);
   assert.equal(f.context.current, f.run);
+});
+test('a rehearsal route plays the in-memory run, creates no record, and any other route drops it', async () => {
+  const f = fixture(),
+    rehearsal = {
+      key: 'draft-x@1',
+      rehearsal: true,
+      puzzle: { id: 'draft-x', revision: 1, size: 2, type: 'binary', title: 'Draft' },
+      state: {},
+      elapsed: 5,
+    };
+  f.context.rehearsal = rehearsal;
+  f.context.location.hash = '#/play/draft-x%401';
+  await f.context.open();
+  assert.equal(f.context.current, rehearsal, 'the route plays the rehearsal object itself');
+  assert.deepEqual(f.created, [], 'no run is created');
+  assert.equal(f.context.records.size, 0, 'no record is registered');
+  f.context.location.hash = '#/workshop';
+  await f.context.open();
+  assert.equal(f.context.rehearsal, null, 'leaving drops the rehearsal');
+  assert.equal(f.context.current, null);
+  assert.equal(f.element.scrolled, 1, 'returning to the workshop scrolls to the editor');
+  f.context.location.hash = '#/play/draft-x%401';
+  await f.context.open();
+  assert.equal(f.context.route.page, 'library', 'a reload cannot bring the rehearsal back');
+  assert.equal(f.context.current, null);
+  assert.deepEqual(f.created, []);
 });
