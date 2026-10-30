@@ -12,7 +12,7 @@ startup validation for many saves, and release identity tooling (`npm run cloudf
 `cloudflare:probe`). Production still serves `030d5812` (13 October, v0.15.2) pending owner decision
 `alibi-release-20261030`. Open: #898 (Practise freeze, landing) and #899 (Club conflict guard, needs a main
 merge). Full list by value tier, parked work and follow-ups:
-[2026-10-30-builder-session-close.md](state/2026-10-30-builder-session-close.md).
+[2026-10-30-pr-900-builder-session-close.md](state/2026-10-30-pr-900-builder-session-close.md).
 
 ## 2026-10-19: retain native WebView callback failure context (#133)
 
