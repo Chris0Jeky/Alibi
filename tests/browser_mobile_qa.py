@@ -700,9 +700,10 @@ class MobileQA(unittest.TestCase):
 
     def test_home_offers_another_puzzle_after_a_first_solve_on_phones(self):
         page = self.open_page(390, 844, 'play/nonogram-01@1')
-        self.dismiss_lesson(page) if page.locator('#dialog[open] [data-action="lesson-finish"]').count() else None
-        solution = json.loads((ROOT / 'content/catalog.json').read_text())['puzzles']
-        solution = next(p for p in solution if p['id'] == 'nonogram-01')['solution']
+        if page.locator('#dialog[open] [data-action="lesson-finish"]').count():
+            self.dismiss_lesson(page)
+        puzzles = json.loads((ROOT / 'content/catalog.json').read_text())['puzzles']
+        solution = next(p for p in puzzles if p['id'] == 'nonogram-01')['solution']
         for i, value in enumerate(solution):
             if value == 1:
                 page.locator(f'[data-action="cell"][data-cell="{i}"]').tap()
