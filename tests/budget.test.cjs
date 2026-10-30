@@ -204,8 +204,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // rehearsal save-lock guards and review copy; the honest budget refusal shares one helper
       // with the audit): 133,538 -> 133,579 (+41) after one shared locked() helper replaced six
       // saveError/storageFatal tests. Excess 11; ceiling +32 leaves 21; no feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 3552,
-      'Application bundle stays under 127 KiB + 3,552 bytes gzip',
+      // #831 resume previews (Picture logic cards drawn from saved marks in src/presentation.js,
+      // which ships in the startup bundle): 133,579 -> 133,705 (+126). Excess 105; ceiling +128
+      // leaves 23; no feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 3680,
+      'Application bundle stays under 127 KiB + 3,680 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -368,8 +371,10 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // guards and the review-record exit label): 1,429,765 -> 1,430,091 (+326). The refusal
       // text is the issue's required copy and the helper replaces the audit's own catch. Excess
       // 274.68; ceiling +320 (5 x 64) leaves 45.32 for identity/hash noise; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 46016,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 46,016 bytes',
+      // #831 resume previews on the composed tree: 1,430,091 -> 1,430,393 (+302). Excess 256.68;
+      // ceiling +320 (5 x 64) leaves 63.32 for identity/hash noise; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 46336,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 46,336 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
