@@ -810,7 +810,7 @@
   function peoplePalette(p, s) {
     return `<div class="people-palette" aria-label="Choose a person">${p.people.map((person) => `<button class="person-btn person-${person.color} ${selectedPerson === person.id ? 'active' : ''}" data-action="person" data-id="${person.id}" aria-pressed="${selectedPerson === person.id}" title="${esc(person.name)} · ${esc(person.role)}">${token(person, p)}<span class="person-name">${esc(person.name)}</span><small>${person.id === p.victim ? 'Victim' : s.placements[person.id] === undefined ? 'Not placed' : C.at(s.placements[person.id], p.size)}</small>${s.placements[person.id] !== undefined ? `<span class="placed">${icon('check')}</span>` : ''}</button>`).join('')}</div>`;
   }
-  function boardCell(p, s, i, errors) {
+  function boardCell(p, s, i, errors, analysis) {
     const n = p.size,
       r = Math.floor(i / n),
       c = i % n,
@@ -914,7 +914,7 @@
       if ((r + 1) % 5 === 0) style += 'border-bottom:2px solid var(--board-border);';
     } else if (t === 'lightup') {
       const w = p.walls[i],
-        lit = X.litCells(p, s).has(i);
+        lit = analysis.has(i);
       if (w !== -2) {
         cls += ' light-wall';
         content = w >= 0 ? w : '';
@@ -945,7 +945,7 @@
       }
     } else if (t === 'aquarium') {
       const tank = p.tanks[i],
-        wet = X.aquariumCells(p, s),
+        wet = analysis,
         iswet = wet[i];
       cls += ' water-cell' + (iswet ? ' wet' : '');
       if (iswet && (r === 0 || p.tanks[i - n] !== tank || !wet[i - n])) cls += ' waterline';
@@ -958,7 +958,7 @@
       content = `<span class="tank-code">${String.fromCharCode(65 + tank)}</span>${iswet && i % 3 === 0 ? '<i class="bubble"></i>' : ''}`;
       label += `, tank ${String.fromCharCode(65 + tank)}, ${iswet ? 'water' : 'dry'}`;
     } else if (t === 'network') {
-      const info = X.networkInfo(p, s),
+      const info = analysis,
         mask = info.masks[i],
         live = info.connected.has(i);
       cls += ' network-cell' + (live ? ' live' : '');
@@ -998,6 +998,14 @@
     if (p.type === 'dossier') return dossierBoard(p, s);
     const n = p.size,
       N = n * n,
+      analysis =
+        p.type === 'lightup'
+          ? X.litCells(p, s)
+          : p.type === 'aquarium'
+            ? X.aquariumCells(p, s)
+            : p.type === 'network'
+              ? X.networkInfo(p, s)
+              : null,
       errs = checking ? new Set(E[p.type].validate(p, s).flatMap((e) => e.cells || [])) : new Set();
     let heads = '',
       rows = '',
@@ -1009,7 +1017,7 @@
       ch = Math.max(35, Math.max(...p.colClues.map((c) => c.length)) * 16 + 7);
     }
     if (['tents', 'aquarium'].includes(p.type))
-      counts = X.lineCounts(p, p.type === 'aquarium' ? X.aquariumCells(p, s) : s.cells);
+      counts = X.lineCounts(p, p.type === 'aquarium' ? analysis : s.cells);
     heads =
       '<div></div>' +
       range(n)
@@ -1028,23 +1036,23 @@
           : counts
             ? `<div class="axis target ${counts.rows[r] === p.rowTargets[r] ? 'met' : counts.rows[r] > p.rowTargets[r] ? 'over' : ''}" data-clue-axis="0" data-clue-line="${r}" aria-label="Row ${r + 1}: ${counts.rows[r]} of ${p.rowTargets[r]}">${p.rowTargets[r]}</div>`
             : `<div class="axis">${r + 1}</div>`;
-      for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs);
+      for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs, analysis);
     }
     const pan =
       n > 9 && zoomed
         ? `<div class="toolrow" aria-label="Pan large board">${B('Left', 'board-pan', '', 'secondary small', 'data-value="-1" aria-label="Move view left"')}${B('Right', 'board-pan', '', 'secondary small', 'data-value="1" aria-label="Move view right"')}${B('Up', 'board-pan', '', 'secondary small', 'data-value="-1" data-axis="y" aria-label="Move view up"')}${B('Down', 'board-pan', '', 'secondary small', 'data-value="1" data-axis="y" aria-label="Move view down"')}</div>`
         : '';
-    return `${pan}<div class="board-scroll ${n > 9 ? 'large-grid' : ''} ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Pan from the clue margins or use the view buttons.</p>' : ''}${boardLegend(p, s)}`;
+    return `${pan}<div class="board-scroll ${n > 9 ? 'large-grid' : ''} ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Pan from the clue margins or use the view buttons.</p>' : ''}${boardLegend(p, s, analysis)}`;
   }
-  function boardLegend(p, s) {
+  function boardLegend(p, s, analysis) {
     if (p.type === 'scene')
       return `<div class="room-legend">${p.roomNames.map((name, i) => `<span class="room-label"><i style="background:var(--room-${i})">${String.fromCharCode(65 + i)}</i>${esc(name)}</span>`).join('')}</div><div class="counter-line"><span><strong>${Object.keys(s.placements).length} / ${p.size}</strong> people placed</span><span>One person per row and column</span></div>`;
     if (p.type === 'network') {
-      const info = X.networkInfo(p, s);
+      const info = analysis;
       return `<div class="counter-line"><span><strong>${info.connected.size} / ${p.size ** 2}</strong> tiles connected</span><span><strong>${info.open.length}</strong> tiles with open ends</span></div>`;
     }
     if (p.type === 'lightup')
-      return `<div class="counter-line"><span><strong>${X.litCells(p, s).size} / ${p.walls.filter((w) => w === -2).length}</strong> floor squares lit</span><span>Crossed beams are allowed</span></div>`;
+      return `<div class="counter-line"><span><strong>${analysis.size} / ${p.walls.filter((w) => w === -2).length}</strong> floor squares lit</span><span>Crossed beams are allowed</span></div>`;
     if (p.type === 'aquarium')
       return '<div class="board-legend">Letters identify tanks · Edge numbers count water squares</div>';
     if (p.type === 'tents')
