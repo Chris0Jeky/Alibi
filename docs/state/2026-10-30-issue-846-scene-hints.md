@@ -32,7 +32,7 @@ Without `AlibiAssist` the branch returns `null`, so the generic tip shows as bef
 | Wrong steps (placed cell differs from the stored answer)           | n/a    | 0 over 58 steps                                  |
 
 The issue's prototype reported 17 silent because it counted message-only line hints as silent; those
-9 now answer with the row/column hint. Precache shell: 1,418,441 -> 1,420,792 bytes (+2,351).
+9 now answer with the row/column hint. Precache shell: 1,418,441 -> 1,420,969 bytes (+2,528).
 
 ## Evidence
 
@@ -43,7 +43,7 @@ The issue's prototype reported 17 silent because it counted message-only line hi
   `origin/main`'s `src/insights.js` (the eighth is the `null` case, which also holds there).
 - `node --test tests/scene-insights.test.cjs tests/insights.test.cjs tests/budget.test.cjs
 tests/asset-catalogue.test.cjs` after `node tools/build.cjs`: 31 pass, 0 fail.
-- `tests/budget.test.cjs` shell ceiling raised +1,088 bytes (17 x 64) over the 1,055.68-byte excess,
+- `tests/budget.test.cjs` shell ceiling raised +1,280 bytes (20 x 64) over the 1,232.68-byte excess (incl. the review fix),
   leaving 32.32 bytes; comment cites #846. Other open PRs (#836) also touch this ceiling and will
   need a trivial rebase of that line.
 - `npx prettier --check` on every changed file; `git diff --check`.

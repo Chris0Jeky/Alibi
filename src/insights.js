@@ -253,7 +253,14 @@
           );
         if (can.length > 1) continue;
         const cells = cand.get(can[0].id).filter(here);
-        if (cells.length === 1) return only(can[0].id, cells[0]);
+        // The line rule forces the square; the person's other squares are not blocked.
+        if (cells.length === 1)
+          return {
+            rule: 'Only one square left',
+            message: `${lineName(axis, line)} must hold ${can[0].name}: nobody else has a square left in it, and ${at(cells[0], n)} is ${can[0].name}'s only open square there.`,
+            cells,
+            person: can[0].id,
+          };
         return {
           rule: axis ? 'Only one person fits a column' : 'Only one person fits a row',
           message: `${lineName(axis, line)} must hold ${can[0].name}: nobody else has a square left in it.`,
