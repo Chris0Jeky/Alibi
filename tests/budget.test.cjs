@@ -196,8 +196,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
     // #825: the Privacy & credits copy moves to the deferred chunk below: 134,166 -> 131,760 (-2,406).
     // Ceiling -2,368 (38 bytes of noise room on top of the headroom main already had).
     assert.ok(
-      info.javascriptGzipBytes < 127 * 1024 + 3392,
-      'Application bundle stays under 127 KiB + 3,392 bytes gzip',
+      // Second 2026-10-30 composition (#833 clue audit, #828 Rehearse, #832 read clues): the
+      // first composition measures 132,844; this tree 133,538 (+694). #845 freed 2,368 bytes and
+      // lowered the ceiling to match; these three Workshop/accessibility features use part of it.
+      // Excess 98; ceiling +128 leaves 30, still 2,240 below the pre-#845 ceiling. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 3520,
+      'Application bundle stays under 127 KiB + 3,520 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -352,8 +356,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // save, preference and journey caller rather than one per call site. Excess 997.68 bytes;
       // ceiling +1,024 (16 x 64) leaves 26.32 for identity/hash noise; no feature room.
       // JavaScript gzip (133,387 against 135,808) and startup/content limits are unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45248,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 45,248 bytes',
+      // #832 Picture logic Read clues (the C shortcut, the button and its toast text) on the
+      // composed tree with #833 and #828: 1,429,765 bytes (+423 over #828's 1,429,342). Excess
+      // 396.68; ceiling +448 (7 x 64) leaves 51.32 for identity/hash noise; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45696,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 45,696 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
