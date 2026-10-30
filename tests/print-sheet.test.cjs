@@ -143,6 +143,33 @@ test('print keeps the clue list of scenes and Alibi files and drops the rest of 
   assert.match(print, /\.clue \.clue-text\s*\{\s*text-decoration:\s*none/);
 });
 
+test('Notes and Rules tabs still print the clue list (#866)', () => {
+  // Source: one helper builds both lists; the print-only copy exists only for those two tabs.
+  assert.match(js, /function clueList\(p, s, print = ''\)/);
+  assert.match(js, /<div class="evidence-list\$\{print\}">/);
+  assert.match(
+    js,
+    /hasClues && \(evidenceTab === 'notes' \|\| evidenceTab === 'rules'\)\)\s*content \+= `<h2 class="print-only">[\s\S]*?<div class="case-intro print-only">[\s\S]*?\$\{clueList\(p, s, ' print-only'\)\}`/,
+  );
+  const from = js.indexOf('  function clueList(');
+  assert.doesNotMatch(js.slice(from, js.indexOf('\n  function ', from + 1)), /solution/i);
+  // Screen: the copy stays hidden (the unconditional .print-only rule is declared after .evidence-list).
+  assert.ok(
+    css.indexOf('\n.print-only {') > css.indexOf('\n.evidence-list {'),
+    'print-only wins on screen',
+  );
+  // Print: show the copy and drop the active tab's own content when it is present.
+  assert.match(
+    print,
+    /\.evidence-body > :is\(h2, \.case-intro\)\.print-only\s*\{\s*display:\s*block/,
+  );
+  assert.match(print, /\.evidence-body > \.evidence-list\.print-only\s*\{\s*display:\s*grid/);
+  assert.match(
+    print,
+    /\.evidence-body:has\(> \.evidence-list\.print-only\) > :not\(\.print-only\)\s*\{\s*display:\s*none\s*!important/,
+  );
+});
+
 test('the play head carries a print-only id and revision', () => {
   assert.match(
     js,

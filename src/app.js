@@ -1193,6 +1193,10 @@
     }
     return `<div class="controls">${content}</div>`;
   }
+  // The scene/Alibi-file clue list; print = ' print-only' renders a screen-hidden copy for the Notes and Rules tabs (#866).
+  function clueList(p, s, print = '') {
+    return `<div class="evidence-list${print}">${p.clues.map((cl, i) => `<button class="clue ${s.clueMarks.includes(i) ? 'marked' : ''}" data-action="clue" data-index="${i}" aria-pressed="${s.clueMarks.includes(i)}"><span class="checkbox">${s.clueMarks.includes(i) ? icon('check') : ''}</span><span class="clue-text"><span class="clue-num">${String(i + 1).padStart(2, '0')}.</span>${esc(p.type === 'scene' ? C.clueText(p, cl) : X.dossierClue(p, cl))}</span></button>`).join('')}</div>`;
+  }
   function evidence(p, s) {
     const hasClues = ['scene', 'dossier'].includes(p.type);
     let content = '';
@@ -1201,7 +1205,7 @@
     } else if (evidenceTab === 'rules') {
       content = `<h2>How it works.</h2><p>${esc(M[p.type].gesture)}</p><div class="guide-rules">${M[p.type].rules.map((r) => `<div class="guide-rule">${esc(r)}</div>`).join('')}</div><div class="guide-tip"><strong>A good starting point</strong><br>${esc(M[p.type].tip)}</div><div style="margin-top:18px">${B('Try the mini lesson', 'lesson', 'book', 'secondary wide', `data-type="${p.type}"`)}</div>`;
     } else if (hasClues) {
-      content = `<div class="eyebrow">${esc(p.subtitle)}</div><h2>${p.type === 'scene' ? 'The evidence.' : 'The case notes.'}</h2><div class="case-intro">${esc(p.story)}</div><div class="row between" style="margin-bottom:12px"><h3 style="font-size:11px">${p.clues.length} reliable clues</h3><span class="tag" style="font-size:9px">Every clue is true</span></div><div class="evidence-list">${p.clues.map((cl, i) => `<button class="clue ${s.clueMarks.includes(i) ? 'marked' : ''}" data-action="clue" data-index="${i}" aria-pressed="${s.clueMarks.includes(i)}"><span class="checkbox">${s.clueMarks.includes(i) ? icon('check') : ''}</span><span class="clue-text"><span class="clue-num">${String(i + 1).padStart(2, '0')}.</span>${esc(p.type === 'scene' ? C.clueText(p, cl) : X.dossierClue(p, cl))}</span></button>`).join('')}</div><p class="evidence-foot">Check clues off as you use them. These are your notes; checking a clue does not verify your answer.</p>`;
+      content = `<div class="eyebrow">${esc(p.subtitle)}</div><h2>${p.type === 'scene' ? 'The evidence.' : 'The case notes.'}</h2><div class="case-intro">${esc(p.story)}</div><div class="row between" style="margin-bottom:12px"><h3 style="font-size:11px">${p.clues.length} reliable clues</h3><span class="tag" style="font-size:9px">Every clue is true</span></div>${clueList(p, s)}<p class="evidence-foot">Check clues off as you use them. These are your notes; checking a clue does not verify your answer.</p>`;
     } else {
       content = `<div class="eyebrow">${esc(M[p.type].tag)}</div><h2>${p.type === 'witness' ? 'The case file.' : 'A place to start.'}</h2>${p.story ? `<div class="case-intro">${esc(p.story)}</div>` : ''}<p>${esc(M[p.type].goal)}</p><div class="guide-tip"><strong>Your first deduction</strong><br>${esc(M[p.type].tip)}</div><div class="guide-rules">${M[
         p.type
@@ -1212,6 +1216,9 @@
           '',
         )}</div><div style="margin-top:18px">${B('See the full rules', 'evidence-tab', 'book', 'secondary wide', 'data-value="rules"')}</div>${!prefs.seen.includes(p.type) ? B('Try a mini lesson', 'lesson', 'arrow', 'ghost wide', `data-type="${p.type}"`) : ''}`;
     }
+    // #866: the printed sheet needs the clues whichever tab is open; the copy is screen-hidden.
+    if (hasClues && (evidenceTab === 'notes' || evidenceTab === 'rules'))
+      content += `<h2 class="print-only">${p.type === 'scene' ? 'The evidence.' : 'The case notes.'}</h2><div class="case-intro print-only">${esc(p.story)}</div>${clueList(p, s, ' print-only')}`;
     return `<div class="evidence-card"><div class="evidence-tabs" role="tablist" aria-label="Puzzle information">${[
       ['clues', hasClues ? 'Evidence' : 'Guide'],
       ['notes', 'My notes'],
