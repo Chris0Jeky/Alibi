@@ -31,7 +31,14 @@ function fixture(puzzle = initial) {
     saves = [],
     events = {},
     notices = [];
-  const node = { remove() {}, focus() {}, scrollIntoView() {}, disabled: false };
+  const node = {
+    remove() {},
+    focus() {},
+    scrollIntoView() {},
+    disabled: false,
+    dataset: {},
+    ariaLabel: '',
+  };
   const context = {
     C,
     initial: structuredClone(puzzle),
@@ -54,6 +61,7 @@ function fixture(puzzle = initial) {
         workers.push({ message: structuredClone(message), resolve, reject }),
       ),
     render() {},
+    clueValues() {},
     toast: (message) => notices.push(message),
     settings: { reducedMotion: true },
     document: {
