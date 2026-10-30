@@ -89,8 +89,11 @@
     draftObject = 'plant',
     draftBusy = false,
     draftEpoch = 0,
+    makerEpoch = 0,
     pendingDraft = null,
     draftSave,
+    draftRev = 0,
+    draftStale = null,
     pendingBackup = null,
     restoreBusy = false,
     backupPickerBusy = false,
@@ -222,6 +225,7 @@
     if ((store.damaged.runs || []).length + (store.damaged.packs || []).length)
       throw Error('A saved record is damaged. Export browser data before resetting anything.');
     const d = await store.get('meta', 'workshop-draft');
+    draftRev = AlibiStorage.draftRevision(d);
     if (d) {
       try {
         draft = C.validateSceneDraft(d.puzzle);
@@ -400,10 +404,21 @@
       .put('meta', 'preferences', C.clone(prefs))
       .catch((e) => toast('Preferences could not be saved: ' + e.message, true));
   }
+  const staleDraft =
+    'This draft changed in another tab and is no longer saved. Export draft to keep it, then reload.';
   const channel =
     typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('alibi-saves') : null;
   channel?.addEventListener('message', async (e) => {
+    if (e.data?.type === 'draft') {
+      if (e.data.rev > draftRev && !draftStale) {
+        draftStale = Error(staleDraft);
+        render();
+      }
+      return;
+    }
     if (e.data?.type === 'restored') {
+      // Keep an existing stale error: a rejected draftSave holds it, and backup matches it by identity.
+      draftStale ||= Error(staleDraft);
       saveError =
         'Progress was restored in another tab. Export this session or reload before playing.';
       render();
@@ -1382,7 +1397,7 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Rehearse', 'rehearse-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Audit clues', 'audit-draft', '', 'secondary small', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export draft', 'export-scene-draft', 'download', 'secondary small', draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}${draftAuditView()}</section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form>${draftStale ? `<p class="verification warn" role="alert">${esc(draftStale.message)}</p>` : ''}<div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Rehearse', 'rehearse-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Audit clues', 'audit-draft', '', 'secondary small', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export draft', 'export-scene-draft', 'download', 'secondary small', draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}${draftAuditView()}</section>`;
   }
   function clueLinks(list) {
     return `<ul class="draft-comparison-text">${list.map((i) => `<li>${B(`Clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul>`;
@@ -2328,7 +2343,10 @@
   async function cabinetBackup() {
     await enqueueSave();
     await queue;
-    await draftSave;
+    // A stale draft must not block the runs' only export; the device's stored draft is kept.
+    await Promise.resolve(draftSave).catch((e) => {
+      if (e !== draftStale) throw e;
+    });
     const data = await store.export();
     const deviceByKey = new Map(data.runs.map((r) => [r.key, r]));
     const divergentByKey = new Map();
@@ -2747,11 +2765,26 @@
     if (!draft) return;
     const puzzle = draft,
       epoch = draftEpoch,
-      serial = routeSerial;
-    draftSave = store.put('meta', 'workshop-draft', { puzzle });
+      serial = routeSerial,
+      wasStale = draftStale;
+    // Compare-and-swap against the revision this tab loaded or wrote. After a conflict nothing
+    // is written until reload, and a backup refuses the unsaved draft.
+    draftSave = draftStale
+      ? Promise.reject(draftStale)
+      : store.saveDraft({ puzzle }, draftRev).then(
+          (saved) => {
+            draftRev = saved.rev;
+            channel?.postMessage({ type: 'draft', rev: draftRev });
+          },
+          (e) => {
+            throw e?.name === 'ConflictError' ? (draftStale ||= Error(staleDraft)) : e;
+          },
+        );
     await draftSave.catch((e) => {
-      if (puzzle === draft && epoch === draftEpoch && serial === routeSerial)
+      if (!wasStale && puzzle === draft && epoch === draftEpoch && serial === routeSerial) {
         toast(e.message, true);
+        if (draftStale) render();
+      }
     });
   }
   function recordDraft(before, name = null) {
@@ -2804,25 +2837,29 @@
       names,
       seed,
     };
-    const startedEpoch = draftEpoch;
+    const startedEpoch = draftEpoch,
+      startedMaker = makerEpoch,
+      stale = () => startedEpoch !== draftEpoch || startedMaker !== makerEpoch;
     draftBusy = true;
     draftVerified = false;
     draftComparison = draftConflict = draftAudit = null;
     render();
     try {
       const result = await inWorker({ type: 'generate', options });
-      if (startedEpoch !== draftEpoch) return;
+      if (stale()) return;
+      const before = draft;
       draft = C.validateDefinition(result);
       draft.authorSeed = seed;
-      draftUndo = [];
+      // Undo brings back the draft this replaced.
+      if (before && draftUndo.push(C.clone(before)) > 50) draftUndo.shift();
       draftRedo = [];
       draftNameEdit = null;
       draftVerified = true;
       draftShowSolution = false;
       await saveDraft();
-      if (startedEpoch !== draftEpoch) return;
+      if (stale()) return;
     } catch (e) {
-      if (startedEpoch !== draftEpoch) return;
+      if (stale()) return;
       throw e;
     } finally {
       draftBusy = false;
@@ -3748,7 +3785,8 @@
     const el = e.target;
     if (el.closest('#scene-form') && el.name) {
       makerFields[el.name] = el.value;
-      draftEpoch++;
+      // Only a pending Generate reads these fields; Verify and Audit keep running.
+      makerEpoch++;
     } else if (el.id === 'library-search') {
       library.search = el.value;
       library.limit = 24;

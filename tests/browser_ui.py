@@ -315,7 +315,8 @@ with sync_playwright() as pw:
           request.onsuccess=()=>{ const db=request.result, read=db.transaction('meta').objectStore('meta').get('workshop-draft');
             read.onsuccess=()=>{resolve(read.result.value);db.close();}; read.onerror=()=>{reject(read.error);db.close();}; };
         })""")
-        check(saved=={'puzzle':expected},f'{width}px: Undo persists exact current content with no history fields')
+        # rev and tab are the cross-tab save token (#877), not history.
+        check(saved['puzzle']==expected and set(saved)=={'puzzle','rev','tab'},f'{width}px: Undo persists exact current content with no history fields')
         history_page.reload();history_page.locator('.draft-editor').wait_for()
         check(history_page.locator('#room-name-0').input_value()=='Restored room',f'{width}px: reload retains restored room content')
         check(history_page.locator('[data-action="undo-draft"]').is_disabled() and history_page.locator('[data-action="redo-draft"]').is_disabled(),f'{width}px: reload starts with empty memory history')
