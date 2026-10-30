@@ -28,6 +28,9 @@
     host.innerHTML = `<section class="folio-intro"><span class="eyebrow">07 / FIELD NOTES</span><h1>A world in the details.</h1><p>Little places to turn in your hands. Faces imagined in ink. A sound at the end of a page. Take your time.</p></section><nav class="folio-tabs" aria-label="Field notes">${tabs.map(([id, title]) => `<button data-folio-tab="${id}">${title}</button>`).join('')}</nav><div id="folio-content"></div><footer class="folio-footer"><p>Original Alibi artwork and sound. Retained architectural pieces by Kenney, CC0. <a href="${esc(G.ALIBI_QUIET_CONFIG.sources)}" target="_blank" rel="noopener">Full credits ↗</a></p><button id="folio-offline">Keep field notes offline · ${(data.bytes / 1024 / 1024).toFixed(1)} MB</button><span id="folio-download-status" role="status">Films stream only when played.</span></footer>`;
     const $ = (q) => host.querySelector(q);
     const content = $('#folio-content');
+    // Turn and zoom act on a live 3D view only; keep them disabled until Open 3D has produced one.
+    const steer = (on) =>
+      content.querySelectorAll('[data-turn],[data-zoom]').forEach((b) => (b.disabled = !on));
     function stopMedia() {
       view?.dispose();
       view = null;
@@ -40,6 +43,7 @@
     function modelPanel(item) {
       view?.dispose();
       view = null;
+      steer(false);
       const stage = $('#folio-stage');
       stage.innerHTML = `<img src="${esc(item.image)}" alt="${esc(item.title)}" decoding="async">`;
       $('#folio-model-title').textContent = item.title;
@@ -47,14 +51,18 @@
       $('#folio-model-status').textContent = 'Illustrated view. Open 3D to turn this piece.';
       $('#folio-open-3d').onclick = () => {
         view?.dispose();
+        steer(false);
         $('#folio-model-status').textContent = 'Opening 3D…';
-        view = new G.QWSceneView(stage, item.model, (text) => {
+        const opened = (view = new G.QWSceneView(stage, item.model, (text) => {
           if (!disposed && $('#folio-model-status')) $('#folio-model-status').textContent = text;
+        }));
+        opened.ready.then(() => {
+          if (view === opened && !disposed && stage.classList.contains('folio-3d')) steer(true);
         });
       };
     }
     function models(items, rooms) {
-      content.innerHTML = `<section class="folio-model-layout"><div class="folio-view"><div class="folio-stage" id="folio-stage"></div><div class="folio-view-caption"><div><h2 id="folio-model-title"></h2><small id="folio-model-credit"></small></div><button id="folio-open-3d">Open 3D</button></div><div class="folio-turn"><button data-turn="-1" aria-label="Turn model left">← Turn</button><button data-turn="1" aria-label="Turn model right">Turn →</button><button data-zoom="-0.1" aria-label="Zoom model out">−</button><button data-zoom="0.1" aria-label="Zoom model in">+</button></div><p id="folio-model-status" class="micro" role="status"></p></div><div class="folio-pieces">${rooms ? '<p>Three small worlds, composed from the same architectural vocabulary as your realm. Build your own <a href="#/quiet/realm">in the studio ↗</a>.</p>' : '<label>Find a piece <input id="folio-model-search" type="search" placeholder="Tower, tree, roof…"></label>'}<div class="folio-piece-grid">${items.map((a, i) => `<button data-piece="${i}" aria-pressed="${i === 0}"><img src="${esc(a.image)}" alt="" loading="lazy" width="120" height="90"><span>${esc(a.title)}</span></button>`).join('')}</div></div></section>`;
+      content.innerHTML = `<section class="folio-model-layout"><div class="folio-view"><div class="folio-stage" id="folio-stage"></div><div class="folio-view-caption"><div><h2 id="folio-model-title"></h2><small id="folio-model-credit"></small></div><button id="folio-open-3d">Open 3D</button></div><div class="folio-turn"><button data-turn="-1" aria-label="Turn model left" disabled>← Turn</button><button data-turn="1" aria-label="Turn model right" disabled>Turn →</button><button data-zoom="-0.1" aria-label="Zoom model out" disabled>−</button><button data-zoom="0.1" aria-label="Zoom model in" disabled>+</button></div><p id="folio-model-status" class="micro" role="status"></p></div><div class="folio-pieces">${rooms ? '<p>Three small worlds, composed from the same architectural vocabulary as your realm. Build your own <a href="#/quiet/realm">in the studio ↗</a>.</p>' : '<label>Find a piece <input id="folio-model-search" type="search" placeholder="Tower, tree, roof…"></label>'}<div class="folio-piece-grid">${items.map((a, i) => `<button data-piece="${i}" aria-pressed="${i === 0}"><img src="${esc(a.image)}" alt="" loading="lazy" width="120" height="90"><span>${esc(a.title)}</span></button>`).join('')}</div></div></section>`;
       modelPanel(items[0]);
       content.querySelectorAll('[data-piece]').forEach(
         (b) =>

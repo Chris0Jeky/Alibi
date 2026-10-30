@@ -297,8 +297,12 @@ export function mount({ root, store, save }) {
               message = `Stage accepted and saved.${stage < 2 ? ' Choose the next stage above.' : ''}`;
             }
           } else if (action === 'hint') {
+            if (record().hints[stage] >= 3) {
+              message = 'All hints are shown.';
+              return;
+            }
             await change((n) => {
-              n.caseStudy.hints[stage] = Math.min(3, n.caseStudy.hints[stage] + 1);
+              n.caseStudy.hints[stage]++;
             });
             receipt?.hint(definition.steps[stage].id);
             message = 'Hint shown. This does not complete the stage.';
@@ -312,7 +316,7 @@ export function mount({ root, store, save }) {
         },
         action.startsWith('share-')
           ? () => (share.text === null ? 'case-share-open-' : 'case-share-text')
-          : undefined,
+          : () => receipt?.focus(action),
       );
     },
     { signal },
