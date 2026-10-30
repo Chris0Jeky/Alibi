@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 const moduleName = process.env.PLAYWRIGHT_CORE_MODULE || 'playwright-core';
 const { chromium } = await import(moduleName.includes(':') ? pathToFileURL(moduleName).href : moduleName);
 
-const base = process.env.ALIBI_URL || 'http://127.0.0.1:8787/';
+const base = process.env.ALIBI_URL || 'http://127.0.0.1:8797/';
 const out = process.argv[2] || 'assets-source/library/motion/captures';
 const executablePath = process.env.CHROMIUM_EXECUTABLE;
 if (!executablePath) throw new Error('Set CHROMIUM_EXECUTABLE to the tested local Chromium executable.');

@@ -44,4 +44,4 @@ python tests/browser_house_mobile.py
 python tests/browser_house_offline.py
 ```
 
-`ALIBI_URL` defaults to `http://127.0.0.1:8787`. `ALIBI_RESULTS` separates receipt directories. Source mode is explicit; the offline suite always requires a served build and real browser cache APIs. Final-SHA results and artifacts belong in the PR conversation.
+`ALIBI_URL` defaults to `http://127.0.0.1:8797`. `ALIBI_RESULTS` separates receipt directories. Source mode is explicit; the offline suite always requires a served build and real browser cache APIs. Final-SHA results and artifacts belong in the PR conversation.

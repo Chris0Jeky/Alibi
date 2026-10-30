@@ -58,6 +58,6 @@ test('the retired Sites origin gets one moved notice with backup and new-site li
 });
 
 test('the primary, local and unknown origins show no notice', () => {
-  for (const origin of [PRIMARY, 'http://127.0.0.1:8787', 'null', undefined])
+  for (const origin of [PRIMARY, 'http://127.0.0.1:8797', 'null', undefined])
     assert.deepEqual(run(origin), []);
 });

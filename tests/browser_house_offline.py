@@ -5,7 +5,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 from browser_house import wait_js
 
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 OUT = Path(os.environ.get('ALIBI_RESULTS', 'test-results/house-offline'))
 OUT.mkdir(parents=True, exist_ok=True)
 

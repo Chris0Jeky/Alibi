@@ -57,16 +57,16 @@ jobs:
           npm run verify 2>&1 | tee test-results/club-level-source/verify.log
       - name: Exercise refused imports, cancellation and worker deadlines
         run: |
-          python -m http.server 8787 --directory dist > test-results/club-level-source/server.log 2>&1 &
+          python -m http.server 8797 --directory dist > test-results/club-level-source/server.log 2>&1 &
           server=$!
           trap 'kill "$server"' EXIT
           for attempt in $(seq 1 40); do
-            if curl --fail --silent http://127.0.0.1:8787/ >/dev/null; then break; fi
+            if curl --fail --silent http://127.0.0.1:8797/ >/dev/null; then break; fi
             sleep 1
           done
-          curl --fail --silent http://127.0.0.1:8787/ >/dev/null
-          ALIBI_URL=http://127.0.0.1:8787/ python tests/browser_club_level_import.py
-          ALIBI_URL=http://127.0.0.1:8787/ python tests/browser_backup_worker.py
+          curl --fail --silent http://127.0.0.1:8797/ >/dev/null
+          ALIBI_URL=http://127.0.0.1:8797/ python tests/browser_club_level_import.py
+          ALIBI_URL=http://127.0.0.1:8797/ python tests/browser_backup_worker.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

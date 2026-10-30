@@ -8,7 +8,7 @@ from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'expert-control'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 PACK = json.loads((ROOT / 'content' / 'extra' / 'expert-families.json').read_text(encoding='utf-8'))
 PUZZLES = [puzzle for puzzle in PACK['puzzles'] if puzzle['type'] != 'aquarium']
 

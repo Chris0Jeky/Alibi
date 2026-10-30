@@ -10,7 +10,7 @@ OUTPUT = Path('test-results/castle')
 def progress(main, extra):
     chapter = 'complete' if main == 5 else f'{main}/5'
     return f'Chapter I {chapter} · Extra questions {extra}/5'
-BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787/').split('#')[0]
+BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797/').split('#')[0]
 
 
 def controls(page, width, output):

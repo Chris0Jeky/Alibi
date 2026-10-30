@@ -1,6 +1,6 @@
 """Chapter I guidance acceptance: walk the chapter through real controls, phone and desktop.
 
-Runs against the built origin (ALIBI_URL, default http://127.0.0.1:8787/). Covers the
+Runs against the built origin (ALIBI_URL, default http://127.0.0.1:8797/). Covers the
 keeper's letter, thread placement and links, locked-door links, the clock time formats,
 the derived completion state after reload and import, the grouped directory, the hidden
 quiet bar, touch-target sizes and blank-hypothesis protection. No physical-device claim.
@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
-BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787/').split('#')[0]
+BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797/').split('#')[0]
 OUTPUT = Path(os.environ.get('ALIBI_RESULTS', 'test-results')) / 'castle-chapter'
 DEVICES = {
     'phone': dict(viewport={'width': 390, 'height': 844}, has_touch=True, is_mobile=True,

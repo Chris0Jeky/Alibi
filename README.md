@@ -141,7 +141,7 @@ npm run verify
 npm start
 ```
 
-Open `http://127.0.0.1:8787`. `npm start` is `node tools/serve.cjs`. It binds to `127.0.0.1` and serves `dist/`, the last production build. `npm run verify` formats, runs `tools/build.cjs` via the Android payload step, then the Node suites. After you edit source, run `npm run build` before `npm start`. `npm test` checks a clean source commit and the build receipts first; a dirty tree stops with a rebuild instruction.
+Open `http://127.0.0.1:8797`. `npm start` is `node tools/serve.cjs`. It binds to `127.0.0.1` and serves `dist/`, the last production build. `npm run verify` formats, runs `tools/build.cjs` via the Android payload step, then the Node suites. After you edit source, run `npm run build` before `npm start`. `npm test` checks a clean source commit and the build receipts first; a dirty tree stops with a rebuild instruction.
 
 Check one authoring example without the full suite:
 

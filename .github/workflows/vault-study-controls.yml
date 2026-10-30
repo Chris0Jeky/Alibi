@@ -43,10 +43,10 @@ jobs:
           printf '%s\n' '${{ github.event.pull_request.head.sha || github.sha }}' > test-results/vault-study-controls/source-head.txt
           npm start > /tmp/alibi-vault-server.log 2>&1 &
           for attempt in $(seq 1 30); do
-            curl --fail --silent http://127.0.0.1:8787/ > /dev/null && break
+            curl --fail --silent http://127.0.0.1:8797/ > /dev/null && break
             sleep 1
           done
-          ALIBI_URL=http://127.0.0.1:8787 python tests/browser_vault_studies.py
+          ALIBI_URL=http://127.0.0.1:8797 python tests/browser_vault_studies.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

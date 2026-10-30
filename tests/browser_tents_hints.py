@@ -7,7 +7,7 @@ from browser_master_grandmaster_controls import action, cell, current, dismiss_l
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'lightup-hints' / 'tents'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 # Clue-derived prefix for tents-01. No answer lookup or injected player state.
 STEPS = [
     *[('No tree', i, 0) for i in (3, 4, 10, 11, 15, 18, 24)],

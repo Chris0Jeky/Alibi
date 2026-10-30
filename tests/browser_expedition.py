@@ -23,7 +23,7 @@ from playwright.sync_api import BrowserContext, Error as PlaywrightError, Page, 
 
 
 ROOT = Path(os.environ.get("ALIBI_ROOT", Path(__file__).resolve().parents[1])).resolve()
-BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787/")
+BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797/")
 BASE = BASE if BASE.endswith("/") else BASE + "/"
 RESULTS = Path(os.environ.get("ALIBI_RESULTS", ROOT / "test-results" / "browser-expedition")).resolve()
 CHROMIUM_PATH = os.environ.get("CHROMIUM_PATH")

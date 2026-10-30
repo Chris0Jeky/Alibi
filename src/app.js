@@ -51,6 +51,7 @@
     quarantined = 0,
     current = null,
     route = { page: 'home', id: '', book: '' },
+    privacyLoad = '',
     routeFocusSerial = 0,
     routeFocusRequests = new Map(),
     selectedCell = 0,
@@ -75,6 +76,7 @@
     draft = null,
     draftVerified = false,
     draftComparison = null,
+    draftConflict = null,
     draftUndo = [],
     draftRedo = [],
     draftNameEdit = null,
@@ -779,9 +781,23 @@
   function settingsPage() {
     return `<div class="page-head"><div><div class="eyebrow">Make yourself comfortable</div><h1>Your space.</h1><p>How it looks, how it feels, and how your progress stays with you.</p></div>${B('The workshop', 'navigate', 'workshop', 'secondary', 'data-page="workshop"')}</div><div class="settings-grid"><section class="panel"><h2>A comfortable desk.</h2><div class="setting-row"><label for="theme-select">Appearance<small>Choose paper, evening, or your device preference.</small></label><select id="theme-select"><option value="light" ${settings.theme === 'light' ? 'selected' : ''}>Paper</option><option value="night" ${settings.theme === 'night' ? 'selected' : ''}>Evening</option><option value="system" ${settings.theme === 'system' ? 'selected' : ''}>System</option></select></div>${toggle('contrast', 'Stronger contrast', 'Darker borders and more distinct text.')}${toggle('largeText', 'Larger clue text', 'More readable evidence and instructions.')}${toggle('reducedMotion', 'Reduce motion', 'Remove decorative transitions and animation.')}${toggle('timer', 'Show the timer', 'Optional. Time never affects a result.')}${toggle('sound', 'Soft interaction sounds', 'Synthesised locally. No audio downloads.')}${toggle('haptics', 'Light haptics', 'A small tap on supported devices.')}${AlibiClub.assistBar()}<p class="fine">Mint-dotted marks are derived, not saved as manual notes. Changing their premise removes them.</p></section><section class="panel"><h2>Beta and privacy choices.</h2><p>The Beta button reopens what the hosted site may collect.</p><div id="usage-sharing-slot"><p class="fine usage-fallback">While the Beta notice shows at the top of the page, choose there.</p></div>${B('What is collected', 'navigate', 'arrow', 'ghost small', 'data-page="privacy"')}</section><section class="panel"><h2>Cabinet, Club, Quiet Wing and castle.</h2><p>Export these four device-local save stores together. The downloaded manifest lists what was included and warns if a section could not be read. Curated challenge replays are separate: open each challenge to export its replay. Restore one section at a time, with a recovery copy for that section. Restores across these stores are not one transaction.</p><div class="row actions">${B('Export cabinet, Club, Wing & castle', 'export-all', 'download')}${B('Review combined backup', 'import-all', 'upload', 'secondary')}${B('Quiet Wing recovery', 'navigate', 'refresh', 'secondary', 'id="quiet-recovery" data-page="quiet" data-id="realm"')}</div><input id="all-backup-input" type="file" accept="application/json,.json" hidden></section><section class="panel"><h2>Games-room progress.</h2><p>The experimental games room has a separate save. Export this as well as your cabinet backup before changing devices.</p><div class="row actions">${B('Export Club save', 'club-export', 'download')}${B('Restore Club save', 'club-import', 'upload', 'secondary')}${B('Club recovery copy', 'club-recovery', 'refresh', 'secondary')}${B('Club journal', 'navigate', 'book', 'ghost', 'data-page="club"')}</div></section><section class="panel"><h2>Your progress is yours.</h2><p>Boards and notes stay in this browser on this device. There is no cloud account or automatic cross-device backup.</p>${store.mode === 'local' ? `<p>${store.legacyRunEntries().length ? 'Existing Cabinet saves can be read and exported. ' : ''}Export any edit before reloading.</p>` : ''}<div class="data-list"><div><span>Save storage</span><strong>${store.mode === 'indexeddb' ? 'IndexedDB · device-local' : progressStorageLabel()}</strong></div><div><span>Saved puzzles</span><strong>${records.size}</strong></div><div><span>Favorite puzzles</span><strong>${prefs.favorites.length}</strong></div><div><span>Custom packs</span><strong>${packs.length - 1}</strong></div></div><div class="row actions">${B('Export backup', 'export', 'download')}${B('Restore backup', 'import-backup', 'upload', 'secondary')}</div><div class="row actions">${B('Protect local storage', 'persist', 'lock', 'ghost small')}${B('Recovery copy', 'recovery', 'refresh', 'ghost small')}</div><p class="fine" style="margin:16px 0 0">Clearing site data, changing browser profiles, changing the website address or losing the device can make local progress unavailable. Keep an exported backup elsewhere. A persistence request is not a cloud backup.</p></section><section class="panel"><h2>Make it feel like an app.</h2><p>Open the deployed HTTPS address on Android. Install from your browser’s menu to put Alibi on your home screen.</p><div class="data-list"><div><span>Offline files</span><strong>${offlineReady ? 'Ready' : cfg.standalone ? 'Local preview only' : 'Preparing / not ready'}</strong></div><div><span>Display</span><strong>${matchMedia('(display-mode: standalone)').matches ? 'Installed app' : 'Browser tab'}</strong></div><div><span>Version</span><strong>${esc(cfg.version)} · ${esc(cfg.build.slice(0, 8))}</strong></div><div><span>Updates</span><strong>${waitingUpdate ? 'Ready to install' : 'None waiting'}</strong></div></div><div class="row actions">${B('Install Alibi', 'install', 'download')}${B('Check for updates', 'check-update', 'refresh', 'secondary')}</div><p class="fine" style="margin-top:16px">${cfg.standalone ? 'This self-contained file is for trying the game. The hosted build provides the install manifest, service worker and coherent offline updates.' : 'Load the app online once, wait for “Offline ready”, then test reopening it in airplane mode. Your browser still controls storage availability.'}</p></section><section class="panel"><h2>A cabinet that can grow.</h2><p>${starter.puzzles.length} starter puzzles, ${C.TYPES.length} game families and ${books.length} casebooks, including two continuous investigations. Use the workshop to make original scene drafts, edit rooms and clues, verify the solution, and share JSON packs.</p><div class="row actions">${B('Open the workshop', 'navigate', 'workshop', '', 'data-page="workshop"')}${B('Replay a lesson', 'choose-lesson', 'book', 'secondary')}</div><div class="divider"></div><h3>Something not behaving as expected?</h3><p style="font-size:11px;margin-top:9px">Export a small issue report with the puzzle ID, app version and current board. Review it before sharing; it is not sent anywhere automatically.</p><div class="row actions">${B('Create issue report', 'feedback-report', 'flag', 'ghost small')}${B('Privacy & credits', 'navigate', 'arrow', 'ghost small', 'data-page="privacy"')}</div></section></div>`;
   }
+  // The copy is a precached chunk (#825); a failed load waits for Retry instead of looping on render.
   function privacyPage() {
-    return `<div class="privacy-copy"><div class="eyebrow">The small print, in plain language</div><h1>Privacy & credits.</h1><h2>Your device is the save file.</h2><p>Alibi saves progress, notes, settings and packs in this browser. There are no accounts, ads or AI calls. The primary Cloudflare site collects beta usage data; see below. You choose whether to export backups or reports.</p><p>The hosting provider still receives ordinary web requests, including your IP address and request metadata, when you load the site or check for updates. Its logging and retention depend on the operator’s hosting configuration. This page describes this static build, not every possible future deployment.</p><h2>Offline, not indestructible.</h2><p>The installed version caches its application files for offline play. Browser storage can be cleared or become unavailable. An installed icon is not a guarantee of permanent storage. Export backups, and keep the same production address when publishing updates.</p><h2>Original content, familiar rules.</h2><p>The scene-deduction format is inspired by Murdoku by Manuel Garand. These are original scenarios and original interface illustrations, not copied Murdoku puzzles, artwork or an affiliated product. Other games use familiar logic-puzzle rules. The puzzle previews are decorative illustrations, not a promise that the pictured arrangement is playable.</p><p>“Alibi” is a working product name. This bundle does not establish trademark clearance or grant rights to third-party names. The app runs from static files with bundled code, illustrations, fonts and controls. In the Rich edition, visible artwork can request credited photographs from Unsplash or Pexels. Those providers receive ordinary request metadata, including your IP address; no gameplay or cookies are sent by the image loader. Choose Painted edition in the room controls to stop these optional requests. Verified detail can be reused offline, while the complete local painting always remains available. Films stream from this site only when you ask to play them. Room sound is off by default and has a locally composed offline version. The optional Quiet Wing includes licensed 3D models and museum reproductions, with credits in its source ledger. The original casebook covers were made with AI image generation. SVG puzzle previews, install icons and synthesised interface sounds are bundled locally.</p><h2>Explore the puzzle tradition.</h2><p>Our new Tidal bridges family uses the familiar Hashi rules, studied through <a href="https://www.chiark.greenend.org.uk/~sgtatham/puzzles/doc/bridges.html" target="_blank" rel="noopener noreferrer">Simon Tatham’s Bridges manual</a>. Alibi’s engine, island maps and illustrations are original. No Tatham code or puzzle data is bundled.</p><p>For more variety, visit <a href="https://www.chiark.greenend.org.uk/~sgtatham/puzzles/" target="_blank" rel="noopener noreferrer">Simon Tatham’s Portable Puzzle Collection</a>, a free collection published under the MIT license. This opens an external website; its games and progress are separate from Alibi and need their own initial online visit.</p><h2>What the quality checks mean.</h2><p>The starter catalogue is solver-checked for exactly one solution under the implemented rules. Difficulty and time estimates have not been calibrated through a formal player study. Bellweather and The unfinished invitation each follow a single authored investigation. The other casebooks collect standalone records. Neither uses branching dialogue or simulated suspects. Optional reveals use the stored solution and are counted.</p><h2>Accessibility.</h2><p>The app includes keyboard controls, visible focus, reduced motion, stronger contrast, larger clue text and non-colour labels. Spatial grids are not a fully nonvisual puzzle experience. Physical-device and assistive-technology testing are still part of a public release checklist.</p><h2>Project and support.</h2><p>Alibi is maintained by <a href="https://github.com/Chris0Jeky/Alibi" target="_blank" rel="noopener noreferrer">Chris0Jeky</a>. Report a problem through <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>; keep personal notes and full progress backups private. The source is under the PolyForm Strict License 1.0.0: read it and play, but do not copy or change it.</p><h2>After Hours: optional private rooms.</h2><p>The games-room prototype stores its own progress separately from the puzzle cabinet. Export both backups when moving devices. Personal records and stamps stay local. No public leaderboard, cloud save or account service is enabled.</p><p>Only when you configure and use the optional room API are your moves sent to that server. A room keeps its board, version, move identifiers and hashed seat credentials for up to 24 hours. The creation quota uses a salted daily IP hash. Hosting request metadata may have a separate retention policy. Room credentials are not included in Club exports. The static app does not contact a room server before you configure it.</p><h2>Beta usage data.</h2><p>On the primary Cloudflare site a one-line Beta notice at the top says Alibi collects usage and diagnostics through Pulseboard (pulseboard-observatory.commit-atlas.workers.dev), the maintainer’s own service. OK accepts; Choose sets three switches; the Beta button here and in Settings reopens them.</p><p><strong>Usage counts</strong>: daily totals of views, puzzle starts, solves, failed checks and hints by section and version, with screen size, colour scheme, traffic source, referring site, utm_campaign tag and a month-only returning-visit marker. <strong>Diagnostics</strong>: speed, error summaries, visible time and scroll depth. <strong>Journeys</strong>: a random ID for one tab, the sections visited, and puzzle events with only the official puzzle ID, its family and difficulty tier, seconds, hints and attempts. Never answers, boards, notes, saves, custom puzzles, names or emails.</p><p>Outside the EEA all three start on. In the EEA or an unknown region only counts do, with no visit marker, until you choose OK. Global Privacy Control or Do Not Track turns everything off. Journeys and diagnostics are kept 90 days, counts currently 14 days. Pulseboard stores no IP address or browser string; its host still receives request metadata. The fallback site, standalone file and Android app send nothing.</p><div id="usage-sharing-slot"><p class="fine usage-fallback">While the Beta notice shows at the top of the page, choose there.</p></div><h2>Data removal.</h2><p>Export anything you need first. Your browser’s site-data controls can remove the app’s local storage and offline cache. That removal is not reversible unless you have a backup.</p>${B('Back to your space', 'navigate', 'back', 'secondary', 'data-page="settings"')}</div>`;
+    if (globalThis.AlibiPrivacyCopy) return globalThis.AlibiPrivacyCopy(B);
+    if (!privacyLoad) {
+      privacyLoad = 'loading';
+      const s = document.createElement('script');
+      s.src = cfg.privacy;
+      s.onload = s.onerror = () => {
+        privacyLoad = globalThis.AlibiPrivacyCopy ? 'ready' : 'failed';
+        if (privacyLoad === 'failed') s.remove();
+        if (route.page === 'privacy') render();
+      };
+      document.head.append(s);
+    }
+    return `<div class="privacy-copy"><h1>Privacy & credits.</h1>${privacyLoad === 'failed' ? `<p role="alert">This page could not load.</p>${B('Retry', 'privacy-retry', 'refresh', 'secondary')}` : '<p role="status">Opening the small print…</p>'}</div>`;
   }
+
   function aboutPage() {
     return `<div class="privacy-copy"><div class="eyebrow">A little room to think</div><h1>About Alibi.</h1><p>Alibi is a device-local collection of thirteen puzzle families, illustrated casebooks, lessons and offline saves. Everything runs from static files; progress stays in this browser.</p><div class="data-list"><div><span>Version</span><strong>${esc(cfg.version)} · ${esc(cfg.build.slice(0, 8))}</strong></div><div><span>Source</span><strong><a href="https://github.com/Chris0Jeky/Alibi" target="_blank" rel="noopener noreferrer">Chris0Jeky/Alibi</a></strong></div></div><p>Original stories and art; familiar logic rules. Credits, privacy and support are on the Privacy & credits page.</p><div class="row actions">${B('Privacy & credits', 'navigate', 'arrow', 'secondary', 'data-page="privacy"')}${B('What’s new', 'navigate', 'star', 'secondary', 'data-page="changelog"')}${B('Back to your desk', 'navigate', 'back', 'secondary', 'data-page="home"')}</div></div>`;
   }
@@ -794,7 +810,7 @@
   function peoplePalette(p, s) {
     return `<div class="people-palette" aria-label="Choose a person">${p.people.map((person) => `<button class="person-btn person-${person.color} ${selectedPerson === person.id ? 'active' : ''}" data-action="person" data-id="${person.id}" aria-pressed="${selectedPerson === person.id}" title="${esc(person.name)} · ${esc(person.role)}">${token(person, p)}<span class="person-name">${esc(person.name)}</span><small>${person.id === p.victim ? 'Victim' : s.placements[person.id] === undefined ? 'Not placed' : C.at(s.placements[person.id], p.size)}</small>${s.placements[person.id] !== undefined ? `<span class="placed">${icon('check')}</span>` : ''}</button>`).join('')}</div>`;
   }
-  function boardCell(p, s, i, errors) {
+  function boardCell(p, s, i, errors, analysis) {
     const n = p.size,
       r = Math.floor(i / n),
       c = i % n,
@@ -898,7 +914,7 @@
       if ((r + 1) % 5 === 0) style += 'border-bottom:2px solid var(--board-border);';
     } else if (t === 'lightup') {
       const w = p.walls[i],
-        lit = X.litCells(p, s).has(i);
+        lit = analysis.has(i);
       if (w !== -2) {
         cls += ' light-wall';
         content = w >= 0 ? w : '';
@@ -929,7 +945,7 @@
       }
     } else if (t === 'aquarium') {
       const tank = p.tanks[i],
-        wet = X.aquariumCells(p, s),
+        wet = analysis,
         iswet = wet[i];
       cls += ' water-cell' + (iswet ? ' wet' : '');
       if (iswet && (r === 0 || p.tanks[i - n] !== tank || !wet[i - n])) cls += ' waterline';
@@ -942,7 +958,7 @@
       content = `<span class="tank-code">${String.fromCharCode(65 + tank)}</span>${iswet && i % 3 === 0 ? '<i class="bubble"></i>' : ''}`;
       label += `, tank ${String.fromCharCode(65 + tank)}, ${iswet ? 'water' : 'dry'}`;
     } else if (t === 'network') {
-      const info = X.networkInfo(p, s),
+      const info = analysis,
         mask = info.masks[i],
         live = info.connected.has(i);
       cls += ' network-cell' + (live ? ' live' : '');
@@ -982,6 +998,14 @@
     if (p.type === 'dossier') return dossierBoard(p, s);
     const n = p.size,
       N = n * n,
+      analysis =
+        p.type === 'lightup'
+          ? X.litCells(p, s)
+          : p.type === 'aquarium'
+            ? X.aquariumCells(p, s)
+            : p.type === 'network'
+              ? X.networkInfo(p, s)
+              : null,
       errs = checking ? new Set(E[p.type].validate(p, s).flatMap((e) => e.cells || [])) : new Set();
     let heads = '',
       rows = '',
@@ -993,7 +1017,7 @@
       ch = Math.max(35, Math.max(...p.colClues.map((c) => c.length)) * 16 + 7);
     }
     if (['tents', 'aquarium'].includes(p.type))
-      counts = X.lineCounts(p, p.type === 'aquarium' ? X.aquariumCells(p, s) : s.cells);
+      counts = X.lineCounts(p, p.type === 'aquarium' ? analysis : s.cells);
     heads =
       '<div></div>' +
       range(n)
@@ -1012,23 +1036,23 @@
           : counts
             ? `<div class="axis target ${counts.rows[r] === p.rowTargets[r] ? 'met' : counts.rows[r] > p.rowTargets[r] ? 'over' : ''}" data-clue-axis="0" data-clue-line="${r}" aria-label="Row ${r + 1}: ${counts.rows[r]} of ${p.rowTargets[r]}">${p.rowTargets[r]}</div>`
             : `<div class="axis">${r + 1}</div>`;
-      for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs);
+      for (let c = 0; c < n; c++) rows += boardCell(p, s, r * n + c, errs, analysis);
     }
     const pan =
       n > 9 && zoomed
         ? `<div class="toolrow" aria-label="Pan large board">${B('Left', 'board-pan', '', 'secondary small', 'data-value="-1" aria-label="Move view left"')}${B('Right', 'board-pan', '', 'secondary small', 'data-value="1" aria-label="Move view right"')}${B('Up', 'board-pan', '', 'secondary small', 'data-value="-1" data-axis="y" aria-label="Move view up"')}${B('Down', 'board-pan', '', 'secondary small', 'data-value="1" data-axis="y" aria-label="Move view down"')}</div>`
         : '';
-    return `${pan}<div class="board-scroll ${n > 9 ? 'large-grid' : ''} ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Pan from the clue margins or use the view buttons.</p>' : ''}${boardLegend(p, s)}`;
+    return `${pan}<div class="board-scroll ${n > 9 ? 'large-grid' : ''} ${zoomed ? 'zoomed' : ''}" data-scroll-key="board"><div class="grid-shell ${p.type === 'scene' ? 'scene-shell' : p.type === 'nonogram' ? 'nono-shell' : ''}" style="--n:${n};--clue-width:${cw}px;--clue-height:${ch}px" role="group" aria-label="${esc(M[p.type].title)} puzzle board">${heads}${rows}</div></div>${zoomed ? '<p class="control-note">Larger squares. Pan from the clue margins or use the view buttons.</p>' : ''}${boardLegend(p, s, analysis)}`;
   }
-  function boardLegend(p, s) {
+  function boardLegend(p, s, analysis) {
     if (p.type === 'scene')
       return `<div class="room-legend">${p.roomNames.map((name, i) => `<span class="room-label"><i style="background:var(--room-${i})">${String.fromCharCode(65 + i)}</i>${esc(name)}</span>`).join('')}</div><div class="counter-line"><span><strong>${Object.keys(s.placements).length} / ${p.size}</strong> people placed</span><span>One person per row and column</span></div>`;
     if (p.type === 'network') {
-      const info = X.networkInfo(p, s);
+      const info = analysis;
       return `<div class="counter-line"><span><strong>${info.connected.size} / ${p.size ** 2}</strong> tiles connected</span><span><strong>${info.open.length}</strong> tiles with open ends</span></div>`;
     }
     if (p.type === 'lightup')
-      return `<div class="counter-line"><span><strong>${X.litCells(p, s).size} / ${p.walls.filter((w) => w === -2).length}</strong> floor squares lit</span><span>Crossed beams are allowed</span></div>`;
+      return `<div class="counter-line"><span><strong>${analysis.size} / ${p.walls.filter((w) => w === -2).length}</strong> floor squares lit</span><span>Crossed beams are allowed</span></div>`;
     if (p.type === 'aquarium')
       return '<div class="board-legend">Letters identify tanks · Edge numbers count water squares</div>';
     if (p.type === 'tents')
@@ -1304,7 +1328,7 @@
       })
       .join(
         '',
-      )}</div><div class="row wrap">${B(draftShowSolution ? 'Hide author solution' : 'Show author solution', 'draft-solution', 'eye', 'secondary small')}</div><p class="fine" style="margin-top:12px">Click squares to edit. Room letters remain visible independently of colour. Editing invalidates the verification. The shown solution is the last verified arrangement.</p><div class="form-grid" style="margin-top:17px">${p.roomNames.map((name, i) => `<div class="field"><label for="room-name-${i}">Room ${String.fromCharCode(65 + i)}</label><input id="room-name-${i}" value="${esc(name)}" data-room-name="${i}" maxlength="40"></div>`).join('')}</div></div><div><h3 style="margin-bottom:12px">${p.clues.length} clues in this draft</h3><div class="draft-clues" data-scroll-key="draft-clues">${p.clues.map((cl, i) => `<div class="draft-clue"><span>${esc(C.clueText(p, cl))}</span>${round('remove-draft-clue', 'close', 'Remove clue', `data-index="${i}"`)}</div>`).join('')}</div><form id="clue-form" class="clue-builder"><div class="eyebrow">Add a clue</div><div class="row"><select name="who" id="clue-who" aria-label="Person">${p.people.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><select name="kind" id="clue-kind" aria-label="Clue relation">${[
+      )}</div><div class="row wrap">${B(draftShowSolution ? 'Hide author solution' : 'Show author solution', 'draft-solution', 'eye', 'secondary small')}</div><p class="fine" style="margin-top:12px">Click squares to edit. Room letters remain visible independently of colour. Editing invalidates the verification. The shown solution is the last verified arrangement.</p><div class="form-grid" style="margin-top:17px">${p.roomNames.map((name, i) => `<div class="field"><label for="room-name-${i}">Room ${String.fromCharCode(65 + i)}</label><input id="room-name-${i}" value="${esc(name)}" data-room-name="${i}" maxlength="40"></div>`).join('')}</div></div><div><h3 style="margin-bottom:12px">${p.clues.length} clues in this draft</h3><div class="draft-clues" data-scroll-key="draft-clues">${p.clues.map((cl, i) => `<div class="draft-clue"><span>${i + 1}. ${esc(C.clueText(p, cl))}</span>${round('remove-draft-clue', 'close', 'Remove clue', `data-index="${i}"`)}</div>`).join('')}</div><form id="clue-form" class="clue-builder"><div class="eyebrow">Add a clue</div><div class="row"><select name="who" id="clue-who" aria-label="Person">${p.people.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><select name="kind" id="clue-kind" aria-label="Clue relation">${[
       ['room', 'Was in room'],
       ['notRoom', 'Not in room'],
       ['row', 'Was in row'],
@@ -1319,7 +1343,11 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}</section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}</section>`;
+  }
+  function draftConflictView() {
+    if (!draftConflict) return '';
+    return `<section id="draft-conflict" class="draft-comparison" tabindex="-1" aria-labelledby="draft-conflict-title"><h3 id="draft-conflict-title">${draftConflict.length ? 'These clues cannot all hold with this floor plan' : 'No arrangement fits this floor plan, even without clues'}</h3><ul class="draft-comparison-text">${draftConflict.map((i) => `<li>${B(`Clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul></section>`;
   }
   function draftComparisonView() {
     if (!draftComparison) return '';
@@ -1908,7 +1936,7 @@
           : 'This is a general strategy, not a check against the hidden answer.';
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
-      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${esc(hint.message)}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
+      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${/^Revisit/.test(hint.rule) ? esc(hint.message) : `<details class="hint-step"><summary>Show the step</summary>${esc(hint.message)}</details>`}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
       [
         { label: 'Keep thinking', action: 'close-dialog', secondary: true },
         { label: 'Reveal one step', action: 'reveal-confirm', icon: 'eye' },
@@ -2011,10 +2039,13 @@
       navigate('library');
       return;
     }
-    const ps = all().filter((p) => p.type === current.puzzle.type),
-      i = ps.findIndex((p) => p.id === current.puzzle.id),
-      rest = [...ps.slice(i + 1), ...ps.slice(0, i)],
-      p = rest.find((p) => !solved(rec(p))) || rest[0];
+    const p = C.pickNext(
+      all(),
+      current.puzzle.id,
+      (p) => solved(rec(p)),
+      (p) => activeRun(rec(p)),
+      globalThis.AlibiFeel?.(current.puzzle.id),
+    );
     if (p) navigate('play', keyFor(p));
     else navigate('library', current.puzzle.type);
   }
@@ -2680,7 +2711,7 @@
   function dirtyDraft() {
     draftEpoch++;
     draftVerified = false;
-    draftComparison = null;
+    draftComparison = draftConflict = null;
     saveDraft();
   }
   function undoDraft(redo = false) {
@@ -2714,7 +2745,7 @@
     const startedEpoch = draftEpoch;
     draftBusy = true;
     draftVerified = false;
-    draftComparison = null;
+    draftComparison = draftConflict = null;
     render();
     try {
       const result = await inWorker({ type: 'generate', options });
@@ -2745,11 +2776,29 @@
     const startedEpoch = draftEpoch;
     draftBusy = true;
     draftVerified = false;
-    draftComparison = null;
+    draftComparison = draftConflict = null;
     render();
     try {
       const result = await inWorker({ type: 'draft', puzzle: draft });
       if (startedEpoch !== draftEpoch) return;
+      const why = result?.diagnosis,
+        c = why?.clues;
+      if (why !== undefined) {
+        if (
+          !Array.isArray(result.solutions) ||
+          result.solutions.length ||
+          (why?.kind !== 'layout' &&
+            (why?.kind !== 'clues' ||
+              !Array.isArray(c) ||
+              !c.length ||
+              c.some(
+                (x, i) => !Number.isInteger(x) || x < 0 || x >= draft.clues.length || x <= c[i - 1],
+              )))
+        )
+          throw Error('The draft check returned an invalid result. Verify again.');
+        draftConflict = why.kind === 'clues' ? c : [];
+        return;
+      }
       if (!Array.isArray(result?.solutions) || ![1, 2].includes(result.solutions.length))
         throw Error('The draft check returned an invalid result. Verify again.');
       const checked = result.solutions.map((solution) => {
@@ -2778,7 +2827,7 @@
     } finally {
       draftBusy = false;
       render();
-      if (draftComparison) document.querySelector('#draft-comparison')?.focus();
+      document.querySelector('#draft-comparison, #draft-conflict')?.focus();
     }
   }
   function clueValues() {
@@ -3340,6 +3389,10 @@
       case 'reload':
         location.reload();
         break;
+      case 'privacy-retry':
+        privacyLoad = '';
+        render();
+        break;
       case 'work-tab':
         workTab = v;
         render();
@@ -3413,6 +3466,9 @@
           recordDraft(before);
           render();
         }
+        break;
+      case 'focus-draft-clue':
+        $(`[data-action="remove-draft-clue"][data-index="${el.dataset.index}"]`)?.focus();
         break;
       case 'undo-draft':
       case 'redo-draft':
@@ -3556,7 +3612,7 @@
         const before = C.clone(draft);
         draft.roomNames[Number(el.dataset.roomName)] = value;
         if (!recordDraft(before, el)) return;
-        document.querySelector('#draft-comparison')?.remove();
+        document.querySelector('#draft-comparison, #draft-conflict')?.remove();
         $('[data-action="undo-draft"]').disabled = !draftUndo.length;
         $('[data-action="redo-draft"]').disabled = !draftRedo.length;
         $('#draft-verification').textContent = 'The draft changed. Verify its logic again.';
@@ -3862,7 +3918,7 @@
     if (e.key !== 'Tab') return;
     const d = e.currentTarget,
       stops = [
-        ...d.querySelectorAll('button, a[href], input, select, textarea, [tabindex]'),
+        ...d.querySelectorAll('button, summary, a[href], input, select, textarea, [tabindex]'),
       ].filter(
         (el) =>
           el.tabIndex >= 0 &&
@@ -3903,6 +3959,7 @@
   });
   async function loadRoute(focusSerial = 0) {
     draftEpoch++;
+    draftConflict = null;
     const serial = ++routeSerial,
       closedDialog = $('#dialog').open;
     // A route owns its modal. Invalidate it before awaiting an old puzzle save.

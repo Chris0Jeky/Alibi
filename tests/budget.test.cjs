@@ -193,10 +193,44 @@ test('shell and content stay inside the existing ceilings', async (t) => {
     // #738 protected-load recovery, required Duel engine loading and unchanged Add-missing rows:
     // clean composed source measures 135,616 -> 135,755 (+139). Ceiling +128 covers the
     // 75-byte excess and leaves 53 bytes for identity/hash noise; validation remains strict.
+    // #825: the Privacy & credits copy moves to the deferred chunk below: 134,166 -> 131,760 (-2,406).
+    // Ceiling -2,368 (38 bytes of noise room on top of the headroom main already had).
     assert.ok(
-      info.javascriptGzipBytes < 127 * 1024 + 5760,
-      'Application bundle stays under 127 KiB + 5,760 bytes gzip',
+      info.javascriptGzipBytes < 127 * 1024 + 3392,
+      'Application bundle stays under 127 KiB + 3,392 bytes gzip',
     );
+  });
+  await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
+    // #825: cold page copy, loaded on entry to #/privacy; precached so the page works offline.
+    const matches = assetNames.filter((name) => /^privacy\.[a-f0-9]{12}\.js$/.test(name));
+    assert.equal(matches.length, 1, 'One hashed Privacy chunk is emitted');
+    const chunk = fs.readFileSync(path.join(root, 'dist/assets', matches[0]), 'utf8');
+    assert.equal(
+      Buffer.byteLength(chunk),
+      info.privacyChunkBytes,
+      'Privacy chunk bytes are reported',
+    );
+    assert.equal(zlib.gzipSync(chunk).length, info.privacyChunkGzipBytes);
+    assert.ok(serviceWorker.includes(`"./assets/${matches[0]}"`), 'The Privacy chunk is precached');
+    assert.ok(
+      !fs.readFileSync(path.join(root, 'dist/index.html'), 'utf8').includes(matches[0]),
+      'The Privacy chunk is not a startup script',
+    );
+    const app = fs.readFileSync(
+      path.join(
+        root,
+        'dist/assets',
+        assetNames.find((n) => /^alibi\.[a-f0-9]{12}\.js$/.test(n)),
+      ),
+      'utf8',
+    );
+    assert.ok(app.includes(`"privacy":"./assets/${matches[0]}"`), 'The app config names the chunk');
+    assert.match(chunk, /Your device is the save file\./);
+    assert.doesNotMatch(app, /Your device is the save file\./);
+    const standalone = fs.readFileSync(path.join(root, 'alibi-deluxe-play.html'), 'utf8');
+    assert.match(standalone, /Your device is the save file\./);
+    // Measured 6,940 bytes, 3,198 gzip.
+    assert.ok(info.privacyChunkGzipBytes < 4 * 1024, 'The Privacy chunk stays under 4 KiB gzip');
   });
   await t.test('Voices is deferred, precached and within its budgets', () => {
     // The Voices sheet, survey form, rating row, panels and delivery queue: one deferred chunk,
@@ -288,8 +322,24 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #738 load-only recovery and atomic Add-missing revision preservation measure
       // 1,418,911 -> 1,419,648 (+737). Ceiling +704 covers the 615.68-byte excess and leaves
       // 88.32 bytes for identity/hash noise; initial payload and content limits stay unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 35616,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 35,616 bytes',
+      // Initiative wave 2026-10-30 (#818/#821/#822/#823/#824): reasoning hints for Sudoku,
+      // Futoshiki and Number trails ship in the precached reasoning chunk; level-aware
+      // continuation, the staged hint dialog and the first-puzzle letter in the application.
+      // Measured on 328d5dcd: #819 +1,024, #836 +1,396, #838 +1,083, #842 +196, #839 +161
+      // (+3,860) against 1,295 bytes of headroom. Ceiling +2,816 leaves ~250 bytes for
+      // identity/hash noise; startup gzip and content limits are unchanged.
+      // #846 crime-scene reasoning hints (candidate pruning, line rule, accusation pointer in
+      // src/insights.js): main 1,418,441 -> 1,420,969 (+2,528, including the line-rule
+      // explanation from review). Excess 1,232.68 bytes; ceiling +1,280 (20 x 64) leaves
+      // 47.32 bytes; no feature room.
+      // 2026-10-30 composition (one measurement replaces the per-PR raises above): the hint
+      // wave (#819/#836/#838/#839/#842/#850), Scene Maker conflict diagnosis (#840), board
+      // analysis once per render (#829) and the deferred Privacy chunk (#845, whose loader and
+      // chunk wrapper add raw precached bytes while startup gzip falls) measure 1,426,795 bytes
+      // (1.32 MiB + 42,674.68) on the composed tree. Ceiling 1.32 MiB + 42,944 (64-byte step)
+      // leaves 269.32 bytes for identity/hash noise; startup gzip and content limits unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 42944,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 42,944 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

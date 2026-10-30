@@ -15,7 +15,7 @@ from browser_master_grandmaster_controls import (
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'picture-controls'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 PUZZLES = json.loads(
     (ROOT / 'content/extra/keepers-picture-studies.json').read_text(encoding='utf-8')
 )['puzzles']

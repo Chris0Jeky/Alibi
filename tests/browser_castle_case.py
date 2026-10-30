@@ -5,7 +5,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787/').split('#')[0]
+BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797/').split('#')[0]
 OUT = ROOT / 'test-results/castle-case'
 SOURCE = json.loads((ROOT / 'content/cases/reading-room-blackout.json').read_text())
 ROUTE = '#/quiet/castle/case'

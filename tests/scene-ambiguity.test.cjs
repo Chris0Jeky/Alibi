@@ -65,7 +65,7 @@ test('ambiguous draft returns two valid distinct witnesses without changing the 
   assert.deepEqual(p, before);
 });
 
-test('a resolving clue produces one witness; a contradiction remains unsatisfiable', () => {
+test('a resolving clue produces one witness; a contradiction is explained, never solved', () => {
   const h = worker(),
     p = scene();
   p.clues.push({ kind: 'col', who: 'felix', value: 3 });
@@ -74,9 +74,11 @@ test('a resolving clue produces one witness; a contradiction remains unsatisfiab
   assert.deepEqual(unique.value.solutions, [p.solution]);
   p.clues.push({ kind: 'col', who: 'felix', value: 4 });
   const impossible = h.send(p);
-  assert.equal(impossible.ok, false);
-  assert.match(impossible.error, /No solution fits/);
-  assert.equal(impossible.value, undefined);
+  assert.equal(impossible.ok, true, impossible.error);
+  assert.deepEqual(impossible.value, {
+    solutions: [],
+    diagnosis: { kind: 'clues', clues: [8, 9] },
+  });
 });
 
 test('an unfinished draft without clues can still compare valid arrangements', () => {

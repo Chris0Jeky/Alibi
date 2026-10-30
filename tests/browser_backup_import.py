@@ -15,7 +15,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787/")
+BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797/")
 ORIGIN = BASE.rstrip("/")
 REPORT_PATH = ROOT / "test-results" / "browser-backup-import.json"
 PICKER_SCRIPT = r"""

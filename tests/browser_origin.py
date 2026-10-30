@@ -32,7 +32,7 @@ from playwright.sync_api import (
 )
 
 ROOT = Path(os.environ.get("ALIBI_ROOT", Path(__file__).resolve().parents[1])).resolve()
-BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787/")
+BASE = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797/")
 BASE = BASE if BASE.endswith("/") else BASE + "/"
 RESULTS = Path(os.environ.get("ALIBI_RESULTS", ROOT / "test-results" / "browser-origin"))
 RESULTS.mkdir(parents=True, exist_ok=True)
@@ -1402,6 +1402,14 @@ def scenario_shared_paths(pw: Any, root: Path) -> None:
             page.evaluate("location.hash") == "#/privacy",
             "offline controlled /privacy/ still opens the privacy route",
         )
+        # #825: the copy is a precached chunk loaded on route entry, not part of the startup bundle.
+        wait_page(
+            page,
+            "() => document.querySelector('.privacy-copy h2')?.textContent === 'Your device is the save file.'"
+            " && !!document.getElementById('usage-sharing-slot')",
+            what="offline privacy copy from its precached chunk",
+        )
+        check(True, "offline controlled /privacy/ renders its copy and usage-sharing slot")
         context.set_offline(False)
     finally:
         try:

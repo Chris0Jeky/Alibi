@@ -144,8 +144,6 @@ self.onmessage = (e) => {
           );
       }
       const result = AlibiCore.solveDefinition(p, 2, 250000);
-      if (result.solutions.length === 0)
-        throw Error('No solution fits this draft. Revisit the room layout, furniture or clues.');
       value = {
         solutions: result.solutions.map((solution) => {
           const checked = AlibiCore.validateSceneDraft({ ...p, solution });
@@ -155,6 +153,28 @@ self.onmessage = (e) => {
           return checked.solution;
         }),
       };
+      if (!result.solutions.length) {
+        // One aggregate ceiling covers verification and diagnosis. Exhaustion throws the solver's
+        // budget refusal, so no partial conflict or suggestion is ever reported.
+        let left = 250000 - result.nodes,
+          core = p.clues.map((_, i) => i);
+        const fits = (keep) => {
+          const r = AlibiCore.solveDefinition(
+            { ...p, clues: keep.map((j) => p.clues[j]) },
+            1,
+            left,
+          );
+          left -= r.nodes;
+          return r.solutions.length > 0;
+        };
+        const layoutFits = fits([]);
+        if (layoutFits)
+          for (const i of core.slice()) {
+            const rest = core.filter((j) => j !== i);
+            if (!fits(rest)) core = rest;
+          }
+        value.diagnosis = layoutFits ? { kind: 'clues', clues: core } : { kind: 'layout' };
+      }
     } else throw Error('Unsupported validation request.');
     self.postMessage({ ok: true, value });
   } catch (error) {

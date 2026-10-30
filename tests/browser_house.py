@@ -7,7 +7,7 @@ from playwright.sync_api import expect, sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
 OUT = Path(os.environ.get("ALIBI_RESULTS", ROOT / "test-results" / "house"))
 SOURCE = os.environ.get("ALIBI_HOUSE_SOURCE")
-URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8787").rstrip("/")
+URL = os.environ.get("ALIBI_URL", "http://127.0.0.1:8797").rstrip("/")
 OUT.mkdir(parents=True, exist_ok=True)
 checks = []
 errors = []

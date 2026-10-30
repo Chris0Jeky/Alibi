@@ -419,7 +419,9 @@ test('application lifecycle calls the journey helper with fixed names and elapse
     appSource,
     /\$\('#app'\)\.innerHTML = shell\([^;]+;\s*globalThis\.AlibiUsageSlot\?\.\(\);/,
   );
-  assert.equal(appSource.match(/id="usage-sharing-slot"/g).length, 2, 'Settings and Privacy');
+  assert.equal(appSource.match(/id="usage-sharing-slot"/g).length, 1, 'Settings');
+  const privacySource = fs.readFileSync(path.join(root, 'src/privacy-copy.js'), 'utf8');
+  assert.equal(privacySource.match(/id="usage-sharing-slot"/g).length, 1, 'Privacy (#825 chunk)');
 });
 
 // The real pinned SDK and the real host glue together, on the registered origin at phone width.

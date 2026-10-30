@@ -12,7 +12,7 @@ from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results/workshop-add'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 POLICY = {entry['id']: entry for entry in json.loads((ROOT / 'content/workshop/catalogue.json').read_text())['collections']}
 RUNS = """async()=>{const db=await new Promise((ok,no)=>{const r=indexedDB.open('alibi-device');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 const rows=await new Promise((ok,no)=>{const q=db.transaction('runs').objectStore('runs').getAll();q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)});db.close();

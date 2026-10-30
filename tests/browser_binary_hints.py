@@ -8,7 +8,7 @@ from browser_tents_hints import unchanged_hint, undo_to
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'test-results' / 'lightup-hints' / 'binary'
-URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787').rstrip('/')
+URL = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797').rstrip('/')
 # A prefix derived using public clues and the pure hint helper, not the stored answer.
 STEPS = [(0, 0), (5, 0), (8, 0), (9, 0), (11, 0), (15, 0),
          (16, 0), (18, 0), (21, 1), (34, 0), (35, 1), (20, 0)]
@@ -55,6 +55,15 @@ def run():
                             expect(dialog.locator('.deduction-title')).to_have_text(rule)
                             coordinate = chr(65 + index % 6) + str(index // 6 + 1)
                             expect(dialog.locator('.hint-box')).to_contain_text(coordinate)
+                            if step == 0:
+                                # #823: the technique shows first; the square waits behind one tap.
+                                box = dialog.locator('.hint-box')
+                                expect(box).not_to_contain_text(coordinate, use_inner_text=True)
+                                dialog.locator('.hint-step summary').focus()
+                                page.keyboard.press('Tab')
+                                expect(dialog.get_by_role('button', name='Keep thinking', exact=True)).to_be_focused()
+                                dialog.get_by_text('Show the step', exact=True).click()
+                                expect(box).to_contain_text(coordinate, use_inner_text=True)
                             expect(dialog).to_contain_text('does not look at the stored answer')
                             unchanged_hint(page, before)
                             if step == len(STEPS) - 1:

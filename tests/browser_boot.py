@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
-BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8787/').rstrip('/') + '/'
+BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797/').rstrip('/') + '/'
 
 
 def check_named_pages(page, load):

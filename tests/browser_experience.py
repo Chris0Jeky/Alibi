@@ -3,7 +3,7 @@ import json, urllib.parse, os
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
-URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8787/').rstrip('/')+'/'
+URL=os.environ.get('ALIBI_URL','http://127.0.0.1:8797/').rstrip('/')+'/'
 OUT=ROOT/'test-results/experience'; OUT.mkdir(parents=True,exist_ok=True)
 checks=[]
 def check(ok,label):
