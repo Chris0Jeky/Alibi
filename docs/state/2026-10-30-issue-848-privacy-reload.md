@@ -37,6 +37,8 @@ route-abort for the main bundle, and is already wired into `.github/workflows/ch
 - Prettier check on `src/app.js` and `tests/budget.test.cjs`: clean.
 - Budget (re-measured on origin/main, then on this branch): precached shell 1,437,881 -> 1,437,964
   (+83); startup JavaScript gzip 134,213 -> 134,230 against the 134,240 ceiling (10 bytes left, no
+- Re-measured after merging main (#868): shell 1,438,353 -> 1,438,435 (+82), ceiling 1.32 MiB +
+  54,336 (849 x 64), 21.32 left; startup gzip 134,310 against 127 KiB + 4,288 (26 left, no raise).
   raise needed). Shell ceiling 1.32 MiB + 53,824 -> + 53,888 (842 x 64), excess 19.68, 44.32 left.
 
 ## NOT verified

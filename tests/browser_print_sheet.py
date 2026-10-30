@@ -147,6 +147,41 @@ def check_other_families(browser):
             done.append(f'{pid} prints its clue list and board')
         finally:
             context.close()
+    done += check_clues_with_other_tabs(browser)
+    return done
+
+
+def check_clues_with_other_tabs(browser):
+    """#866: with Notes or Rules selected the sheet still carries the clues and not that tab's content."""
+    done = []
+    for pid in ('scene-01', 'dossier-01'):
+        puzzle = load('content/catalog.json', pid)
+        for tab, own in (('notes', '#play-notes'), ('rules', '.guide-rules')):
+            label = f'{pid}/{tab}'
+            context, page = open_puzzle(browser, puzzle, '.evidence-list')
+            try:
+                page.locator(f'.evidence-tab[data-value="{tab}"]').click()
+                page.wait_for_selector(own)
+                # Screen: the print-only copy exists but is not shown, and no second clue list appears.
+                copy = page.locator('.evidence-list.print-only')
+                assert copy.count() == 1 and not copy.is_visible(), (label, 'copy visible on screen')
+                assert copy.locator('.clue').count() == len(puzzle['clues']), (label, 'copy size')
+                assert page.locator('.evidence-list:visible').count() == 0, (label, 'screen list')
+                assert page.locator(own).is_visible(), (label, 'tab content missing on screen')
+                page.emulate_media(media='print')
+                assert page.locator('.evidence-list .clue-text:visible').count() == len(puzzle['clues']), label
+                assert page.locator('.evidence-body h2:visible').count() == 1, (label, 'heading')
+                assert page.locator('.case-intro:visible').count() == 1, (label, 'intro')
+                for selector in (own, '#play-notes', '.guide-rules', '.evidence-tabs', '.evidence-foot'):
+                    assert not page.locator(selector).first.is_visible(), (label, selector)
+                texts = page.locator('.evidence-body h2:visible').all_inner_texts()
+                assert texts == ['The evidence.' if pid == 'scene-01' else 'The case notes.'], (label, texts)
+                html = page.evaluate('document.documentElement.outerHTML')
+                assert json.dumps(puzzle['solution']) not in html, (label, 'solution in DOM')
+                page.screenshot(path=str(OUT / f'print-{pid}-{tab}.png'), full_page=True)
+                done.append(f'{label} prints all {len(puzzle["clues"])} clues without the tab content')
+            finally:
+                context.close()
     return done
 
 

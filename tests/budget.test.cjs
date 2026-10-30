@@ -219,8 +219,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #864 Scene Maker draft file on main after #863 (export/import controls, replace step,
       // stale-reply guards and the review fixes): 133,773 -> 134,213 (+440). Excess 421; ceiling
       // +448 leaves 27, still 1,568 below the pre-#845 ceiling. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 4192,
-      'Application bundle stays under 127 KiB + 4,192 bytes gzip',
+      // #866 print clues on the Notes and Rules tabs (clueList() helper plus print-only heading,
+      // intro and list copy) on main after #867: 134,213 -> 134,296 (+83). Excess 56; ceiling
+      // +96 leaves 40; the copy is required for a solvable printed sheet. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 4288,
+      'Application bundle stays under 127 KiB + 4,288 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -409,12 +412,14 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 116.32 bytes for identity/hash noise; no feature room.
       // #864 measured on main after #863: 1,435,972 -> 1,437,882 (+1,910). Excess 1,793.68; ceiling
       // 1.32 MiB + 53,824 (841 x 64) leaves 62.32 for identity/hash noise; no feature room.
-      // #848 Reload Alibi beside Retry in the failed privacy state (the row wrapper and the second
-      // button reuse the existing reload action): re-measured on that base 1,437,881 -> 1,437,964
-      // (+83); startup gzip 134,213 -> 134,230 of 134,240. Excess 19.68 bytes; ceiling +64 to
-      // 1.32 MiB + 53,888 (842 x 64) leaves 44.32 for identity/hash noise; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 53888,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 53,888 bytes',
+      // #866 on main after #867 (clueList() helper, print-only copy, three print rules):
+      // 1,437,882 -> 1,438,353 (+471; 1.32 MiB + 54,232.68). Excess 408.68; ceiling 1.32 MiB
+      // + 54,272 (848 x 64) leaves 39.32; no feature room.
+      // #848 Reload Alibi beside Retry on a failed Privacy chunk, on main after #868: 1,438,353 ->
+      // 1,438,435 (+82; 1.32 MiB + 54,314.68). Excess 42.68; ceiling 1.32 MiB + 54,336 (849 x 64)
+      // leaves 21.32; recovery from a purged chunk needs the control. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 54336,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 54,336 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
