@@ -2710,6 +2710,9 @@ input[type='checkbox'] {
 .pack-row .btn {
   margin-left: auto;
 }
+.pack-row .btn + .btn {
+  margin-left: 0;
+}
 .verification {
   font-size: 11px;
   line-height: 1.7;
