@@ -4543,6 +4543,18 @@ html[data-reduced='true'] *:after {
     --green: #000;
     --line: #000;
     --board-border: #000;
+    /* Paper is light whatever the screen theme: night colours would print pale on white. */
+    --green-soft: #fff;
+    --water: #95c4d4;
+    --room-0: #ece3d3;
+    --room-1: #dfe8d5;
+    --room-2: #e8d9d0;
+    --room-3: #dbe5eb;
+    --room-4: #e8e1ed;
+    --room-5: #e6e8cc;
+    --room-6: #ebdbdd;
+    --room-7: #d7e6df;
+    color-scheme: light;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -4589,6 +4601,42 @@ html[data-reduced='true'] *:after {
   }
   .playing .nono-cell.filled {
     background: #000;
+  }
+  /* Night rules that hard-code pale ink or dark fills must not reach paper. */
+  .playing :is(.scene-cell, .furniture, .room-label i, .tank-code, .light-floor .icon) {
+    color: #000 !important;
+  }
+  .playing .light-floor.lit {
+    background: #f4e7b8 !important;
+  }
+  /* Checking and selection are progress, not puzzle. */
+  .playing .cell:is(.error, .selected):not(.light-wall) {
+    background: #fff !important;
+    box-shadow: inset -1px -1px 0 #555 !important;
+  }
+  /* Lantern walls are puzzle: solid black with white numbers (inherits print-color-adjust). */
+  .playing .light-wall {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #000 !important;
+  }
+  /* Scenes and Alibi files keep their clue list in the evidence column: print only that. */
+  .playing .player-grid:has(.evidence-list) > .evidence-column {
+    display: block !important;
+  }
+  .playing .evidence-column :is(.evidence-tabs, .play-context, .info-note, .checkbox),
+  .playing .evidence-body > :not(.evidence-list, h2, .case-intro) {
+    display: none !important;
+  }
+  .playing .evidence-card {
+    border: 0;
+  }
+  .playing .clue {
+    background: none;
+    break-inside: avoid;
+  }
+  .playing .clue .clue-text {
+    text-decoration: none;
   }
   .playing :is(.axis, .nono-clue) {
     background: none !important;

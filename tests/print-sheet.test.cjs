@@ -99,6 +99,50 @@ test('print renders marks black on white and sizes the board for one page', () =
   assert.match(print, /break-inside:\s*avoid/);
 });
 
+test('print resets the night theme and clears check tints', () => {
+  const shell = print.match(/\.shell\.playing\s*\{[^}]*\}/)[0];
+  assert.match(shell, /color-scheme:\s*light/);
+  for (const name of ['--green-soft', '--water', '--room-0', '--room-7'])
+    assert.match(shell, new RegExp(`${name}: #`), `${name} is reset for paper`);
+  assert.match(
+    print,
+    /:is\(\.scene-cell, \.furniture, \.room-label i, \.tank-code[^)]*\)\s*\{\s*color:\s*#000\s*!important/,
+  );
+  assert.match(print, /\.light-floor\.lit\s*\{\s*background:\s*#f4e7b8\s*!important/);
+  assert.match(
+    print,
+    /\.cell:is\(\.error, \.selected\):not\(\.light-wall\)\s*\{\s*background:\s*#fff\s*!important/,
+  );
+  // Axis target tints (met/over) are already cleared by the existing axis rule.
+  assert.match(print, /:is\(\.axis, \.nono-clue\)\s*\{[^}]*background:\s*none\s*!important/);
+});
+
+test('print draws Lantern walls black with white numbers', () => {
+  assert.match(
+    print,
+    /\.playing \.light-wall\s*\{\s*background:\s*#000\s*!important;\s*color:\s*#fff\s*!important/,
+  );
+});
+
+test('print keeps the clue list of scenes and Alibi files and drops the rest of the column', () => {
+  assert.match(
+    print,
+    /\.player-grid:has\(\.evidence-list\) > \.evidence-column\s*\{\s*display:\s*block\s*!important/,
+  );
+  const drop = print.match(/([^{}]*\.evidence-tabs[^{}]*)\{\s*display:\s*none\s*!important/);
+  assert.ok(drop, 'tabs and notes are hidden inside the evidence column');
+  for (const name of [
+    '.play-context',
+    '.info-note',
+    '.checkbox',
+    ':not(.evidence-list, h2, .case-intro)',
+  ])
+    assert.ok(drop[1].includes(name), `${name} is hidden`);
+  // The clue list, its heading and intro are never hidden; Alibi-file grid cells are not buttons to drop.
+  assert.doesNotMatch(drop[1], /logic-cell|\.clue(?!-)/);
+  assert.match(print, /\.clue \.clue-text\s*\{\s*text-decoration:\s*none/);
+});
+
 test('the play head carries a print-only id and revision', () => {
   assert.match(
     js,
