@@ -397,7 +397,7 @@ test('cabinet export refuses an unsaved draft instead of silently exporting the 
   assert.equal(h.exported(), 0);
 });
 
-test('a draft conflict stops autosave and refuses to export the other tab draft as this one', async () => {
+test('a draft conflict stops autosave but still exports runs with the stored device draft', async () => {
   let puts = 0;
   const h = draftBackupHarness(async () => {
     puts++;
@@ -406,8 +406,13 @@ test('a draft conflict stops autosave and refuses to export the other tab draft 
   await h.save();
   await h.save();
   assert.equal(puts, 1, 'nothing is written after a conflict');
-  await assert.rejects(h.backup(), /changed in another tab/);
-  assert.equal(h.exported(), 0);
+  const { data } = await h.backup();
+  assert.equal(h.exported(), 1, 'a stale draft must not block exporting run progress');
+  assert.equal(
+    data.workshopDraft.puzzle.id,
+    'other-tab-draft',
+    'the stored device draft is exported',
+  );
 });
 
 test('cabinet export awaits a pending draft failure and successful edit permits retry without resaving', async () => {

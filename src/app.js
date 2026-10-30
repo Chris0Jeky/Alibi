@@ -2342,7 +2342,10 @@
   async function cabinetBackup() {
     await enqueueSave();
     await queue;
-    await draftSave;
+    // A stale draft must not block the runs' only export; the device's stored draft is kept.
+    await Promise.resolve(draftSave).catch((e) => {
+      if (e !== draftStale) throw e;
+    });
     const data = await store.export();
     const deviceByKey = new Map(data.runs.map((r) => [r.key, r]));
     const divergentByKey = new Map();

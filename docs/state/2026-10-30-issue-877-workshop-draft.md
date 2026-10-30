@@ -66,6 +66,14 @@ Branch `claude/workshop-draft-877`, based on `origin/main` b577ce41 (#874). Not 
 - The 50-entry cap on Generate's Undo push is shared code shape, not separately tested.
 - `tests/browser_mobile_qa.py` and other browser suites were not run (they read only `.puzzle`).
 
+## Review fold-in
+
+The deep-review lens found that a stale draft made `cabinetBackup()` refuse, blocking the only
+export of unsaved run progress (the restore broadcast sets both run and draft stale). Backups now
+proceed past a stale-draft rejection with the device's stored draft and the runs; a real draft
+I/O error still refuses. `tests/backup-route-race.test.cjs` asserts the export happens and carries
+the stored draft; reverting the guard fails it.
+
 ## Residual risk
 
 - Fallback storage (no IndexedDB) compares and writes without a cross-tab transaction.
