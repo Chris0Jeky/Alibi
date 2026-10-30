@@ -46,6 +46,7 @@ function player() {
     selectedCell: 11,
     paused: false,
     updateRequested: false,
+    restoreBusy: false,
     brush: 1,
     AlibiClub: { assistance: () => 'off' },
     icon: () => '',

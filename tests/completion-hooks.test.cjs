@@ -75,6 +75,7 @@ async function complete({
     checking: true,
     feedback: 'before completion',
     updateRequested: false,
+    restoreBusy: false,
     storageFatal: false,
     saveError: null,
     pendingSaves: 0,

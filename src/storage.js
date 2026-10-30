@@ -31,6 +31,31 @@
         return true;
       }
     },
+    // A stored run that fails validation is damage, never a cross-tab conflict.
+    rowDamaged = (exists, old, key, validate) => {
+      if (!exists) return false;
+      if (
+        !old ||
+        old.schemaVersion !== 1 ||
+        old.key !== key ||
+        !Number.isSafeInteger(old.rev) ||
+        old.rev < 0
+      )
+        return true;
+      try {
+        validate?.(old);
+      } catch {
+        return true;
+      }
+      return false;
+    },
+    damagedRun = () =>
+      Object.assign(
+        Error(
+          'A saved record for this puzzle is damaged or from an unsupported version. It has not been deleted. Export browser data before resetting anything.',
+        ),
+        { name: 'DamagedRecordError' },
+      ),
     readOnly = () =>
       Error('Local progress is read-only without IndexedDB. Export this session before reloading.');
   function backupEnvelope(runs, packs, settings, preferences, workshopDraft) {
@@ -379,25 +404,12 @@
           this.watch(tx, reject);
           r.onsuccess = floor.onsuccess = () => {
             if (++ready < 2) return;
-            const old = r.result?.value;
-            let invalid = false;
-            try {
-              if (old !== undefined) this.validateRun?.(old);
-            } catch {
-              invalid = true;
-            }
-            if (
-              invalid ||
-              (r.result !== undefined &&
-                (!old ||
-                  r.result.key !== key ||
-                  old.key !== key ||
-                  old.schemaVersion !== 1 ||
-                  !Number.isSafeInteger(old.rev) ||
-                  old.rev < 0)) ||
-              (old?.rev ?? 0) !== expectedRevision
-            ) {
-              bad = new ConflictError();
+            const old = r.result?.value,
+              invalid =
+                (r.result !== undefined && r.result.key !== key) ||
+                rowDamaged(r.result !== undefined, old, key, this.validateRun);
+            if (invalid || (old?.rev ?? 0) !== expectedRevision) {
+              bad = invalid ? damagedRun() : new ConflictError();
               tx.abort();
             } else
               try {
@@ -414,18 +426,7 @@
         });
       // Session memory belongs to this Store. Compare and write without yielding.
       const old = this.memory.runs[key];
-      if (
-        old !== undefined &&
-        (!old ||
-          old.schemaVersion !== 1 ||
-          old.key !== key ||
-          !Number.isSafeInteger(old.rev) ||
-          old.rev < 0)
-      )
-        throw Error(
-          'A saved record is damaged or from an unsupported version. Nothing was changed.',
-        );
-      if (old !== undefined) this.validateRun?.(old);
+      if (rowDamaged(old !== undefined, old, key, this.validateRun)) throw damagedRun();
       if ((old?.rev || 0) !== expectedRevision) throw new ConflictError();
       return this.put('runs', key, next);
     }
