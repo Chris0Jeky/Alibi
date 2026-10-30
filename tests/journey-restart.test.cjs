@@ -55,6 +55,11 @@ function harness({ active = true, saveError = '', storageFatal = '' } = {}) {
   };
   vm.createContext(context);
   vm.runInContext(loader, context);
+  // The restart actions consult the shared storage lock helper.
+  vm.runInContext(
+    app.slice(app.indexOf('  function locked()'), app.indexOf('  function blocked()')),
+    context,
+  );
   vm.runInContext(
     'dispatch = (action) => { switch (action) {\n' + app.slice(start, end) + '\n} };',
     context,
