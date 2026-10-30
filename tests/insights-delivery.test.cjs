@@ -20,7 +20,9 @@ test('reasoning ships once as a bounded hashed chunk in the offline shell, outsi
   const info = JSON.parse(read('build-info.json'));
   assert.equal(info.insightsChunkBytes, Buffer.byteLength(chunk));
   assert.equal(info.insightsChunkGzipBytes, zlib.gzipSync(chunk).length);
-  assert.ok(info.insightsChunkGzipBytes < 6 * 1024);
+  // Alibi file and witness hints (#846) take the reasoning chunk from 6,008 to 6,886 gzip bytes;
+  // it still loads only when Hint is pressed. 7 KiB leaves 282 bytes.
+  assert.ok(info.insightsChunkGzipBytes < 7 * 1024);
   assert.ok(read('dist/sw.js').includes(`"./assets/${chunks[0]}"`));
   assert.ok(!read('dist/index.html').includes(chunks[0]));
   const app = read(
