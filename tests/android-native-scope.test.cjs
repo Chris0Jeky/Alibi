@@ -39,6 +39,8 @@ test('native scope uses real git commits and refuses uncertain or non-handoff ch
   };
   try {
     git('init', '-q');
+    // Record symlinks as git mode-120000 entries without filesystem privilege (unprivileged Windows).
+    git('config', 'core.symlinks', 'false');
     fs.mkdirSync(path.join(dir, 'docs/state'), { recursive: true });
     fs.writeFileSync(path.join(dir, 'docs/state/a.md'), 'a');
     fs.mkdirSync(path.join(dir, 'src'));
@@ -60,8 +62,11 @@ test('native scope uses real git commits and refuses uncertain or non-handoff ch
     assert.equal(classify(base, mixed), 'full');
     git('rm', '-q', 'docs/state/a.md');
     fs.mkdirSync(path.join(dir, 'docs/state'), { recursive: true });
-    fs.symlinkSync('../../src/app.js', path.join(dir, 'docs/state/a.md'));
+    fs.writeFileSync(path.join(dir, 'docs/state/a.md'), '../../src/app.js');
+    const blob = git('hash-object', '-w', 'docs/state/a.md');
+    git('update-index', '--add', '--cacheinfo', `120000,${blob},docs/state/a.md`);
     const link = commit();
+    assert.match(git('ls-tree', link, '--', 'docs/state/a.md'), /^120000 blob /);
     assert.equal(classify(mixed, link), 'full');
     fs.unlinkSync(path.join(dir, 'docs/state/a.md'));
     fs.renameSync(path.join(dir, 'src/app.js'), path.join(dir, 'docs/state/renamed.md'));

@@ -252,30 +252,77 @@
     if (issues.length) return conflict(issues[0].message, issues[0].cells || []);
     if (p.type === 'trail') return trailDeduction(p, s);
     if (['sudoku', 'futoshiki'].includes(p.type)) {
-      const groups = C.groups(p);
+      const groups = C.groups(p),
+        // Futoshiki chains: a cell below k others cannot hold the top k values (and vice versa).
+        pairs = (p.inequalities || []).map((q) => (q.op === '<' ? [q.a, q.b] : [q.b, q.a])),
+        // Memoised so a dense draft stays linear; a contradictory cycle just stops early.
+        memo = [new Map(), new Map()],
+        bound = (i, dir, seen = new Set()) => {
+          if (s.cells[i]) return s.cells[i];
+          const known = memo[+(dir > 0)];
+          if (known.has(i)) return known.get(i);
+          if (seen.has(i)) return dir > 0 ? n : 1;
+          seen.add(i);
+          let v = dir > 0 ? n : 1;
+          for (const [lo, hi] of pairs)
+            if (dir > 0 && lo === i) v = Math.min(v, bound(hi, dir, seen) - 1);
+            else if (dir < 0 && hi === i) v = Math.max(v, bound(lo, dir, seen) + 1);
+          seen.delete(i);
+          known.set(i, v);
+          return v;
+        },
+        candidates = C.range(n * n).map((i) => {
+          if (s.cells[i]) return [];
+          const peers = groups.filter((group) => group.includes(i)).flat(),
+            low = bound(i, -1),
+            high = bound(i, 1);
+          return C.range(n)
+            .map((k) => k + 1)
+            .filter((v) => v >= low && v <= high && !peers.some((j) => s.cells[j] === v));
+        }),
+        rules = `row, column${p.type === 'sudoku' ? ', box' : ', inequality chain'}`;
       for (let i = 0; i < n * n; i++) {
         if (s.cells[i]) continue;
-        const peers = groups.filter((group) => group.includes(i)).flat();
-        const possible = C.range(n)
-          .map((k) => k + 1)
-          .filter((v) => !peers.some((j) => s.cells[j] === v))
-          .filter(
-            (v) =>
-              p.type !== 'futoshiki' ||
-              p.inequalities.every((q) => {
-                if (q.a !== i && q.b !== i) return true;
-                const a = q.a === i ? v : s.cells[q.a],
-                  b = q.b === i ? v : s.cells[q.b];
-                return !a || !b || (q.op === '<' ? a < b : a > b);
-              }),
-          );
+        const possible = candidates[i];
+        if (!possible.length)
+          return conflict(`No number fits ${at(i, n)} with your ${rules} and marks.`, [i]);
         if (possible.length === 1)
           return result(
             'Only one number fits',
-            `Only ${possible[0]} fits ${at(i, n)} with your row, column${p.type === 'sudoku' ? ', box' : ', inequality'} and current marks.`,
+            `Only ${possible[0]} fits ${at(i, n)} with your ${rules} and current marks.`,
             i,
             possible[0],
           );
+      }
+      // Hidden single: a number missing from a line or box with exactly one open place for it.
+      for (const group of groups) {
+        const row = group[1] - group[0] === 1 && group.at(-1) - group[0] === n - 1,
+          column = group[1] - group[0] === n,
+          name = row
+            ? `row ${Math.floor(group[0] / n) + 1}`
+            : column
+              ? `column ${String.fromCharCode(65 + (group[0] % n))}`
+              : `the box at ${at(group[0], n)}`,
+          others =
+            p.type === 'futoshiki'
+              ? `${row ? 'column' : 'row'} or inequality chain`
+              : row
+                ? 'column or box'
+                : column
+                  ? 'row or box'
+                  : 'row or column';
+        for (let v = 1; v <= n; v++) {
+          if (group.some((i) => s.cells[i] === v)) continue;
+          const places = group.filter((i) => candidates[i].includes(v));
+          if (!places.length) return conflict(`${v} has no place left in ${name}.`, group);
+          if (places.length === 1)
+            return result(
+              'Only one place for a number',
+              `${name[0].toUpperCase() + name.slice(1)} still needs a ${v}. Every other open square there is ruled out by its ${others}, so it goes in ${at(places[0], n)}.`,
+              places[0],
+              v,
+            );
+        }
       }
     }
     if (p.type === 'binary') {
