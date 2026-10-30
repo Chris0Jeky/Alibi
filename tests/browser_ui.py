@@ -143,6 +143,7 @@ with sync_playwright() as pw:
         page.set_viewport_size({'width':width,'height':900})
         for path in layout_paths:
             route(path);dismiss()
+            if path=='privacy':page.locator('.privacy-copy h2').first.wait_for()  # the loaded copy, not the shared h1 placeholder
             overflow=page.evaluate('document.documentElement.scrollWidth>innerWidth+1')
             check(not overflow,f'No page overflow at {width}px: {path}')
         if width==390:
