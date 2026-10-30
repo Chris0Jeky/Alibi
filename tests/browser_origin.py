@@ -63,6 +63,7 @@ ORIGIN_SCENARIOS = (
     "newer_database",
     "club_read_abort",
     "club_conflict",
+    "club_conflict_zen_exit",
     "rehearsal",
 )
 
@@ -2387,6 +2388,41 @@ def scenario_club_conflict(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_club_conflict_zen_exit(pw: Any, root: Path) -> None:
+    """Issue #884 review: a stale tab already in Zen can still leave it with the visible Exit Zen button."""
+    context = launch_profile(pw, root / "club-conflict-zen")
+    try:
+        stale = new_page(context, "club-zen-stale")
+        boot(stale)
+        route(stale, "salon/tictactoe")
+        stale.locator('[data-action="club-tictactoe-mode"][data-value="local"]').click()
+        wait_page(stale, "AlibiClub.diagnostics().state.runs.tictactoe.mode === 'local'", what="club local table")
+        stale.locator('[data-action="club-zen"]').first.click()
+        wait_page(stale, "AlibiClub.diagnostics().state.settings.zen === true", what="stale tab enters Zen")
+        stale.evaluate("AlibiClub.flush()")
+        writer = new_page(context, "club-zen-writer")
+        boot(writer)
+        route(writer, "salon/tictactoe")
+        wait_page(writer, "AlibiClub.diagnostics().state.runs.tictactoe.mode === 'local'", what="writer tab sees the table")
+        writer.locator("#tictactoe-0").click()
+        wait_page(writer, "AlibiClub.diagnostics().state.runs.tictactoe.log.length === 1", what="writer tab move")
+        writer.evaluate("AlibiClub.flush()")
+        stale.locator("#tictactoe-4").click()
+        wait_page(stale, "Boolean(AlibiClub.diagnostics().saveError)", what="stale tab conflict")
+        stale.locator("#zen-exit").click()
+        wait_page(stale, "AlibiClub.diagnostics().state.settings.zen === false", what="Exit Zen after a conflict")
+        check(
+            "club-zen" not in (stale.locator("body").get_attribute("class") or "")
+            and stale.locator("#zen-exit").count() == 0,
+            "Exit Zen still works after a conflict",
+        )
+    finally:
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def scenario_rehearsal(pw: Any, root: Path) -> None:
     """Issue #828: Rehearse plays a verified draft in memory with zero IndexedDB writes."""
     context = launch_profile(pw, root / "rehearsal")
@@ -2486,6 +2522,7 @@ def run() -> int:
                 scenario_newer_database,
                 scenario_club_read_abort,
                 scenario_club_conflict,
+                scenario_club_conflict_zen_exit,
                 scenario_rehearsal,
             ]
             only = os.environ.get("ALIBI_ONLY")

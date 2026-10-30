@@ -1231,7 +1231,10 @@
       id = el.dataset.id;
     if (restoring && a !== 'restore-confirm') return;
     try {
-      if (['rotate', 'pin', 'zen', 'assist', 'undo', 'redo'].includes(a)) requireSavable();
+      // Leaving Zen stays possible: the visible Exit Zen button is a phone's only way back to the nav.
+      const leavingZen = a === 'zen' && state.settings.zen;
+      if (['rotate', 'pin', 'zen', 'assist', 'undo', 'redo'].includes(a) && !leavingZen)
+        requireSavable();
       if (a === 'rotate') {
         hero = (hero + 1) % stories.length;
         state.lastHero = hero;
