@@ -88,6 +88,24 @@ test('probe fails when the identity script differs outside its compared fields',
   assert.match(result.lines.join('\n'), /platform identity script bytes differ/);
 });
 
+test("probe fails when only an asset's bytes differ", async (t) => {
+  const local = makeDist(tmp(t, 'alibi-probe-local-'));
+  const served = makeDist(tmp(t, 'alibi-probe-served-'));
+  fs.writeFileSync(path.join(served, 'assets/app.222222222222.css'), 'body{color:red}');
+  const result = await probe(await serve(t, served), local);
+  assert.equal(result.ok, false, result.lines.join('\n'));
+  assert.match(result.lines.join('\n'), /app\.222222222222\.css: bytes differ/);
+});
+
+test('probe fails when only index.html bytes differ', async (t) => {
+  const local = makeDist(tmp(t, 'alibi-probe-local-'));
+  const served = makeDist(tmp(t, 'alibi-probe-served-'));
+  fs.appendFileSync(path.join(served, 'index.html'), '<!-- x -->');
+  const result = await probe(await serve(t, served), local);
+  assert.equal(result.ok, false, result.lines.join('\n'));
+  assert.match(result.lines.join('\n'), /index\.html bytes differ/);
+});
+
 test('probe fails on a missing asset (404) and an unreachable origin', async (t) => {
   const local = makeDist(tmp(t, 'alibi-probe-local-'));
   const served = makeDist(tmp(t, 'alibi-probe-served-'));

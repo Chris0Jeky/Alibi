@@ -4,7 +4,10 @@
 //   npm run cloudflare:release -- --deploy  also deploy exactly that dist/, then probe the origin
 // Refuses a dirty tree, a detached HEAD and (with --deploy) a commit that is not on origin/main.
 // Writes release-receipt.json (git-ignored) with the SHA, branch, build-info, a sha256 per dist/
-// file, the Worker version id and the probe result. Rollback: `wrangler rollback <version id>`.
+// file, the Worker version id, a status and the probe result. A dry run writes
+// release-receipt.dry-run.json instead, so it never overwrites the last real release's receipt.
+// --deploy first copies a successfully deployed receipt to release-receipt.previous.json.
+// Rollback: `wrangler rollback <version id>`.
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -91,6 +94,7 @@ async function release(root, { deploy = false } = {}) {
     schema: 1,
     createdAt: new Date().toISOString(),
     mode: deploy ? 'deploy' : 'dry-run',
+    status: deploy ? 'deploying' : 'dry-run',
     sourceSha: sha,
     branch,
     origin,
@@ -100,22 +104,38 @@ async function release(root, { deploy = false } = {}) {
     workerVersionId: null,
     probe: null,
   };
-  const write = () =>
-    fs.writeFileSync(
-      path.join(root, 'release-receipt.json'),
-      `${JSON.stringify(receipt, null, 2)}\n`,
-    );
+  const receiptPath = path.join(
+    root,
+    deploy ? 'release-receipt.json' : 'release-receipt.dry-run.json',
+  );
+  const write = () => fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+  // Keep only a receipt whose deploy succeeded (a pre-status receipt with a version id was a real
+  // deploy) and that is another commit, so neither a failed redeploy nor a rerun replaces the target.
+  let prior = null;
+  try {
+    if (deploy) prior = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
+  } catch {}
+  const succeeded = prior?.status === 'deployed' || (prior && !('status' in prior));
+  if (deploy && succeeded && prior.workerVersionId && prior.sourceSha !== sha)
+    fs.copyFileSync(receiptPath, path.join(root, 'release-receipt.previous.json'));
   write();
   if (!deploy) {
     console.log('Dry run only: nothing published. Add --deploy to publish and probe the origin.');
-    console.log(`Receipt: ${path.join(root, 'release-receipt.json')}`);
+    console.log(`Receipt: ${receiptPath}`);
     return 0;
   }
 
   const outFile = path.join(os.tmpdir(), `alibi-wrangler-${process.pid}.ndjson`);
-  const output = run(root, 'wrangler deploy', [...wrangler, 'deploy', ...config], {
-    WRANGLER_OUTPUT_FILE_PATH: outFile,
-  });
+  let output;
+  try {
+    output = run(root, 'wrangler deploy', [...wrangler, 'deploy', ...config], {
+      WRANGLER_OUTPUT_FILE_PATH: outFile,
+    });
+  } catch (error) {
+    receipt.status = 'failed';
+    write();
+    throw error;
+  }
   let structured = '';
   try {
     structured = fs.readFileSync(outFile, 'utf8');
@@ -125,6 +145,7 @@ async function release(root, { deploy = false } = {}) {
     (/"version_id":"([0-9a-f-]{36})"/.exec(structured) ||
       /Version ID:\s*([0-9a-f-]{36})/i.exec(output) ||
       [])[1] || null;
+  receipt.status = 'deployed';
   write();
   if (!receipt.workerVersionId)
     console.error('Warning: wrangler printed no version id; none recorded.');
@@ -132,9 +153,7 @@ async function release(root, { deploy = false } = {}) {
   receipt.probe = await probe(origin, dist);
   write();
   console.log(receipt.probe.lines.join('\n'));
-  console.log(
-    `Receipt: ${path.join(root, 'release-receipt.json')} (version ${receipt.workerVersionId})`,
-  );
+  console.log(`Receipt: ${receiptPath} (version ${receipt.workerVersionId})`);
   return receipt.probe.ok ? 0 : 1;
 }
 

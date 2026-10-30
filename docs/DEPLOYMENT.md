@@ -41,7 +41,7 @@ paid external service is needed. Never create another project just to publish an
 2. Review the exact change, resolve confirmed blockers, and merge with CI green.
 3. From a clean checkout of the merged `main` (fetch first), run `npm run cloudflare:release`. It
    refuses a dirty tree or detached HEAD, builds, checks that `dist/` carries this exact commit, runs
-   the `wrangler deploy --dry-run` and writes `release-receipt.json` (git-ignored, repository root):
+   the `wrangler deploy --dry-run` and writes `release-receipt.dry-run.json` (git-ignored, root):
    full SHA, branch, `build-info.json`, a sha256 for every `dist/` file and the timestamp. Nothing is
    published yet.
 4. Run `npm run cloudflare:release -- --deploy` to publish exactly that `dist/`. It records the Worker
@@ -57,8 +57,10 @@ paid external service is needed. Never create another project just to publish an
 7. Verify HTML, hashed assets, manifest, icons, security headers, IndexedDB and offline play on
    the primary HTTPS origin using disposable test profiles. The probe covers byte identity only, not
    headers, saves or offline play. A new receipt records the version just deployed, so roll back to
-   the previous known-good version: keep the prior release's receipt (copy it aside before deploying)
-   or read it from `npx wrangler deployments list --config wrangler.jsonc`, then run
+   the previous known-good version: the release script keeps the prior release's receipt as
+   `release-receipt.previous.json` (copied aside when it records a successful deploy of another
+   commit), or read it from
+   `npx wrangler deployments list --config wrangler.jsonc`, then run
    `npx wrangler rollback <that version id> --config wrangler.jsonc`. Rollback does not reverse
    IndexedDB (see Saves and updates).
 
