@@ -240,8 +240,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #882 run saves (restore quiesces this tab, paint strokes stop when frozen, a damaged row
       // reports damage, restore refuses over unsaved progress) on main after #879: 134,754 -> 134,777
       // (+23). 74 x 64 would leave 7 bytes, so 127 KiB + 4,800 (75 x 64) leaves 71. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 4800,
-      'Application bundle stays under 127 KiB + 4,800 bytes gzip',
+      // #885 Workshop room names patched in place (showRoomNames: chips, plan labels, clue text,
+      // clue menu) so the next click and Tab are not swallowed, on main after #886: 134,777 ->
+      // 135,029 (+252). 78 x 64 would leave 11 bytes, so 127 KiB + 5,056 (79 x 64) leaves 75.
+      // No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 5056,
+      'Application bundle stays under 127 KiB + 5,056 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -445,8 +449,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 1.32 MiB + 56,064 (876 x 64) leaves 26.32 for identity/hash noise. No feature room.
       // #882 run saves on main after #879: 1,440,158 -> 1,440,408 (+250; 1.32 MiB + 56,287.68).
       // Excess 223.68; ceiling 1.32 MiB + 56,320 (880 x 64) leaves 32.32. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 56320,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 56,320 bytes',
+      // #885 room names patched in place, on main after #886: 1,440,408 -> 1,441,109 (+701;
+      // 1.32 MiB + 56,988.68). Excess 668.68; ceiling 1.32 MiB + 57,024 (891 x 64) leaves 35.32.
+      // No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 57024,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 57,024 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

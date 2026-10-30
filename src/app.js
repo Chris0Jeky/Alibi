@@ -2984,6 +2984,31 @@
     render();
     toast('Draft imported. Verify its logic next.');
   }
+  // Room names are patched in place: a render when the field blurs swallows the click or Tab that caused it (#885).
+  function showRoomNames() {
+    const n = draft.roomNames,
+      badge = $('.draft-editor .badge'),
+      menu = $('#clue-value'),
+      chosen = menu?.value;
+    badge.className = 'badge amber';
+    badge.textContent = 'Edited draft · recheck required';
+    for (const b of document.querySelectorAll('[data-action="draft-paint"]'))
+      b.textContent = `${String.fromCharCode(65 + +b.dataset.value)} · ${n[b.dataset.value]}`;
+    for (const b of document.querySelectorAll('button.draft-cell'))
+      b.setAttribute(
+        'aria-label',
+        b
+          .getAttribute('aria-label')
+          .replace(/room .*$/, () => `room ${n[draft.rooms[b.dataset.cell]]}`),
+      );
+    document
+      .querySelectorAll('.draft-clue > span:first-child')
+      .forEach((s, i) => (s.textContent = `${i + 1}. ${C.clueText(draft, draft.clues[i])}`));
+    if (menu) {
+      clueValues();
+      menu.value = chosen;
+    }
+  }
   function clueValues() {
     if (!draft) return;
     const kind = $('#clue-kind')?.value,
@@ -3819,6 +3844,7 @@
           '[data-action="add-draft"], [data-action="rehearse-draft"], [data-action="export-draft"], [data-action="audit-draft"]',
         ))
           button.disabled = true;
+        showRoomNames();
       }
     }
   });
@@ -3855,9 +3881,9 @@
         navigate('library', el.value);
       } else if (el.id === 'draft-object') draftObject = el.value;
       else if (el.id === 'clue-kind') clueValues();
-      else if (el.dataset.roomName !== undefined) {
-        render();
-      } else if (el.id === 'pack-input' && el.files[0]) {
+      else if (el.dataset.roomName !== undefined && draft)
+        el.value = draft.roomNames[el.dataset.roomName];
+      else if (el.id === 'pack-input' && el.files[0]) {
         await importPack(el.files[0]);
         el.value = '';
       } else if (el.id === 'draft-input' && el.files[0]) {
