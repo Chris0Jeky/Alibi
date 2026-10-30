@@ -9,7 +9,7 @@
   --pale: #e8ece1;
   --red: #a56354;
   --shadow: 0 8px 32px #233e3610;
-  --radius: 18px;
+  --radius: var(--radius-lg);
   font-family:
     ui-sans-serif,
     system-ui,
@@ -74,7 +74,7 @@ button {
   border: 1px solid var(--line);
   color: var(--ink);
   background: var(--cream);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   min-height: 42px;
   transition:
@@ -316,7 +316,7 @@ svg {
 }
 .pill {
   border: 1px solid #ccd5c6;
-  border-radius: 30px;
+  border-radius: var(--radius-pill);
   padding: 6px 11px;
   font-size: 10px;
   display: inline-flex;
@@ -481,7 +481,7 @@ svg {
   max-width: 100%;
   padding: 9px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
 }
@@ -532,7 +532,7 @@ svg {
   border-color: transparent;
   background: none;
   white-space: nowrap;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
 }
 .tray-tabs button.active {
   background: var(--pale);
@@ -568,7 +568,7 @@ svg {
   width: 65px;
   height: 43px;
   margin: 17px auto;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   transform: skewY(-12deg);
   border: 1px solid #738c7655;
   box-shadow: 4px 7px 0 #7c928854;
@@ -595,7 +595,7 @@ svg {
   overflow: hidden;
   background: linear-gradient(#e3e8d8, #f2e8d5);
   border: 1px solid #d5d9c9;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -735,7 +735,7 @@ svg {
   padding: 6px 12px;
   background: transparent;
   border: 0;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   display: grid;
   gap: 10px;
   color: #34594f;
@@ -749,7 +749,7 @@ svg {
   height: 180px;
   border: 3px solid #b4c7be;
   border-top: 1px solid #b4c7be;
-  border-radius: 8px 8px 27px 27px;
+  border-radius: var(--radius-sm) var(--radius-sm) 27px 27px;
   display: grid;
   grid-template-rows: repeat(var(--capacity), 1fr);
   overflow: hidden;
@@ -776,7 +776,7 @@ svg {
   display: grid;
   grid-template-rows: 1fr auto;
   padding: 5px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: repeating-linear-gradient(35deg, #dfe7d8 0px, #dfe7d8 5px, #e7ecdf 5px, #e7ecdf 7px);
   color: #537464;
   box-shadow: 0 2px 0 #bdc9b7;
@@ -819,7 +819,7 @@ svg {
   background: #f7f1e5;
   padding: 12px 4px;
   border: 1px solid #e1dac6;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
 }
 .specimen svg {
   width: 100%;
@@ -863,7 +863,7 @@ svg {
   font: inherit;
   font-size: 16px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
 }
@@ -878,7 +878,7 @@ svg {
   margin-top: 30px;
   padding: 24px;
   background: #eeefdf;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
 }
 .garden-inspiration figure {
   margin: 0;
@@ -989,7 +989,7 @@ svg {
 }
 .bond {
   height: 5px;
-  border-radius: 5px;
+  border-radius: var(--radius-pill);
   background: #e5e7da;
   overflow: hidden;
   margin: 10px 0;
@@ -1012,7 +1012,7 @@ svg {
 .facts div {
   padding: 12px;
   background: var(--paper);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 11px;
 }
 .facts strong {
@@ -1033,7 +1033,7 @@ svg {
   text-align: left;
   padding: 0;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   position: relative;
 }
 .activity-card .art {
@@ -1083,7 +1083,7 @@ svg {
   border-color: #ffffff7f;
   text-align: center;
   position: relative;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   min-height: 185px;
 }
 .pot svg {
@@ -1147,7 +1147,7 @@ svg {
   border: 1px solid #c1ceba;
   background: #edf1e4;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   line-height: 1.6;
   font-size: 12px;
   margin-top: 13px;
@@ -1177,7 +1177,7 @@ svg {
   width: 9px;
   height: 170px;
   background: #9b825e;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 .peg::after {
   content: '';
@@ -1186,11 +1186,11 @@ svg {
   width: 100%;
   height: 10px;
   background: #9b825e;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
 }
 .disc {
   height: 25px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   border: 1px solid #72564355;
   position: relative;
   z-index: 1;
@@ -1263,7 +1263,7 @@ svg {
   min-height: 280px;
   background: #b1c3a2;
   border: 1px solid #91ac8d;
-  border-radius: 55% 40% 12px 12px;
+  border-radius: 55% 40% var(--radius-md) var(--radius-md);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1341,7 +1341,7 @@ svg {
   margin-top: 18px;
   background: #e2ead9;
   border: 1px solid #b3c7a5;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 .result h3 {
   font-size: 24px;
@@ -1356,7 +1356,7 @@ svg {
   text-align: center;
   background: #f5f3e9;
   border: 1px dashed #d8d9ca;
-  border-radius: 15px;
+  border-radius: var(--radius-lg);
   opacity: 0.6;
 }
 .badge.earned {
@@ -1388,7 +1388,7 @@ svg {
   background: var(--cream);
   padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
 }
 .artcard .art-frame {
   aspect-ratio: 1.2;
@@ -1437,7 +1437,7 @@ svg {
 dialog {
   padding: 0;
   border: 1px solid #c4cabc;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--cream);
   color: var(--ink);
   width: min(620px, calc(100vw - 32px));
@@ -1465,7 +1465,7 @@ dialog input,
 dialog select {
   padding: 10px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   max-width: 100%;
   color: var(--ink);
   background: var(--paper);
@@ -1513,7 +1513,7 @@ dialog select {
   padding: 14px 22px;
   background: #304b44;
   color: #fffbed;
-  border-radius: 13px;
+  border-radius: var(--radius-md);
   z-index: 100;
   pointer-events: none;
   font-size: 12px;
@@ -2145,7 +2145,7 @@ dialog select {
 #world-preview-canvas {
   width: 100%;
   height: 300px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   margin-top: 16px;
 }
 .challenge-grid {
@@ -2158,7 +2158,7 @@ dialog select {
   min-width: 0;
   padding: 2px;
   aspect-ratio: 1;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   font-size: clamp(18px, 5vw, 26px);
 }
 .challenge-grid > button:disabled {
@@ -2188,7 +2188,7 @@ dialog select {
 }
 .challenge-pegs i {
   height: 18px;
-  border-radius: 9px;
+  border-radius: var(--radius-pill);
   background: var(--gold);
   color: #fff;
   font: 11px/18px sans-serif;
@@ -2303,7 +2303,7 @@ dialog select {
 .challenge-card b {
   margin-left: 4px;
   padding: 2px 6px;
-  border-radius: 8px;
+  border-radius: var(--radius-pill);
   background: var(--pale);
 }
 .challenge-card.done {
@@ -2313,7 +2313,7 @@ dialog select {
   min-height: 44px;
   margin: 8px 0 16px;
   padding: 0 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 .models .model small {
   display: block;
