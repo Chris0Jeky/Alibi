@@ -211,7 +211,7 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // in the deferred reasoning chunk): 133,704 -> 133,761 (+57). Excess 33; ceiling +64
       // leaves 31; no feature room.
       info.javascriptGzipBytes < 127 * 1024 + 3744,
-      'Application bundle stays under 127 KiB + 3,680 bytes gzip',
+      'Application bundle stays under 127 KiB + 3,744 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
