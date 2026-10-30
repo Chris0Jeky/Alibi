@@ -680,6 +680,44 @@ class MobileQA(unittest.TestCase):
         page.keyboard.press('Escape')
         expect(page.locator('.play-head [data-action="lesson"]')).to_be_focused()
 
+    def test_home_starter_is_visible_and_tappable_on_phones(self):
+        """#891: the newcomer starter and 'Find another puzzle' lived in a letter phones hid."""
+        for width in [360, 390, 430, 768]:
+            with self.subTest(width=width):
+                page = self.open_page(width, 844)
+                starter = page.locator('.club-letter [data-action="open"][data-id="nonogram-01"]')
+                expect(starter).to_be_visible()
+                self.assertIn('Find my first puzzle', starter.inner_text())
+                box = starter.bounding_box()
+                self.assertGreaterEqual(box['height'], 43.5, box)
+                self.assertLessEqual(box['x'] + box['width'], width, box)
+                self.assertFalse(page.evaluate('document.documentElement.scrollWidth>innerWidth+1'))
+                if width == 390:
+                    page.screenshot(path=str(OUT / 'home-newcomer-390.png'), full_page=True)
+                starter.tap()
+                page.wait_for_function('() => location.hash.startsWith("#/play/nonogram-01")')
+                expect(page.locator('#dialog[open] [data-action="lesson-finish"]')).to_be_visible()
+
+    def test_home_offers_another_puzzle_after_a_first_solve_on_phones(self):
+        page = self.open_page(390, 844, 'play/nonogram-01@1')
+        if page.locator('#dialog[open] [data-action="lesson-finish"]').count():
+            self.dismiss_lesson(page)
+        puzzles = json.loads((ROOT / 'content/catalog.json').read_text())['puzzles']
+        solution = next(p for p in puzzles if p['id'] == 'nonogram-01')['solution']
+        for i, value in enumerate(solution):
+            if value == 1:
+                page.locator(f'[data-action="cell"][data-cell="{i}"]').tap()
+        page.wait_for_function('() => AlibiDiagnostics.getCurrent()?.completedAt')
+        if page.locator('#dialog[open]').count():
+            page.locator('#dialog[open] [data-action="close-dialog"]').first.click()
+        page.evaluate('location.hash = "#/home"')
+        another = page.locator('.club-letter [data-action="navigate"][data-page="library"]')
+        expect(another).to_be_visible()
+        self.assertIn('Find another puzzle', another.inner_text())
+        page.screenshot(path=str(OUT / 'home-solved-390.png'), full_page=True)
+        another.tap()
+        page.wait_for_function('() => location.hash.startsWith("#/library")')
+
     def test_readable_navigation_and_card_names(self):
         page = self.open_page(1280, 900)
         expect(page.get_by_role('button', name=f'The puzzle collection, {OFFICIAL_COUNT} puzzles', exact=True)).to_be_visible()

@@ -420,6 +420,8 @@ def run():
                     case_click(page, 'check')
                     expect(page.locator('[data-case-action="check"]')).to_be_focused()
                     expect(page.locator('[data-case-status]')).to_contain_text('accepted and saved')
+                    # #891: the last stage must not point at a next stage that does not exist.
+                    assert ('next stage' in page.locator('[data-case-status]').inner_text()) == (i < 2)
                     assert len(read(page)['state']['caseStudy']['answers']) == i + 1
                     committed = read(page)
                     case_click(page, 'check')
