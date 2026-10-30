@@ -2779,6 +2779,10 @@
       block: 'start',
     });
   }
+  // Sorted, unique, in-range clue indices.
+  const badClues = (c) =>
+    !Array.isArray(c) ||
+    c.some((x, i) => !Number.isInteger(x) || x < 0 || x >= draft.clues.length || x <= c[i - 1]);
   async function verifyDraft() {
     if (!draft || draftBusy) return;
     const startedEpoch = draftEpoch;
@@ -2795,13 +2799,7 @@
         if (
           !Array.isArray(result.solutions) ||
           result.solutions.length ||
-          (why?.kind !== 'layout' &&
-            (why?.kind !== 'clues' ||
-              !Array.isArray(c) ||
-              !c.length ||
-              c.some(
-                (x, i) => !Number.isInteger(x) || x < 0 || x >= draft.clues.length || x <= c[i - 1],
-              )))
+          (why?.kind !== 'layout' && (why?.kind !== 'clues' || !c?.length || badClues(c)))
         )
           throw Error('The draft check returned an invalid result. Verify again.');
         draftConflict = why.kind === 'clues' ? c : [];
@@ -2848,11 +2846,7 @@
       const result = await inWorker({ type: 'audit', puzzle: draft }),
         r = result?.redundant;
       if (startedEpoch !== draftEpoch) return;
-      if (
-        !Array.isArray(r) ||
-        r.some((x, i) => !Number.isInteger(x) || x < 0 || x >= draft.clues.length || x <= r[i - 1])
-      )
-        throw Error('The clue audit returned an invalid result. Run it again.');
+      if (badClues(r)) throw Error('The clue audit returned an invalid result. Run it again.');
       draftAudit = r;
     } catch (e) {
       if (startedEpoch !== draftEpoch) return;

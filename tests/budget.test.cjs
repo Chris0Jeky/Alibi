@@ -338,8 +338,15 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // chunk wrapper add raw precached bytes while startup gzip falls) measure 1,426,795 bytes
       // (1.32 MiB + 42,674.68) on the composed tree. Ceiling 1.32 MiB + 42,944 (64-byte step)
       // leaves 269.32 bytes for identity/hash noise; startup gzip and content limits unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 42944,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 42,944 bytes',
+      // #833 Scene Maker clue audit (the 'audit' worker request in the validator worker and the
+      // Audit clues control, result region and strict reply check in the application): the base
+      // measures 1,426,794 bytes; the change measures 1,428,315 (+1,521) after sharing the clue-index
+      // check with the conflict diagnosis and its list renderer with the audit result. The honest
+      // refusal, the two result sentences and the reply refusal are required text. Excess 1,250.68
+      // bytes; ceiling +1,280 (20 x 64) leaves 29.32 for identity/hash noise; no feature room.
+      // JavaScript gzip (133,133 against 135,808) and startup/content limits are unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 44224,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 44,224 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
