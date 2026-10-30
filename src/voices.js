@@ -25,7 +25,8 @@ place appears, on first use, or when messages are waiting. Nothing is sent from 
   });
   // The player's own last "Too easy / Too hard" for a puzzle, read from the local rating record
   // (written by the chunk); used only to choose the next puzzle. Nothing is sent from here.
-  A.feel = (id) => {
+  // Its own global so app.js keeps a single Voices call site (tests/voices.test.cjs).
+  g.AlibiFeel = (id) => {
     try {
       const d = JSON.parse(g.localStorage.getItem('alibi:voices:state:v1'))?.rated?.[id]
         ?.difficulty;
