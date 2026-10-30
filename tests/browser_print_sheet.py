@@ -52,7 +52,8 @@ def check_sheet(page, puzzle, label, filled, height):
     for selector in FURNITURE:
         assert not page.locator(selector).first.is_visible(), (label, selector, 'still visible')
     assert page.locator('dialog[open]').count() == 0 or not page.locator('dialog[open]').is_visible()
-    box = page.locator('.grid-shell').bounding_box()
+    # #871: bounding_box() returns None when a re-render detaches the node mid-call; evaluate re-resolves.
+    box = page.locator('.grid-shell').evaluate('e => { const r = e.getBoundingClientRect(); return {y: r.y, height: r.height}; }')
     assert box and box['y'] >= 0 and box['y'] + box['height'] <= height, (label, 'board off page', box)
     assert page.evaluate('document.documentElement.scrollHeight') <= height, (label, 'taller than a page')
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (label, 'wider than a page')
