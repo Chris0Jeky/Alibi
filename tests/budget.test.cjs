@@ -345,8 +345,15 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // refusal, the two result sentences and the reply refusal are required text. Excess 1,250.68
       // bytes; ceiling +1,280 (20 x 64) leaves 29.32 for identity/hash noise; no feature room.
       // JavaScript gzip (133,133 against 135,808) and startup/content limits are unchanged.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 44224,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 44,224 bytes',
+      // #828 Scene Maker Rehearse (the in-memory rehearsal run, its route branch, the save and
+      // preference guards, the unsaved banner and labels, the Back to the editor exits and the
+      // Pulseboard journey guard): the base measures 1,428,315 bytes; the change measures
+      // 1,429,342 (+1,027). The run builder is shared with getRun, and one guard each covers every
+      // save, preference and journey caller rather than one per call site. Excess 997.68 bytes;
+      // ceiling +1,024 (16 x 64) leaves 26.32 for identity/hash noise; no feature room.
+      // JavaScript gzip (133,387 against 135,808) and startup/content limits are unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45248,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 45,248 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
