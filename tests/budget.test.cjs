@@ -247,8 +247,12 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #887 remove a local pack (Store.removePack, the Remove control and confirmation, stored-pack
       // backups, the confirmed-pack compare, the offline Add message) on main after #888: 135,029 ->
       // 135,376 (+347). Excess 328; ceiling 127 KiB + 5,376 (84 x 64) leaves 48. No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 5376,
-      'Application bundle stays under 127 KiB + 5,376 bytes gzip',
+      // #884 Club controls refuse after a save conflict (one requireSavable() guard shared by the
+      // edition, Zen, assist, Undo/Redo, garden, archive and daily-town controls), on main after
+      // #897: 135,408 -> 135,435 (+27). Excess 11; ceiling 127 KiB + 5,440 (85 x 64) leaves 53.
+      // No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 5440,
+      'Application bundle stays under 127 KiB + 5,440 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -458,8 +462,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #887 remove a local pack, on main after #888: 1,441,109 -> 1,442,994 (+1,885; 1.32 MiB +
       // 58,873.68). Excess 1,849.68; 920 x 64 would leave 6.32, so 1.32 MiB + 58,944 (921 x 64)
       // leaves 70.32. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 58944,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 58,944 bytes',
+      // #884 Club controls refuse after a save conflict, on main after #897: 1,443,051 ->
+      // 1,443,241 (+190; 1.32 MiB + 59,120.68). Excess 176.68; 924 x 64 would leave 15.32, so
+      // 1.32 MiB + 59,200 (925 x 64) leaves 79.32. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 59200,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 59,200 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

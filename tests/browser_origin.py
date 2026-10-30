@@ -62,6 +62,8 @@ ORIGIN_SCENARIOS = (
     "inactive_broadcast",
     "newer_database",
     "club_read_abort",
+    "club_conflict",
+    "club_conflict_zen_exit",
     "rehearsal",
 )
 
@@ -2311,6 +2313,116 @@ def scenario_club_read_abort(pw: Any, root: Path) -> None:
             pass
 
 
+def scenario_club_conflict(pw: Any, root: Path) -> None:
+    """Issue #884: after a Club save conflict, Undo and settings refuse instead of feigning a save."""
+    context = launch_profile(pw, root / "club-conflict")
+    try:
+        # Booting a tab bumps the Club revision, so the tab opened first is the stale one.
+        stale = new_page(context, "club-conflict-stale")
+        boot(stale)
+        route(stale, "salon/tictactoe")
+        stale.locator('[data-action="club-tictactoe-mode"][data-value="local"]').click()
+        wait_page(stale, "AlibiClub.diagnostics().state.runs.tictactoe.mode === 'local'", what="club local table")
+        stale.evaluate("AlibiClub.flush()")
+        writer = new_page(context, "club-conflict-writer")
+        boot(writer)
+        route(writer, "salon/tictactoe")
+        wait_page(writer, "AlibiClub.diagnostics().state.runs.tictactoe.mode === 'local'", what="writer tab sees the table")
+        writer.locator("#tictactoe-0").click()
+        wait_page(writer, "AlibiClub.diagnostics().state.runs.tictactoe.log.length === 1", what="writer tab move")
+        writer.evaluate("AlibiClub.flush()")
+        committed = read_club_state(writer)
+        check(committed["data"]["runs"]["tictactoe"]["log"] == [0], "the writer tab move is the committed Club save")
+        check(not stale.evaluate("AlibiClub.diagnostics().saveError"), "the stale tab has not noticed yet")
+
+        stale.locator("#tictactoe-4").click()
+        wait_page(stale, "Boolean(AlibiClub.diagnostics().saveError)", what="stale tab conflict")
+        check("another tab" in stale.evaluate("AlibiClub.diagnostics().saveError"), "stale tab reports the save conflict")
+        attempted = stale.evaluate("AlibiClub.diagnostics().state")
+        check(attempted["runs"]["tictactoe"]["log"] == [4], "conflicting move stays unsaved in the stale tab")
+
+        stale.locator('[data-action="club-undo"][data-id="tictactoe"]').click()
+        toast = stale.locator("#toasts .toast.error")
+        toast.wait_for()
+        check("Resolve the save conflict" in toast.inner_text(), "Undo after a conflict shows a refusal toast")
+        check(
+            stale.evaluate("AlibiClub.diagnostics().state.runs.tictactoe.log") == [4],
+            "Undo after a conflict does not change the board",
+        )
+        check(
+            stale.evaluate("AlibiClub.diagnostics().state.runs.tictactoe.redo") == [],
+            "Undo after a conflict leaves no redo entry",
+        )
+        stale.locator('[data-action="club-zen"]').first.click()
+        check(
+            stale.evaluate("AlibiClub.diagnostics().state.settings.zen") is False
+            and "club-zen" not in (stale.locator("body").get_attribute("class") or ""),
+            "Zen after a conflict is refused",
+        )
+        route(stale, "salon/regiongardens")
+        stale.locator('[data-action="club-garden-level"][data-value="1"]').click()
+        check(
+            stale.evaluate("AlibiClub.diagnostics().state.runs.regiongardens.level") == 0,
+            "Garden level change after a conflict is refused",
+        )
+        route(stale, "home")
+        stale.locator('[data-action="club-rotate"]').first.click()
+        check(
+            stale.evaluate("AlibiClub.diagnostics().hero") == attempted["lastHero"],
+            "Edition switch after a conflict is refused",
+        )
+
+        stale.reload(wait_until="domcontentloaded")
+        wait_diag(stale)
+        wait_page(stale, "AlibiClub.diagnostics().storageMode === 'indexeddb'", what="stale tab reload")
+        reloaded = stale.evaluate("AlibiClub.diagnostics()")
+        check(not reloaded["saveError"], "reloaded stale tab has no conflict")
+        check(reloaded["state"]["runs"]["tictactoe"]["log"] == [0], "reloaded stale tab shows the writer tab's saved move only")
+        check(reloaded["state"]["settings"]["zen"] is False, "reloaded stale tab keeps none of the refused changes")
+        final = read_club_state(stale)
+        check(final["data"]["runs"]["tictactoe"]["log"] == [0], "the refused controls wrote nothing to the Club save")
+    finally:
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
+def scenario_club_conflict_zen_exit(pw: Any, root: Path) -> None:
+    """Issue #884 review: a stale tab already in Zen can still leave it with the visible Exit Zen button."""
+    context = launch_profile(pw, root / "club-conflict-zen")
+    try:
+        stale = new_page(context, "club-zen-stale")
+        boot(stale)
+        route(stale, "salon/tictactoe")
+        stale.locator('[data-action="club-tictactoe-mode"][data-value="local"]').click()
+        wait_page(stale, "AlibiClub.diagnostics().state.runs.tictactoe.mode === 'local'", what="club local table")
+        stale.locator('[data-action="club-zen"]').first.click()
+        wait_page(stale, "AlibiClub.diagnostics().state.settings.zen === true", what="stale tab enters Zen")
+        stale.evaluate("AlibiClub.flush()")
+        writer = new_page(context, "club-zen-writer")
+        boot(writer)
+        route(writer, "salon/tictactoe")
+        wait_page(writer, "AlibiClub.diagnostics().state.runs.tictactoe.mode === 'local'", what="writer tab sees the table")
+        writer.locator("#tictactoe-0").click()
+        wait_page(writer, "AlibiClub.diagnostics().state.runs.tictactoe.log.length === 1", what="writer tab move")
+        writer.evaluate("AlibiClub.flush()")
+        stale.locator("#tictactoe-4").click()
+        wait_page(stale, "Boolean(AlibiClub.diagnostics().saveError)", what="stale tab conflict")
+        stale.locator("#zen-exit").click()
+        wait_page(stale, "AlibiClub.diagnostics().state.settings.zen === false", what="Exit Zen after a conflict")
+        check(
+            "club-zen" not in (stale.locator("body").get_attribute("class") or "")
+            and stale.locator("#zen-exit").count() == 0,
+            "Exit Zen still works after a conflict",
+        )
+    finally:
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
 def scenario_rehearsal(pw: Any, root: Path) -> None:
     """Issue #828: Rehearse plays a verified draft in memory with zero IndexedDB writes."""
     context = launch_profile(pw, root / "rehearsal")
@@ -2409,6 +2521,8 @@ def run() -> int:
                 scenario_inactive_broadcast,
                 scenario_newer_database,
                 scenario_club_read_abort,
+                scenario_club_conflict,
+                scenario_club_conflict_zen_exit,
                 scenario_rehearsal,
             ]
             only = os.environ.get("ALIBI_ONLY")
