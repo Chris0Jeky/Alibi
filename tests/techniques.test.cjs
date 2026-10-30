@@ -41,3 +41,7 @@ test('placements, marks and values all count; corrections never do', () => {
 test('every official puzzle can be summarised without reading the answer', () => {
   for (const p of official) I.techniques(hidden(p));
 });
+
+test('a puzzle the hint walk cannot handle yields no line instead of an error', () => {
+  assert.deepEqual(I.techniques({ id: 'x', revision: 1, type: 'unknown', size: 3 }), []);
+});

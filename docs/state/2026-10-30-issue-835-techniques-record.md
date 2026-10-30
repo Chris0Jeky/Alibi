@@ -15,10 +15,13 @@
 - `tests/techniques.test.cjs` (3): `sudoku-04` names both Sudoku techniques; trails, Alibi files,
   scenes and Picture logic never list a correction; every official puzzle summarises with the
   answer hidden. Two fail on the previous `src/insights.js` (no `techniques`).
-- After build: budget (shell +588; ceiling +640 leaves 103.32 bytes), insights-delivery (chunk
-  7,077 of 7,168 gzip), asset-catalogue, dossier/witness, hint-reach pass.
+- After build: budget (shell +700; ceiling +704 leaves 55.32 bytes), insights-delivery (chunk
+  7,134 of 7,168 gzip — nearly full), asset-catalogue, dossier/witness, hint-reach pass.
 - Built app: solving `sudoku-04` and opening *Review the record* shows "Techniques the hints use
   here: Only one number fits (24), Only one place for a number (2)."
+
+- Review fixes: the walk is memoised per puzzle revision (worst official board, a 15×15
+  nonogram, ~30 ms cold on desktop) and never throws (an unknown family returns no line).
 
 ## Limits
 

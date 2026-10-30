@@ -341,11 +341,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // Alibi file and witness reasoning hints (#846) in the precached reasoning chunk:
       // 1,426,791 -> 1,429,189 (+2,398), 2,124.68 bytes over the composed ceiling. Ceiling
       // +2,176 (34 x 64) leaves 51.32 bytes; startup gzip unchanged.
-      // Techniques line in the completed record (#835): insights techniques() and one app.js
-      // line measure 1,429,189 -> 1,429,777 (+588), 536.68 over. Ceiling +640 (10 x 64) leaves
-      // 103.32 bytes; the reasoning chunk is 7,077 of its 7 KiB gzip cap.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45760,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 45,760 bytes',
+      // Techniques line in the completed record (#835): memoised insights techniques() and one
+      // app.js line measure 1,429,189 -> 1,429,889 (+700), 648.68 over. Ceiling +704 (11 x 64)
+      // leaves 55.32 bytes; the reasoning chunk is 7,134 of its 7 KiB gzip cap (34 left).
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 45824,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 45,824 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
