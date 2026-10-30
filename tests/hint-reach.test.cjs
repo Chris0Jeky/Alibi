@@ -37,7 +37,10 @@ for (const [type, most] of Object.entries(SILENT_AT_MOST))
     );
   });
 
-test('Picture logic hints still solve almost every official board', () => {
-  // Measured 37 of 40; the walk applies only answer-independent single-cell steps.
-  assert.ok(families.nonogram.solvedByHints >= 37, String(families.nonogram.solvedByHints));
-});
+// Official boards that answer-independent hint steps alone complete (engine completion rule).
+const SOLVED_AT_LEAST = { nonogram: 37, tents: 27, sudoku: 16, lightup: 15, binary: 7 };
+
+for (const [type, least] of Object.entries(SOLVED_AT_LEAST))
+  test(`${type}: hints alone still complete at least ${least} boards`, () => {
+    assert.ok(families[type].solvedByHints >= least, String(families[type].solvedByHints));
+  });
