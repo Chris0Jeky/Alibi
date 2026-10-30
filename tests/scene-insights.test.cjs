@@ -101,6 +101,8 @@ test('pair clues prune candidates and the forced square names the clue', () => {
   assert.deepEqual(hint.cells, [0]);
   assert.match(hint.message, /Ada can only stand at A1/);
   assert.match(hint.message, /Ada was in a higher row than Ben/);
+  // The clue that pinned Ben is part of the chain too (#851).
+  assert.ok(hint.message.includes(C.clueText(p, p.clues[1])), hint.message);
 });
 
 test('a person with nowhere left to stand reports a conflict', () => {
@@ -141,4 +143,28 @@ test('scene hints stay silent when the reasoning helper is missing', () => {
   } finally {
     globalThis.AlibiAssist = assist;
   }
+});
+
+test('hints on partial official scenes never contradict the solution (#851)', () => {
+  // Leave each person out of the true layout in turn, and every second person out too.
+  let hints = 0;
+  for (const p of scenes) {
+    const ids = p.people.map((x) => x.id),
+      boards = [...ids.map((id) => [id]), ids.filter((_, i) => i % 2)];
+    for (const missing of boards) {
+      const s = fresh(p);
+      for (const id of ids) if (!missing.includes(id)) s.placements[id] = p.solution[id];
+      const hint = I.deduction(blind(p), s);
+      if (!hint) continue;
+      assert.notEqual(hint.rule, 'Revisit a conflict', `${p.id}: ${hint.message}`);
+      if (hint.person) assert.equal(hint.cells[0], p.solution[hint.person], p.id);
+      else if (hint.cells.length)
+        assert.ok(
+          missing.some((id) => hint.cells.includes(p.solution[id])),
+          `${p.id}: ${hint.message}`,
+        );
+      hints++;
+    }
+  }
+  assert.ok(hints > scenes.length, String(hints));
 });

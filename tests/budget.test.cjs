@@ -207,8 +207,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #831 resume previews (Picture logic cards drawn from saved marks in src/presentation.js,
       // which ships in the startup bundle): 133,579 -> 133,705 (+126). Excess 105; ceiling +128
       // leaves 23; no feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 3680,
-      'Application bundle stays under 127 KiB + 3,680 bytes gzip',
+      // Third composition: #862's completed-record technique names and #858's print-only revision
+      // line in the startup bundle measure 133,773 (+68 over 133,705). Excess 45; ceiling +64
+      // leaves 19, still 2,016 below the pre-#845 ceiling; no feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 3744,
+      'Application bundle stays under 127 KiB + 3,744 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -373,8 +376,24 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // 274.68; ceiling +320 (5 x 64) leaves 45.32 for identity/hash noise; no feature room.
       // #831 resume previews on the composed tree: 1,430,091 -> 1,430,393 (+302). Excess 256.68;
       // ceiling +320 (5 x 64) leaves 63.32 for identity/hash noise; no feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 46336,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 46,336 bytes',
+      // Alibi file and witness reasoning hints (#846) in the precached reasoning chunk:
+      // 1,426,791 -> 1,429,189 (+2,398), 2,124.68 bytes over the composed ceiling. Ceiling
+      // +2,176 (34 x 64) leaves 51.32 bytes; startup gzip unchanged.
+      // app.js line measure 1,429,189 -> 1,429,889 (+700), 648.68 over. Ceiling +704 (11 x 64)
+      // leaves 55.32 bytes; the reasoning chunk is 7,134 of its 7 KiB gzip cap (34 left).
+      // id/revision span, then the review fixes: night-theme reset, scene and Alibi-file clue
+      // list, Lantern walls and check tints): measures 1,426,795 -> 1,429,143 (+2,348; shell
+      // 1.32 MiB + 45,022.68). The selectors that hide the interface cannot shrink below their
+      // names. Excess 2,078.68 bytes; ceiling +2,176 (34 x 64) leaves 97.32 for identity/hash
+      // noise; no feature room. Startup gzip (202,521 of 225,280) and content limits unchanged.
+      // Third 2026-10-30 composition (one measurement replaces the per-PR raises from #856, #858
+      // and #862 above, each made against its own base): Alibi-file and witness hints (#856),
+      // the print sheet with its review fixes (#858), the named techniques record (#862), the
+      // scene hint chain (#860) and Quiet Wing radius roles (#861) measure 1,435,972 bytes
+      // (1.32 MiB + 51,851.68) on the composed tree. Ceiling 1.32 MiB + 51,968 (812 x 64) leaves
+      // 116.32 bytes for identity/hash noise; no feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 51968,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 51,968 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
