@@ -378,6 +378,11 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // +2,176 (34 x 64) leaves 51.32 bytes; startup gzip unchanged.
       // app.js line measure 1,429,189 -> 1,429,889 (+700), 648.68 over. Ceiling +704 (11 x 64)
       // leaves 55.32 bytes; the reasoning chunk is 7,134 of its 7 KiB gzip cap (34 left).
+      // id/revision span, then the review fixes: night-theme reset, scene and Alibi-file clue
+      // list, Lantern walls and check tints): measures 1,426,795 -> 1,429,143 (+2,348; shell
+      // 1.32 MiB + 45,022.68). The selectors that hide the interface cannot shrink below their
+      // names. Excess 2,078.68 bytes; ceiling +2,176 (34 x 64) leaves 97.32 for identity/hash
+      // noise; no feature room. Startup gzip (202,521 of 225,280) and content limits unchanged.
       // COMPOSE3-SHELL
       contentBytes.shellBytes < 1.32 * 1024 * 1024 + 99999,
       'COMPOSE3-SHELL',
