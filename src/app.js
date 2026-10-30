@@ -75,6 +75,7 @@
     draft = null,
     draftVerified = false,
     draftComparison = null,
+    draftConflict = null,
     draftUndo = [],
     draftRedo = [],
     draftNameEdit = null,
@@ -1304,7 +1305,7 @@
       })
       .join(
         '',
-      )}</div><div class="row wrap">${B(draftShowSolution ? 'Hide author solution' : 'Show author solution', 'draft-solution', 'eye', 'secondary small')}</div><p class="fine" style="margin-top:12px">Click squares to edit. Room letters remain visible independently of colour. Editing invalidates the verification. The shown solution is the last verified arrangement.</p><div class="form-grid" style="margin-top:17px">${p.roomNames.map((name, i) => `<div class="field"><label for="room-name-${i}">Room ${String.fromCharCode(65 + i)}</label><input id="room-name-${i}" value="${esc(name)}" data-room-name="${i}" maxlength="40"></div>`).join('')}</div></div><div><h3 style="margin-bottom:12px">${p.clues.length} clues in this draft</h3><div class="draft-clues" data-scroll-key="draft-clues">${p.clues.map((cl, i) => `<div class="draft-clue"><span>${esc(C.clueText(p, cl))}</span>${round('remove-draft-clue', 'close', 'Remove clue', `data-index="${i}"`)}</div>`).join('')}</div><form id="clue-form" class="clue-builder"><div class="eyebrow">Add a clue</div><div class="row"><select name="who" id="clue-who" aria-label="Person">${p.people.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><select name="kind" id="clue-kind" aria-label="Clue relation">${[
+      )}</div><div class="row wrap">${B(draftShowSolution ? 'Hide author solution' : 'Show author solution', 'draft-solution', 'eye', 'secondary small')}</div><p class="fine" style="margin-top:12px">Click squares to edit. Room letters remain visible independently of colour. Editing invalidates the verification. The shown solution is the last verified arrangement.</p><div class="form-grid" style="margin-top:17px">${p.roomNames.map((name, i) => `<div class="field"><label for="room-name-${i}">Room ${String.fromCharCode(65 + i)}</label><input id="room-name-${i}" value="${esc(name)}" data-room-name="${i}" maxlength="40"></div>`).join('')}</div></div><div><h3 style="margin-bottom:12px">${p.clues.length} clues in this draft</h3><div class="draft-clues" data-scroll-key="draft-clues">${p.clues.map((cl, i) => `<div class="draft-clue"><span>${i + 1}. ${esc(C.clueText(p, cl))}</span>${round('remove-draft-clue', 'close', 'Remove clue', `data-index="${i}"`)}</div>`).join('')}</div><form id="clue-form" class="clue-builder"><div class="eyebrow">Add a clue</div><div class="row"><select name="who" id="clue-who" aria-label="Person">${p.people.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><select name="kind" id="clue-kind" aria-label="Clue relation">${[
       ['room', 'Was in room'],
       ['notRoom', 'Not in room'],
       ['row', 'Was in row'],
@@ -1319,7 +1320,12 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}</section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form><div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. Read the explanation below, revise the draft, then verify again.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">If there are multiple solutions, add a clue. If there are none, remove or correct a clue. Furniture must not invalidate a “next to” clue that refers to it.</p></div></div>${draftComparisonView()}${draftConflictView()}</section>`;
+  }
+  function draftConflictView() {
+    if (!draftConflict) return '';
+    const layout = draftConflict.kind === 'layout';
+    return `<section id="draft-conflict" class="draft-comparison" tabindex="-1" aria-labelledby="draft-conflict-title"><h3 id="draft-conflict-title">${layout ? 'No arrangement fits this floor plan' : 'These clues cannot all hold'}</h3><p>${layout ? 'Even with no clues, the current rooms and furniture leave no valid arrangement. Revise the floor plan, then verify again.' : 'With the current floor plan, no arrangement satisfies all of these clues together. Revise or remove one, then verify again.'}</p>${layout ? '' : `<ul class="draft-comparison-text">${draftConflict.clues.map((i) => `<li>${B(`Go to clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul>`}</section>`;
   }
   function draftComparisonView() {
     if (!draftComparison) return '';
@@ -2680,7 +2686,7 @@
   function dirtyDraft() {
     draftEpoch++;
     draftVerified = false;
-    draftComparison = null;
+    draftComparison = draftConflict = null;
     saveDraft();
   }
   function undoDraft(redo = false) {
@@ -2714,7 +2720,7 @@
     const startedEpoch = draftEpoch;
     draftBusy = true;
     draftVerified = false;
-    draftComparison = null;
+    draftComparison = draftConflict = null;
     render();
     try {
       const result = await inWorker({ type: 'generate', options });
@@ -2745,11 +2751,29 @@
     const startedEpoch = draftEpoch;
     draftBusy = true;
     draftVerified = false;
-    draftComparison = null;
+    draftComparison = draftConflict = null;
     render();
     try {
       const result = await inWorker({ type: 'draft', puzzle: draft });
       if (startedEpoch !== draftEpoch) return;
+      const why = result?.diagnosis;
+      if (result && 'diagnosis' in result) {
+        if (
+          !Array.isArray(result.solutions) ||
+          result.solutions.length ||
+          !['layout', 'clues'].includes(why?.kind) ||
+          (why.kind === 'clues' &&
+            (!Array.isArray(why.clues) ||
+              !why.clues.length ||
+              why.clues.some(
+                (x, i) =>
+                  !Number.isInteger(x) || x < 0 || x >= draft.clues.length || x <= why.clues[i - 1],
+              )))
+        )
+          throw Error('The draft check returned an invalid result. Verify again.');
+        draftConflict = { kind: why.kind, clues: why.kind === 'clues' ? why.clues.slice() : [] };
+        return;
+      }
       if (!Array.isArray(result?.solutions) || ![1, 2].includes(result.solutions.length))
         throw Error('The draft check returned an invalid result. Verify again.');
       const checked = result.solutions.map((solution) => {
@@ -2778,7 +2802,8 @@
     } finally {
       draftBusy = false;
       render();
-      if (draftComparison) document.querySelector('#draft-comparison')?.focus();
+      if (draftComparison || draftConflict)
+        document.querySelector('#draft-comparison, #draft-conflict')?.focus();
     }
   }
   function clueValues() {
@@ -3414,6 +3439,9 @@
           render();
         }
         break;
+      case 'focus-draft-clue':
+        $(`[data-action="remove-draft-clue"][data-index="${Number(el.dataset.index)}"]`)?.focus();
+        break;
       case 'undo-draft':
       case 'redo-draft':
         undoDraft(a === 'redo-draft');
@@ -3556,7 +3584,7 @@
         const before = C.clone(draft);
         draft.roomNames[Number(el.dataset.roomName)] = value;
         if (!recordDraft(before, el)) return;
-        document.querySelector('#draft-comparison')?.remove();
+        document.querySelector('#draft-comparison, #draft-conflict')?.remove();
         $('[data-action="undo-draft"]').disabled = !draftUndo.length;
         $('[data-action="redo-draft"]').disabled = !draftRedo.length;
         $('#draft-verification').textContent = 'The draft changed. Verify its logic again.';
@@ -3903,6 +3931,7 @@
   });
   async function loadRoute(focusSerial = 0) {
     draftEpoch++;
+    draftConflict = null;
     const serial = ++routeSerial,
       closedDialog = $('#dialog').open;
     // A route owns its modal. Invalidate it before awaiting an old puzzle save.

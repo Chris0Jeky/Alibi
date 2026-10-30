@@ -68,7 +68,7 @@ function fixture(puzzle = initial) {
   };
   const api = vm.runInNewContext(
     `(() => {
-    let draft = initial, draftVerified = true, draftComparison = null, draftShowSolution = false,
+    let draft = initial, draftVerified = true, draftComparison = null, draftConflict = null, draftShowSolution = false,
       draftBusy = false, draftEpoch = 0, draftSave, routeSerial = 0,
       draftUndo = [], draftRedo = [], draftNameEdit = null,
       draftMode = 'room', draftPaint = 0, draftObject = 'plant', updateRequested = false;
