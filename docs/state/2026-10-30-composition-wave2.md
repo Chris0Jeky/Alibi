@@ -33,11 +33,13 @@ now load the real `locked()` helper into their VM slices (the #854 refactor move
 
 Local `build:android` then the full Node suite on the final tree: 2,443 tests, 2,421 pass, 0 fail,
 22 skipped (budgets included). Every component independently reviewed: no CRITICAL/HIGH. Driver
-browser check of Rehearse on the built app (zero IndexedDB/localStorage writes).
+browser check of Rehearse on the built app (zero IndexedDB/localStorage writes). Driver check at
+390x844: after filling seven squares of The diamond, its Journal card draws exactly those squares
+(path verified) and stays legible; pressing C announced "Row 5 clue: 1. Column E clue: 1." for the
+selected square.
 
 ## NOT verified
 
 Browser suites locally (`browser_ui.py` Rehearse/audit journeys, `browser_origin.py` rehearsal
 scenario, `browser_keyboard_help.py` Read clues) - hosted CI runs them. Physical device and real
-screen readers (HUMAN_TODO q-2). #844 and #854 are resolved here; #831 phone-width legibility is
-not inspected.
+screen readers (HUMAN_TODO q-2). #844 and #854 are resolved here.
