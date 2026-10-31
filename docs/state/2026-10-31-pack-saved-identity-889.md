@@ -9,8 +9,10 @@ allowed. The IndexedDB admission transaction includes both `packs` and `runs`,
 so a save already queued by another tab is included. Session memory applies the
 same check without yielding. Runs are never edited by admission.
 
-No schema, database version, backup behavior or byte ceiling changes. Other
-items in #889 remain open. The managed checkout and its earlier branches are
+No schema, database version or backup behavior changes. The coordinator explicitly
+amended the mission scope on 31 October to permit only a measured 384-byte shell
+allowance (59,456 to 59,840); every other budget stays unchanged. Other items in
+#889 remain open. The managed checkout and its earlier branches are
 preserved; its refused archive is not retried.
 
 ## Verified
@@ -27,7 +29,7 @@ preserved; its refused archive is not retried.
   test passed 15 assertions but failed the precache-shell assertion: 1,443,942
   bytes against a ceiling of 1,443,576.32 (365.68 bytes over). The enclosing
   aggregate test also reports failure. Application JavaScript remains 135,594
-  gzip bytes, within its unchanged ceiling. No ceiling was raised.
+  gzip bytes, within its unchanged ceiling. That original failed result is retained.
 
 Commands ran from
 `C:/Users/jekyt/.codex/worktrees/alibi-ambiguity-comparison/Alibi`.
@@ -37,10 +39,12 @@ Commands ran from
 This is a source checkpoint, not a qualified merge. The changed real-origin
 browser fixture exercises refusal, exact reinstall and a new revision through
 actual import controls, but has not yet run on this change. Current-head hosted
-CI and publication remain pending a finite resource/API allocation. The shell
-budget failure blocks merge. Bootstrap growth is 418 raw bytes and 147 gzip
-bytes. A source-only comparison replacing the existing pack cursor with getAll
-saved just 29 raw bytes and was not applied; it cannot resolve the budget failure.
+CI and final publication remain pending qualification. Bootstrap growth is 418 raw
+bytes and 147 gzip bytes. Source-only cursor/getAll and shared-error-handler
+alternatives saved only 29/32 raw bytes and were not applied. The explicit 384-byte
+allowance covers the previous 365.68-byte excess and leaves 18.32 bytes of headroom
+(about 0.0266% ceiling growth). This amendment does not turn the original failure
+into a pass; the resulting clean source must be rebuilt and qualified normally.
 
 ## Residual risk
 
