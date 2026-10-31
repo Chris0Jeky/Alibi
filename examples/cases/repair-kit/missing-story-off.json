@@ -1,0 +1,232 @@
+{
+  "format": "postern-case-1",
+  "id": "parcel-before-the-bell",
+  "revision": 1,
+  "title": "The parcel before the bell — author repair exercise",
+  "intro": {
+    "storyOn": "A parcel reaches the little hall before the evening bell. Trace its arrival, entrance and last known custody. This fictional author exercise stipulates that every record is accurate; use only the stated facts. It is not a published case.",
+    "storyOff": "Determine the parcel's arrival time, entrance and custody. Every record is stipulated accurate. Use only the stated facts. This is a fictional author exercise, not a published case."
+  },
+  "ending": {
+    "storyOn": "The slip fixes the time, the register fixes the entrance, and the last handover leaves a gap. Receiving a parcel does not prove who later put it away.",
+    "storyOff": "Arrival: 17:58, before the 18:00 bell. Entrance: south. Cabinet mover: either Rowan or Nell; the records do not establish which."
+  },
+  "provenance": "Original fictional training material for issue #453. People, place and records are invented. No player data or published case definitions are used. Structural validation does not certify the answer key or prose.",
+  "records": [
+    {
+      "id": "receiving-slip",
+      "title": "Receiving slip",
+      "kind": "record",
+      "source": "Fictional hall receiving desk",
+      "at": "arrival",
+      "text": {
+        "storyOn": "The clerk stamps the slip at the exact instant the parcel arrives: the desk clock reads 18:02."
+      }
+    },
+    {
+      "id": "clock-test",
+      "title": "Clock comparison",
+      "kind": "observation",
+      "source": "Stipulated timing observation for this exercise",
+      "at": "arrival",
+      "text": {
+        "storyOn": "Throughout this delivery the desk clock is exactly four minutes fast. The hall bell rings at exactly 18:00 true time that evening.",
+        "storyOff": "The desk clock is exactly four minutes fast throughout the delivery. The bell rings at exactly 18:00 true time that evening."
+      }
+    },
+    {
+      "id": "entrance-register",
+      "title": "Complete entrance register",
+      "kind": "record",
+      "source": "Fictional hall delivery register",
+      "at": "route",
+      "text": {
+        "storyOn": "For this delivery Mara and the parcel used exactly one entrance, either north or south. The complete, accurate register records that they used south.",
+        "storyOff": "Mara and the parcel used exactly one entrance for this delivery: north or south. The complete, accurate register records south."
+      }
+    },
+    {
+      "id": "handover-note",
+      "title": "Handover note",
+      "kind": "record",
+      "source": "Fictional desk handover record",
+      "at": "custody",
+      "text": {
+        "storyOn": "Mara hands the parcel to Rowan at the desk. Later, exactly one person moves it from that desk into the cabinet. The note does not identify that person.",
+        "storyOff": "Mara gives the parcel to Rowan at the desk. Later, exactly one person moves it from the desk into the cabinet. The mover is not identified."
+      }
+    },
+    {
+      "id": "custody-rule",
+      "title": "Custody possibilities",
+      "kind": "model",
+      "source": "Explicit fictional model assumptions",
+      "at": "custody",
+      "text": {
+        "storyOn": "Only Rowan or Nell could have moved the parcel into the cabinet. Either was able to do it; there is no further evidence about who did. Receiving the parcel imposes no duty to put it away.",
+        "storyOff": "The mover was either Rowan or Nell. Both were able to move it. There is no further evidence identifying the mover, and receiving the parcel does not require putting it away."
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "arrival",
+      "title": "Before the bell",
+      "prompt": {
+        "storyOn": "Compare the slip with the bell. What does the clock actually establish?",
+        "storyOff": "Use the clock reading and offset to determine whether arrival preceded the bell."
+      },
+      "requires": [],
+      "claims": [
+        {
+          "id": "before-bell",
+          "text": {
+            "storyOn": "The parcel arrived before the evening bell.",
+            "storyOff": "The parcel arrived before the 18:00 bell."
+          },
+          "answer": "supported",
+          "evidence": [["receiving-slip", "clock-test"]]
+        }
+      ],
+      "hints": [
+        {
+          "level": "orientation",
+          "text": {
+            "storyOn": "The slip reports the desk clock, not true time.",
+            "storyOff": "Distinguish displayed time from true time."
+          },
+          "records": ["receiving-slip"]
+        },
+        {
+          "level": "constraint",
+          "text": {
+            "storyOn": "A fast clock reads later than true time.",
+            "storyOff": "Subtract the fast-clock offset from the displayed time."
+          },
+          "records": ["clock-test"]
+        },
+        {
+          "level": "method",
+          "text": {
+            "storyOn": "Subtract four minutes from 18:02, then compare with 18:00.",
+            "storyOff": "18:02 minus four minutes is 17:58, before 18:00."
+          },
+          "records": ["receiving-slip", "clock-test"]
+        }
+      ],
+      "workedAnswer": {
+        "text": {
+          "storyOn": "Supported. The two sources give 18:02 minus four minutes = 17:58 true time, two minutes before the bell.",
+          "storyOff": "Supported: 18:02 - 00:04 = 17:58, which is before 18:00. Both sources are needed."
+        },
+        "records": ["receiving-slip", "clock-test"]
+      }
+    },
+    {
+      "id": "route",
+      "title": "Which entrance",
+      "prompt": {
+        "storyOn": "The register records the route. Is north still possible?",
+        "storyOff": "Compare the claim with the exhaustive entrance record."
+      },
+      "requires": ["arrival"],
+      "claims": [
+        {
+          "id": "north-entrance",
+          "text": {
+            "storyOn": "Mara brought the parcel through the north entrance.",
+            "storyOff": "Mara and the parcel used north for this delivery."
+          },
+          "answer": "contradicted",
+          "evidence": [["entrance-register"]]
+        }
+      ],
+      "hints": [
+        {
+          "level": "orientation",
+          "text": {
+            "storyOn": "Read the complete register for this delivery.",
+            "storyOff": "Use the entrance register."
+          },
+          "records": ["entrance-register"]
+        },
+        {
+          "level": "constraint",
+          "text": {
+            "storyOn": "Exactly one entrance was used.",
+            "storyOff": "North and south cannot both be true here."
+          },
+          "records": ["entrance-register"]
+        },
+        {
+          "level": "method",
+          "text": {
+            "storyOn": "The register says south; the claim says north.",
+            "storyOff": "South is recorded and excludes north."
+          },
+          "records": ["entrance-register"]
+        }
+      ],
+      "workedAnswer": {
+        "text": {
+          "storyOn": "Contradicted. The complete register establishes south, and exactly one entrance was used for this delivery.",
+          "storyOff": "Contradicted: the sole entrance was south, so it was not north."
+        },
+        "records": ["entrance-register"]
+      }
+    },
+    {
+      "id": "custody",
+      "title": "Who put it away",
+      "prompt": {
+        "storyOn": "The parcel reaches the cabinet. Does receiving it settle who moved it?",
+        "storyOff": "Determine whether the records identify the cabinet mover."
+      },
+      "requires": ["route"],
+      "claims": [
+        {
+          "id": "rowan-stored",
+          "text": {
+            "storyOn": "Rowan put the parcel into the cabinet.",
+            "storyOff": "Rowan was the cabinet mover."
+          },
+          "answer": "not-established",
+          "evidence": [["handover-note", "custody-rule"]]
+        }
+      ],
+      "hints": [
+        {
+          "level": "orientation",
+          "text": {
+            "storyOn": "Separate the handover from the later cabinet move.",
+            "storyOff": "Receiving and storing are different events."
+          },
+          "records": ["handover-note"]
+        },
+        {
+          "level": "constraint",
+          "text": {
+            "storyOn": "Two people could have moved it, with no further identifying evidence.",
+            "storyOff": "Rowan and Nell are both possible movers."
+          },
+          "records": ["custody-rule"]
+        },
+        {
+          "level": "method",
+          "text": {
+            "storyOn": "Try one account where Rowan stores it and one where Nell does. Both fit.",
+            "storyOff": "The claim is true in the Rowan case and false in the Nell case; both satisfy the records."
+          },
+          "records": ["handover-note", "custody-rule"]
+        }
+      ],
+      "workedAnswer": {
+        "text": {
+          "storyOn": "Not established. Rowan receiving the parcel is compatible with either Rowan or Nell later storing it. Both accounts satisfy every stated fact.",
+          "storyOff": "Not established: mover=Rowan and mover=Nell are both consistent. The records do not select one."
+        },
+        "records": ["handover-note", "custody-rule"]
+      }
+    }
+  ]
+}

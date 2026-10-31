@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 from playwright.sync_api import sync_playwright
+from case_repair_browser import exercise_repair_kit
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'content/cases/reading-room-blackout.json'
@@ -442,6 +443,7 @@ def run():
             results.append({'viewport': [width, height], 'story': story, 'offline': True, 'controls': 'passed', 'modeParity': 'drafts, focus, progress, sources, hints and worked-answer access retained at every stage', 'externalRequests': len(external), 'scriptErrors': len(errors)})
             context.close()
         results.append(playtest_receipt(browser, normal, definition))
+        results.append(exercise_repair_kit(browser, ROOT, OUT, temp, build))
         hostile = json.loads(SOURCE.read_text(encoding='utf-8'))
         hostile['title'] = '</script><script>globalThis.compromised=true</script>  A\nB'
         hostile['records'][0]['text']['storyOn'] = '<img src="https://invalid.example/x" onerror="globalThis.compromised=true">'
