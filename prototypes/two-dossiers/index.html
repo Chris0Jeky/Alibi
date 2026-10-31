@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shared signal · Two dossiers</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./lab.css" />
+    <script type="module" src="./lab.mjs"></script>
+  </head>
+  <body>
+    <a class="skip-link screen-only" href="#evidence-title">Skip to evidence</a>
+    <main>
+      <header>
+        <p class="eyebrow">One signal, two perspectives</p>
+        <h1>Shared signal</h1>
+        <p id="story">
+          The quay keeper has asked two readers to reconstruct an inspection. One has the
+          maintenance archive; the other has the field notes. Agree what can be established, and
+          leave the rest open.
+        </p>
+        <p class="scope">Original fictional case · <span id="revision"></span> · Untimed</p>
+        <nav class="screen-only" aria-label="Choose a dossier">
+          <a href="?role=archive">Archive dossier</a>
+          <a href="?role=field">Field dossier</a>
+          <a href="?role=solo">Combined solo sheet</a>
+        </nav>
+        <p class="screen-only scope">
+          Changing dossier, restarting or reloading clears your work. Nothing is saved or sent. The
+          other dossier is available here by choice; view separation is a spoiler convention.
+        </p>
+        <div class="actions screen-only">
+          <button id="story-toggle" type="button" aria-pressed="false">Hide story</button>
+          <button id="pause" type="button">Pause</button>
+          <button id="restart" type="button">Restart</button>
+          <button id="print" type="button">Print this player sheet</button>
+        </div>
+      </header>
+      <section aria-labelledby="dossier-title">
+        <h2 id="dossier-title"></h2>
+        <p id="role-prompt"></p>
+        <p>
+          Investigate the same inspection bell on 7 May. Each shutter is open or closed; the source
+          has a pulse or no pulse; each signal is on or off. These 32 combinations are the whole
+          model. Only selected current evidence restricts them. No unrecorded fault, timing change
+          or motive is assumed.
+        </p>
+        <h3 id="evidence-title" tabindex="-1">Read your evidence</h3>
+        <ol id="cards"></ol>
+        <div class="paper-prompts">
+          <h3>Explain together, or work through the combined sheet alone</h3>
+          <p>
+            Was the Quay signal on? Was the upper shutter open? For each claim, say whether the
+            evidence supports it, rules it out, or leaves both possibilities open. Cite the current
+            cards you used.
+          </p>
+          <p>
+            What can your evidence establish? What can it not establish? What information do you
+            need from the other reader? Preserve an alternative arrangement if uncertainty remains.
+          </p>
+          <p>
+            Pause whenever you need to. Keep your sheet and return to your last hypothesis; there is
+            no timer.
+          </p>
+          <div class="writing-space print-only">
+            Our conclusion, citations and remaining uncertainty:
+          </div>
+        </div>
+      </section>
+      <section id="work" class="screen-only" aria-labelledby="work-title">
+        <h2 id="work-title">Keep a working conclusion</h2>
+        <p>
+          The checker uses your selected current cards only. A guess cannot supply missing evidence.
+        </p>
+        <form id="conclusion">
+          <div class="fields">
+            <label for="claim"
+              >Claim<select id="claim">
+                <option value="quay">The Quay signal was on.</option>
+                <option value="upper">The upper shutter was open.</option>
+              </select></label
+            >
+            <label for="verdict"
+              >Your verdict<select id="verdict">
+                <option value="">Undecided</option>
+                <option value="supported">Supported</option>
+                <option value="refuted">Ruled out</option>
+                <option value="uncertain">Both remain possible</option>
+              </select></label
+            >
+          </div>
+          <fieldset>
+            <legend>Cite evidence from this sheet</legend>
+            <div id="citations"></div>
+          </fieldset>
+          <label for="explanation">Your explanation (optional, stays in this page)</label>
+          <textarea id="explanation" rows="3" maxlength="1200"></textarea>
+          <button id="check" class="primary" type="submit">Check conclusion</button>
+        </form>
+        <p id="result" class="result" role="status">
+          Choose a verdict and cite the evidence you used.
+        </p>
+        <div class="actions">
+          <button id="hint" type="button" aria-expanded="false" aria-controls="hint-text">
+            Neutral hint
+          </button>
+          <button id="reveal" type="button" aria-expanded="false" aria-controls="worked">
+            Reveal what selected evidence establishes
+          </button>
+        </div>
+        <p id="hint-text" class="hint" hidden></p>
+        <div id="worked" class="result" hidden></div>
+      </section>
+      <dialog id="pause-dialog" aria-labelledby="pause-title">
+        <h2 id="pause-title">Take your time</h2>
+        <p>
+          Your entries remain in this page. Reloading or closing it clears them. There is no timer.
+        </p>
+        <button id="resume" type="button" autofocus>Resume</button>
+      </dialog>
+      <footer class="screen-only">
+        Original offline experiment · No accounts or telemetry · Formal checks do not establish
+        useful conversation.<br /><a href="./facilitator.html"
+          >Facilitator notes and versioned solution (spoilers)</a
+        >
+      </footer>
+    </main>
+  </body>
+</html>
