@@ -64,7 +64,7 @@ def run():
     driver = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(driver)
     checks, failures = [], []
-    launch = {'headless': True, 'args': ['--no-sandbox']}
+    launch = {'headless': True, 'args': ['--no-sandbox', '--disable-gpu']}
     if os.environ.get('ALIBI_BROWSER_EXECUTABLE'):
         launch['executable_path'] = os.environ['ALIBI_BROWSER_EXECUTABLE']
     lattice, afterlight = pack('lattice'), pack('afterlight')
@@ -431,8 +431,8 @@ def run():
                     context.close()
         finally:
             browser.close()
-    if len(checks) != 28:
-        failures.append({'coverage': len(checks), 'expected': 28})
+    if len(checks) != 32:
+        failures.append({'coverage': len(checks), 'expected': 32})
     receipt = {'sourceHead': os.environ.get('EXPECTED_HEAD', 'local'), 'passed': not failures,
                'checks': checks, 'failures': failures,
                'scope': 'Built origin, service worker and IndexedDB; no physical device or screen reader.'}

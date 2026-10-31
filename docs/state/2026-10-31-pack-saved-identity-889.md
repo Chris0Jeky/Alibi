@@ -23,6 +23,11 @@ preserved; its refused archive is not retried.
 - Prettier, Python AST parsing and `git diff --check` pass.
 - One independent read-only Terra review of implementation commit `383b4629`
   found no HIGH/CRITICAL blocker for already-retained saved runs.
+- `npm.cmd run build:web` passed on clean head `738fbc8d`. The unchanged budget
+  test passed 15 assertions but failed the precache-shell assertion: 1,443,942
+  bytes against a ceiling of 1,443,576.32 (365.68 bytes over). The enclosing
+  aggregate test also reports failure. Application JavaScript remains 135,594
+  gzip bytes, within its unchanged ceiling. No ceiling was raised.
 
 Commands ran from
 `C:/Users/jekyt/.codex/worktrees/alibi-ambiguity-comparison/Alibi`.
@@ -31,10 +36,11 @@ Commands ran from
 
 This is a source checkpoint, not a qualified merge. The changed real-origin
 browser fixture exercises refusal, exact reinstall and a new revision through
-actual import controls, but has not yet run on this change. Build/size proof,
-current-head hosted CI and publication remain pending a finite resource/API
-allocation. Source-only minification measures bootstrap growth of 418 raw bytes
-and 147 gzip bytes; the full shell budget must still be checked unchanged.
+actual import controls, but has not yet run on this change. Current-head hosted
+CI and publication remain pending a finite resource/API allocation. The shell
+budget failure blocks merge. Bootstrap growth is 418 raw bytes and 147 gzip
+bytes. A source-only comparison replacing the existing pack cursor with getAll
+saved just 29 raw bytes and was not applied; it cannot resolve the budget failure.
 
 ## Residual risk
 
