@@ -308,18 +308,40 @@
         }
         reserve(existing);
       };
+      const checkRun = (puzzle, row) => {
+        if (row !== undefined && !C.equal(row?.value?.puzzle, puzzle))
+          throw Error(
+            'A saved puzzle already uses this ID and revision. Use a new ID or revision.',
+          );
+      };
       reserve(official);
       if (!this.db) {
         // This Store owns session memory. Check and insert without yielding.
         for (const [key, value] of Object.entries(this.memory.packs)) check({ key, value });
+        for (const p of pack.puzzles) {
+          const key = p.id + '@' + p.revision;
+          if (Object.hasOwn(this.memory.runs, key)) checkRun(p, { value: this.memory.runs[key] });
+        }
         return this.put('packs', pack.id, pack);
       }
       return new Promise((resolve, reject) => {
         let failure = null;
-        const tx = this.db.transaction('packs', 'readwrite'),
+        // Retained runs and pack admission share a transaction with concurrent save writers.
+        const tx = this.db.transaction(['packs', 'runs'], 'readwrite'),
           os = tx.objectStore('packs'),
           request = os.openCursor();
         this.watch(tx, reject);
+        for (const p of pack.puzzles) {
+          const saved = tx.objectStore('runs').get(p.id + '@' + p.revision);
+          saved.onsuccess = () => {
+            try {
+              checkRun(p, saved.result);
+            } catch (error) {
+              failure = error;
+              tx.abort();
+            }
+          };
+        }
         request.onsuccess = () => {
           try {
             const cursor = request.result;
