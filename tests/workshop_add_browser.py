@@ -64,7 +64,7 @@ def run():
     driver = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(driver)
     checks, failures = [], []
-    launch = {'headless': True, 'args': ['--no-sandbox']}
+    launch = {'headless': True, 'args': ['--no-sandbox', '--disable-gpu']}
     if os.environ.get('ALIBI_BROWSER_EXECUTABLE'):
         launch['executable_path'] = os.environ['ALIBI_BROWSER_EXECUTABLE']
     lattice, afterlight = pack('lattice'), pack('afterlight')
@@ -307,6 +307,23 @@ def run():
                     page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
                     runs_kept = page.evaluate(RUNS)
                     page.get_by_role('button', name='Puzzle packs', exact=True).click()
+                    # A removed pack's saved identity is still reserved (#889).
+                    # Use the actual import worker and admission path, with unchanged puzzle rules.
+                    identity_before = page.evaluate(ROWS)
+                    replacement = json.loads(json.dumps(twelve))
+                    replacement['id'] = 'retained-identity-replacement'
+                    replacement['title'] = 'Replacement identity study'
+                    replacement['puzzles'] = [json.loads(json.dumps(mine))]
+                    replacement['puzzles'][0]['title'] = 'Changed definition under a retained identity'
+                    choose_pack(page, replacement)
+                    expect(page.locator('#toasts')).to_contain_text('A saved puzzle already uses this ID and revision', timeout=45000)
+                    expect(page.locator('#dialog[open]')).to_have_count(0)
+                    assert page.evaluate(ROWS) == identity_before, 'identity refusal preserves all stored rows'
+                    assert page.evaluate(CATALOGUE) == pre_removal
+                    page.locator('#toasts').screenshot(path=str(OUT / f'saved-identity-refused-{width}.png'))
+                    (OUT / f'saved-identity-refused-{width}.aria.txt').write_text(page.locator('#toasts').aria_snapshot(), encoding='utf-8')
+                    checks.append({'width': width, 'case': 'retained-identity-changed-definition-refused'})
+
                     choose_pack(page, twelve)
                     expect(page.locator('#dialog[open]')).to_contain_text(f"{len(twelve['puzzles'])} verified puzzles", timeout=45000)
                     page.get_by_role('button', name='Keep browsing', exact=True).click()
@@ -317,6 +334,18 @@ def run():
                     assert page.evaluate(CATALOGUE) == pre_removal
                     assert page.evaluate(RUNS) == runs_kept
                     checks.append({'width': width, 'case': 'pack-removal-confirmed-runs-kept-readded'})
+
+                    replacement['puzzles'][0]['revision'] += 1
+                    choose_pack(page, replacement)
+                    expect(page.locator('#dialog[open]')).to_contain_text('1 verified puzzle', timeout=45000)
+                    page.get_by_role('button', name='Keep browsing', exact=True).click()
+                    assert page.evaluate(CATALOGUE)['customPacks'] == pre_removal['customPacks'] + 1
+                    assert page.evaluate(RUNS) == runs_kept, 'a new revision preserves the old pinned run'
+                    page.get_by_role('button', name=f"Remove {replacement['title']}", exact=True).click()
+                    confirm.get_by_role('button', name='Remove pack', exact=True).click()
+                    expect(page.locator('.pack-row', has_text=replacement['title'])).to_have_count(0)
+                    assert page.evaluate(ROWS) == identity_before
+                    checks.append({'width': width, 'case': 'retained-identity-new-revision-accepted'})
 
                     # Duplicate checks must use the current database in the write
                     # transaction, not the stale tab's original empty catalogue.
@@ -402,8 +431,8 @@ def run():
                     context.close()
         finally:
             browser.close()
-    if len(checks) != 28:
-        failures.append({'coverage': len(checks), 'expected': 28})
+    if len(checks) != 32:
+        failures.append({'coverage': len(checks), 'expected': 32})
     receipt = {'sourceHead': os.environ.get('EXPECTED_HEAD', 'local'), 'passed': not failures,
                'checks': checks, 'failures': failures,
                'scope': 'Built origin, service worker and IndexedDB; no physical device or screen reader.'}

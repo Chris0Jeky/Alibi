@@ -466,8 +466,13 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // puzzles" status), on main after #897: 1,443,050 -> 1,443,524 (+474; 1.32 MiB +
       // 59,403.68). Excess 139.68; ceiling 1.32 MiB + 59,456 (929 x 64) leaves 52.32 for
       // identity/hash noise. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 59456,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 59,456 bytes',
+      // #889 retained puzzle identity admission: 1,443,524 -> 1,443,942 (+418 raw bytes;
+      // bootstrap gzip +147). The original 59,456 allowance failed by 365.68 bytes.
+      // Cursor/getAll and shared-error-handler alternatives saved only 29/32 raw bytes;
+      // neither resolved the excess. The coordinator explicitly authorized +384 for this
+      // save-preservation guard, leaving 18.32 bytes. All other ceilings stay unchanged.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 59840,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 59,840 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {
