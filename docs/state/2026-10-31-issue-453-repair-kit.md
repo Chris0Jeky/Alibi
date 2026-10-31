@@ -32,9 +32,28 @@ Hosted run `41162355258` passed the case Node suite but stopped in the new brows
 helper: it used rendered `innerText` for an uppercase progress label while expecting
 sentence case. The four progress checks now use `textContent`, matching the existing
 suite and preserving the exact count assertions. The raw failure is retained.
-Browser completion and final hosted checks remain pending qualification.
-Raw proof and source manifests are retained outside Git in the coordinator delivery
-directory `deliveries/alibi-case-repair-kit` under the flagship-capacity workspace.
+Corrected head `1d1ea5f36f16afcd7cedd173044d1fb12c2e4c63` passes hosted case-workbench
+run `41162565992`: 160 Node tests, zero failures/skips; all eight repaired/bad-key
+journeys at 390×844 and 1440×900 in both story modes. Actual controls show the
+editorial refusal with its draft retained and the repaired case accepting the
+defensible verdict. Every journey completed three stages, made zero external
+requests, logged zero script errors, and cleared progress/answers on offline reload.
+Phone/desktop PNGs and accessibility trees were inspected directly.
+
+Artifact `13027417937` contains 89 files (9,192,828 uncompressed bytes); ZIP SHA-256
+`505526f20e230e82176cdb3c22d197fa7732b45dc0ba1630825792519696466d`, CRC verified.
+All six archived JSON sources byte-match the checkout. The repaired source SHA-256
+is `0f45f151d2bce6c7a7459ba5237cec0c261c497156f64611137184b1f377c796`; the wrong-key
+source is `4eb56b964c17e23dc9f7b58985d949a46b1185f1a5b91b6b820ddd186c612fe8`.
+
+The scoped second review found no defect in the progress-text correction. Two
+review passes are complete; no new product logic was added by the correction.
+The briefly assigned local MAIN slot was released **unstarted**. Equivalent local
+full verification/browser work is omitted because hosted proof exercises the code.
+Final repository-gate, head and merge identities are recorded in
+[PR #902](https://github.com/Chris0Jeky/Alibi/pull/902) and the coordinator receipt.
+Raw proof, failed-run evidence and file manifests are retained outside Git in
+`deliveries/alibi-case-repair-kit` under the flagship-capacity workspace.
 
 ## NOT verified
 
