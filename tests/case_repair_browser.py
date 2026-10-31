@@ -42,7 +42,7 @@ def exercise_repair_kit(browser, root, output, work, build):
                     embedded = json.loads(page.locator('#case-data').text_content())
                     assert embedded['receipt']['sourceSha256'] == source_hash
                     assert embedded['receipt']['scope'] == 'structure-only'
-                    assert page.locator('#progress').inner_text() == '0 of 3 stages reviewed'
+                    assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
                     assert page.locator('#stage-route').is_disabled()
                     assert page.locator('#record-handover-note').count() == 0
                     if not story:
@@ -59,7 +59,7 @@ def exercise_repair_kit(browser, root, output, work, build):
                         if name == 'unsupported-verdict' and step == 'custody':
                             # This is the editorial defect: a defensible answer is rejected.
                             assert page.locator('#verdict-' + claim).get_attribute('aria-invalid') == 'true'
-                            assert page.locator('#progress').inner_text() == '2 of 3 stages reviewed'
+                            assert page.locator('#progress').text_content() == '2 of 3 stages reviewed'
                             assert page.locator('#verdict-' + claim).input_value() == 'not-established'
                             page.screenshot(path=str(out / f'{label}-editorial-refusal.png'), full_page=True)
                             (out / f'{label}-editorial-refusal.aria.txt').write_text(page.locator('body').aria_snapshot(), encoding='utf-8')
@@ -67,7 +67,7 @@ def exercise_repair_kit(browser, root, output, work, build):
                             page.locator('#verdict-' + claim).select_option('supported')
                             page.locator('#check').click()
                         assert 'Reasoning accepted' in page.locator('#status').inner_text()
-                        assert page.locator('#progress').inner_text() == f'{index + 1} of 3 stages reviewed'
+                        assert page.locator('#progress').text_content() == f'{index + 1} of 3 stages reviewed'
                         assert page.locator('html').evaluate('(el) => el.scrollWidth <= innerWidth')
                         if index < 2:
                             page.locator('#continue').click()
@@ -75,7 +75,7 @@ def exercise_repair_kit(browser, root, output, work, build):
                     page.screenshot(path=str(out / f'{label}-complete.png'), full_page=True)
                     (out / f'{label}-complete.aria.txt').write_text(page.locator('body').aria_snapshot(), encoding='utf-8')
                     page.reload()
-                    assert page.locator('#progress').inner_text() == '0 of 3 stages reviewed'
+                    assert page.locator('#progress').text_content() == '0 of 3 stages reviewed'
                     assert page.locator('#verdict-before-bell').input_value() == ''
                     assert page.locator('#stage-route').is_disabled()
                     assert not external, external

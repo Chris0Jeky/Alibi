@@ -23,7 +23,16 @@ From the preserved `alibi-ambiguity-comparison/Alibi` worktree:
   sources refuse preview output; the editorial fixture passes structural validation
   and rejects the independently worked custody answer.
 
-Browser execution, hosted checks and independent review are pending qualification.
+Independent Terra review found no HIGH/CRITICAL blocker and reproduced all eight
+repair-kit tests. One LOW partial-rerun artifact-mixing observation was declined:
+qualification uses fresh output, and only a completed source-bound receipt and
+manifest count as proof.
+
+Hosted run `41162355258` passed the case Node suite but stopped in the new browser
+helper: it used rendered `innerText` for an uppercase progress label while expecting
+sentence case. The four progress checks now use `textContent`, matching the existing
+suite and preserving the exact count assertions. The raw failure is retained.
+Browser completion and final hosted checks remain pending qualification.
 Raw proof and source manifests are retained outside Git in the coordinator delivery
 directory `deliveries/alibi-case-repair-kit` under the flagship-capacity workspace.
 
