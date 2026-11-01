@@ -10,7 +10,7 @@ Merged to `main` through the estate gate (merge commits, CI green, one or two re
   Maker draft file (closes #864); #874 composition incl. #870 Practise a technique.
 - **Solid:** #886 run saves — restore waits for this tab, damaged rows say damaged, strokes stop when frozen
   (closes #882); #894 Field notes 3D textures load (CSP `connect-src blob:`), hints stop at the last, Turn
-  waits for 3D (closes #893); #897 startup validation 3–8× faster for many saves (#896 item 1); #883 stalled
+  waits for 3D (closes #893); #898 Practise a technique no longer freezes (#896 item 2); #897 startup validation 3–8× faster for many saves (#896 item 1); #883 stalled
   shelf download stops after 10 s (#881 item 2); #869 Privacy Reload (closes #848); #868 print clues on
   Notes/Rules (closes #866); #876 release identity + origin probe (#595 item 1).
 - **Minor:** #878 release receipts (closes #875); #872/#873 hint-test strengthening and print-sheet flake
@@ -21,8 +21,6 @@ How the later bugs were found: Muse bug-hunt lenses isolated on `origin/main`, f
 
 ## Parked (open PRs, not merged)
 
-- **#898** Practise a technique walks the family in yielding slices (#896 item 2): reviewed, locally green on
-  main after #897, CI `verify` was still running at wind-down. Land when green.
 - **#899** Club controls refuse after a save conflict; Exit Zen still works (#884 item 1): reviewed, green on
   `9a05c8b4`. Needs `origin/main` merged (budget/catalogue conflict with #898), re-measured ceilings and the
   Node + `browser_origin.py` runs before landing.
