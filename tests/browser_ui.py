@@ -4,7 +4,7 @@ Use CHROMIUM_PATH to override the Chromium executable when needed.
 """
 import json, os, time
 from pathlib import Path
-from official_fixture import OFFICIAL_COUNT
+from official_fixture import OFFICIAL_COUNT, official_puzzles
 from playwright.sync_api import expect, sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 PUZZLES=json.loads((ROOT/'content/catalog.json').read_text())['puzzles']
@@ -42,6 +42,35 @@ with sync_playwright() as pw:
     def completed():
         page.wait_for_function('AlibiDiagnostics.getCurrent()?.completedAt')
         dismiss()
+    def practise_check(typ,p,stale):
+        # #835/#896: a technique in a completed record opens its family filtered to the puzzles whose
+        # hints use it. The walk yields (no long task at 4x CPU), says it is working, keeps focus on the
+        # count line, matches a direct computation, and a walk abandoned mid-way leaves no filter behind.
+        rule=page.locator('dialog[open] [data-action="practise"]').first.get_attribute('data-value')
+        want=page.evaluate("([ps,rule])=>ps.filter(q=>AlibiCore.insights.techniques(q).some(([r])=>r===rule)).length",[[q for q in official_puzzles() if q['type']==typ],rule])
+        cdp=context.new_cdp_session(page);cdp.send('Emulation.setCPUThrottlingRate',{'rate':4})
+        page.evaluate("""()=>{window.__lt=[];window.__finding=false;
+          new PerformanceObserver(l=>{for(const e of l.getEntries())window.__lt.push(e.duration)}).observe({type:'longtask'});
+          new MutationObserver(()=>{if(/Finding puzzles that use/.test(document.getElementById('library-filter-status')?.innerText||''))window.__finding=true})
+            .observe(document.getElementById('app'),{subtree:true,childList:true,characterData:true})}""")
+        action('practise')
+        if stale:
+            page.wait_for_function('window.__finding',timeout=30000);route('home');page.wait_for_timeout(1500)
+            check(page.locator('#library-filter-status').count()==0,typ+' practise walk stops when the page is left')
+            route('library/'+typ)
+            check(not any(s in page.locator('#library-filter-status').inner_text() for s in ('whose hints use','Finding')),typ+' abandoned practise walk leaves no filter')
+            cdp.send('Emulation.setCPUThrottlingRate',{'rate':1});page.evaluate('window.__lt=[];window.__finding=false')
+            open_p(p);action('review-record');cdp.send('Emulation.setCPUThrottlingRate',{'rate':4});action('practise')
+        page.wait_for_function("()=>/whose hints use/.test(document.getElementById('library-filter-status')?.innerText||'')",timeout=60000)
+        longest=max(page.evaluate('window.__lt'),default=0)
+        cdp.send('Emulation.setCPUThrottlingRate',{'rate':1})
+        expect(page.locator('#library-filter-status')).to_be_focused()
+        meta=page.locator('#library-filter-status').inner_text();shown=int(meta.split()[0])
+        check(shown==want,f'{typ} practise list for {rule} matches a direct walk: {shown}')
+        check(longest<400,f'{typ} practise keeps every task under 400 ms at 4x CPU (longest {longest:.0f} ms)')
+        check(page.evaluate('window.__finding'),typ+' practise shows that it is finding puzzles')
+        action('reset-filters');total=int(page.locator('#library-filter-status').inner_text().split()[0])
+        check(f'whose hints use {rule}' in meta and 0<shown<=total,f'Practise list for {rule}: {meta} of {total}')
     check(page.title().startswith('Alibi'),'Application title and boot')
     check(page.evaluate("()=>ALIBI_BUILD_TARGET==='standalone' && AlibiPlatform.build.target==='web' && AlibiPlatform.capabilities().nativeHost===false"),'Standalone uses the explicit browser platform')
     route('settings')
@@ -116,13 +145,7 @@ with sync_playwright() as pw:
                     cell(p['islands'][edge['a']]['cell']);cell(p['islands'][edge['b']]['cell'])
         completed();check(bool(state()['completedAt']),typ+' completed entirely through UI')
         action('review-record');check(page.locator('.debrief-list li').count()>0,typ+' completed record can be reopened')
-        if typ=='sudoku':
-            # #835: a technique in the record opens the family filtered to puzzles whose hints use it.
-            rule=page.locator('dialog[open] [data-action="practise"]').first.get_attribute('data-value');action('practise')
-            expect(page.locator('#library-filter-status')).to_be_focused()
-            meta=page.locator('#library-filter-status').inner_text();shown=int(meta.split()[0])
-            action('reset-filters');total=int(page.locator('#library-filter-status').inner_text().split()[0])
-            check(f'whose hints use {rule}' in meta and 0<shown<total,f'Practise list for {rule}: {meta} of {total}')
+        if typ in ('sudoku','nonogram'):practise_check(typ,p,typ=='nonogram')
         else:dismiss()
         if typ in ['dossier','lightup','aquarium','network']:page.screenshot(path=str(shots/f'desktop-{typ}.png'),full_page=True)
     # In-progress pencil/erase/pause/hint and routing durability (same document, not reload).

@@ -5,7 +5,10 @@ on:
       - 'tools/case-*.cjs'
       - 'tools/cases/**'
       - 'tests/case-*.test.cjs'
+      - 'tests/browser_case_workbench.py'
+      - 'tests/case_repair_browser.py'
       - 'content/cases/**'
+      - 'examples/cases/**'
       - '.github/workflows/case-workbench.yml'
   workflow_dispatch:
 permissions:

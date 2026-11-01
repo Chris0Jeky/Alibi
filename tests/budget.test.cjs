@@ -247,12 +247,15 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #887 remove a local pack (Store.removePack, the Remove control and confirmation, stored-pack
       // backups, the confirmed-pack compare, the offline Add message) on main after #888: 135,029 ->
       // 135,376 (+347). Excess 328; ceiling 127 KiB + 5,376 (84 x 64) leaves 48. No feature room.
-      // #884 Club controls refuse after a save conflict (one requireSavable() guard shared by the
-      // edition, Zen, assist, Undo/Redo, garden, archive and daily-town controls), on main after
-      // #897: 135,408 -> 135,435 (+27). Excess 11; ceiling 127 KiB + 5,440 (85 x 64) leaves 53.
-      // No feature room.
-      info.javascriptGzipBytes < 127 * 1024 + 5440,
-      'Application bundle stays under 127 KiB + 5,440 bytes gzip',
+      // #896 Practise walks the family in yielding slices (the walkTechniques loop, its stale-walk
+      // guard and the "Finding puzzles" status) instead of one long task, on main after #894:
+      // 135,378 -> 135,556 (+178; 127 KiB + 5,508). Excess 132; ceiling 127 KiB + 5,568
+      // (87 x 64) leaves 60 for identity/hash noise. No feature room.
+      // #884 Club controls refuse after a save conflict (one requireSavable() guard), merged with
+      // main after #896/#889: 135,556 -> 135,612 (+56). 87 x 64 would leave 4, so 127 KiB + 5,632
+      // (88 x 64) leaves 68 for identity/hash noise. No feature room.
+      info.javascriptGzipBytes < 127 * 1024 + 5632,
+      'Application bundle stays under 127 KiB + 5,632 bytes gzip',
     );
   });
   await t.test('Privacy copy is deferred, precached and inline only in standalone', () => {
@@ -462,11 +465,20 @@ test('shell and content stay inside the existing ceilings', async (t) => {
       // #887 remove a local pack, on main after #888: 1,441,109 -> 1,442,994 (+1,885; 1.32 MiB +
       // 58,873.68). Excess 1,849.68; 920 x 64 would leave 6.32, so 1.32 MiB + 58,944 (921 x 64)
       // leaves 70.32. No feature room.
-      // #884 Club controls refuse after a save conflict, on main after #897: 1,443,051 ->
-      // 1,443,241 (+190; 1.32 MiB + 59,120.68). Excess 176.68; 924 x 64 would leave 15.32, so
-      // 1.32 MiB + 59,200 (925 x 64) leaves 79.32. No feature room.
-      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 59200,
-      'Precached code and shell excluding official content stay under 1.32 MiB + 59,200 bytes',
+      // #896 Practise in yielding slices (walkTechniques, the stale-walk guard, the "Finding
+      // puzzles" status), on main after #897: 1,443,050 -> 1,443,524 (+474; 1.32 MiB +
+      // 59,403.68). Excess 139.68; ceiling 1.32 MiB + 59,456 (929 x 64) leaves 52.32 for
+      // identity/hash noise. No feature room.
+      // #889 retained puzzle identity admission: 1,443,524 -> 1,443,942 (+418 raw bytes;
+      // bootstrap gzip +147). The original 59,456 allowance failed by 365.68 bytes.
+      // Cursor/getAll and shared-error-handler alternatives saved only 29/32 raw bytes;
+      // neither resolved the excess. The coordinator explicitly authorized +384 for this
+      // save-preservation guard, leaving 18.32 bytes. All other ceilings stay unchanged.
+      // #884 Club controls refuse after a save conflict, merged with main after #889: 1,443,942
+      // -> 1,444,194 (+252; 1.32 MiB + 60,073.68). Excess 233.68; 939 x 64 would leave 22.32, so
+      // 1.32 MiB + 60,160 (940 x 64) leaves 86.32. No feature room.
+      contentBytes.shellBytes < 1.32 * 1024 * 1024 + 60160,
+      'Precached code and shell excluding official content stay under 1.32 MiB + 60,160 bytes',
     );
   });
   await t.test('official definitions and editorial data stay within their byte budget', () => {

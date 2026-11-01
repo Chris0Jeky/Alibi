@@ -1,5 +1,8 @@
 # Experimental evidence-case authoring
 
+Try the [creator repair kit](REPAIR-KIT.md): an original case with five isolated
+faults, a repaired control, and an offline diagnosis-to-preview exercise.
+
 Refs #436, #437 and #440. This describes the authoring tools, not a production import
 format. The experimental Reading Room case is also integrated into Castle in source;
 its [host decision](CASTLE-HOST.md) records delivery, save ownership and remaining gates.

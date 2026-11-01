@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An original experiment in revising a tiny language from evidence."
+    />
+    <title>The tool-hatch lexicon</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./lab.css" />
+    <script type="module" src="./lab.mjs"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#observations-title">Skip to the observations</a>
+    <main>
+      <header>
+        <p class="eyebrow">A small language, built from evidence</p>
+        <h1>The tool-hatch lexicon</h1>
+        <p id="story">
+          The Lark and Moss workshops leave marks beside their tool hatch. Four labelled exchanges
+          survived in the clerk’s notebook. Use them to revise your reading of a message the
+          notebook has never shown.
+        </p>
+        <p class="scope">
+          A standalone rehearsal. Nothing is saved; restart or reload clears your entries.
+        </p>
+        <nav aria-label="Rehearsal controls">
+          <button id="story-toggle" type="button" aria-pressed="false">Hide story</button>
+          <button id="restart" type="button">Restart rehearsal</button>
+        </nav>
+      </header>
+      <details class="assumptions" open>
+        <summary>The rules of this small language</summary>
+        <p>
+          Each workshop mark names a different workshop, each tool mark a different tool, and each
+          relation mark a different relation. A mark keeps its meaning. An unmarked tool means one.
+          Split chevron marks either one or two.
+        </p>
+        <p>
+          A message has either workshop · relation · tool phrase, or tool phrase · relation ·
+          workshop. Within the tool phrase, the count mark goes before or after the tool. Moving the
+          phrase does not reverse it. These are the only rules considered.
+        </p>
+      </details>
+      <div class="tasks">
+        <section aria-labelledby="observations-title">
+          <h2 id="observations-title" tabindex="-1">Read the observations</h2>
+          <p>
+            Start with one card. You can try a reading at any stage, then ask what another card
+            changes.
+          </p>
+          <ol id="observations"></ol>
+          <div class="actions">
+            <button id="next" class="primary" type="button">Show another card</button>
+          </div>
+          <p id="evidence-summary" role="status"></p>
+          <button id="hint" type="button" aria-expanded="false" aria-controls="hint-text">
+            Hint from shown cards
+          </button>
+          <p id="hint-text" class="hint" hidden></p>
+        </section>
+        <section aria-labelledby="draft-title">
+          <h2 id="draft-title">Keep a working interpretation</h2>
+          <p>Leave uncertain entries open. Conflicting entries stay here so you can revise them.</p>
+          <div id="draft-fields" class="fields"></div>
+          <div class="actions">
+            <button id="check-draft" type="button">Check interpretations</button>
+          </div>
+          <p id="draft-result" class="result" role="status">Your entries are provisional.</p>
+        </section>
+      </div>
+      <section aria-labelledby="transfer-title">
+        <h2 id="transfer-title">Read a new message</h2>
+        <p>
+          This combination appears in none of the cards. What does the shown evidence let you say?
+        </p>
+        <div id="transfer" class="message" aria-label="Unseen message"></div>
+        <div id="answer-fields" class="fields answer-fields"></div>
+        <div class="actions">
+          <button id="check-answer" class="primary" type="button">Check reading</button>
+        </div>
+        <p id="answer-result" class="result" role="status">
+          Choose a reading, then check it against the shown cards.
+        </p>
+        <p class="scope">
+          This check uses every rule set fitting the shown cards. Your working interpretation cannot
+          make an uncertain answer certain.
+        </p>
+        <h3>Explain before revealing</h3>
+        <p>
+          Which observations support your reading? What is still uncertain? Say or write your
+          explanation privately before opening the worked reading.
+        </p>
+        <button id="reveal" type="button" aria-expanded="false" aria-controls="worked">
+          Reveal what the shown cards establish
+        </button>
+        <div id="worked" hidden></div>
+      </section>
+      <footer>
+        Original fictional experiment · No accounts or telemetry · Technical checks do not establish
+        learning.<br /><a href="./control.html"
+          >Facilitator: dictionary-only comparison sheet (reveals meanings)</a
+        >
+      </footer>
+    </main>
+  </body>
+</html>

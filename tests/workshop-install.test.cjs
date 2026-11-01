@@ -25,8 +25,12 @@ function pack(id = 'test-pack', puzzleId = 'test-picture') {
   };
 }
 
-function disk(seed = []) {
-  let rows = new Map(seed.map((row) => [row.key, clone(row)]));
+function disk(seed = [], saved = []) {
+  const rows = {
+    packs: new Map(seed.map((row) => [row.key, clone(row)])),
+    runs: new Map(saved.map((row) => [row.key, clone(row)])),
+    meta: new Map(),
+  };
   let active = false;
   const waiting = [];
   const state = { writes: 0, failWrite: false };
@@ -38,9 +42,10 @@ function disk(seed = []) {
   };
   return {
     state,
-    rows: () => [...rows.values()].map(clone),
+    rows: (name = 'packs') => [...rows[name].values()].map(clone),
     transaction(names, mode) {
-      assert.equal(names, 'packs', 'pack admission owns only the packs store');
+      const stores = Array.from(typeof names === 'string' ? [names] : names);
+      assert.ok(stores.every((name) => Object.hasOwn(rows, name)));
       assert.equal(mode, 'readwrite');
       let working,
         finished = false,
@@ -61,22 +66,23 @@ function disk(seed = []) {
           next();
         },
         objectStore(name) {
-          assert.equal(name, 'packs');
+          assert.ok(stores.includes(name));
           const write = (row, add) =>
             enqueue(() => {
               if (state.failWrite) throw Error('simulated quota failure');
-              if (add && working.has(row.key)) throw Error('ConstraintError');
-              working.set(row.key, clone(row));
+              if (add && working[name].has(row.key)) throw Error('ConstraintError');
+              working[name].set(row.key, clone(row));
               state.writes++;
             });
           return {
             put: (row) => write(row, false),
             add: (row) => write(row, true),
-            get: (key) => enqueue(() => (working.has(key) ? clone(working.get(key)) : undefined)),
+            get: (key) =>
+              enqueue(() => (working[name].has(key) ? clone(working[name].get(key)) : undefined)),
             delete: (key) =>
               enqueue(() => {
                 if (state.failWrite) throw Error('simulated quota failure');
-                working.delete(key);
+                working[name].delete(key);
                 state.writes++;
               }),
             openCursor() {
@@ -84,7 +90,7 @@ function disk(seed = []) {
               let entries,
                 index = 0;
               const read = () => {
-                entries ||= [...working.values()];
+                entries ||= [...working[name].values()];
                 const row = entries[index++];
                 return row
                   ? {
@@ -104,7 +110,7 @@ function disk(seed = []) {
         const operation = operations.shift();
         if (!operation) {
           finished = true;
-          rows = working;
+          for (const name of stores) rows[name] = working[name];
           for (const listener of listeners.complete || []) listener();
           tx.oncomplete?.();
           active = false;
@@ -132,7 +138,12 @@ function disk(seed = []) {
         return request;
       }
       waiting.push(() => {
-        working = new Map([...rows].map(([key, row]) => [key, clone(row)]));
+        working = Object.fromEntries(
+          stores.map((name) => [
+            name,
+            new Map([...rows[name]].map(([key, row]) => [key, clone(row)])),
+          ]),
+        );
         started = true;
         pump();
       });
@@ -173,8 +184,129 @@ function tab(database, official = { id: 'official', puzzles: [{ id: 'official-pi
       'return {install: installPack, packs: () => packs}; })()',
     context,
   );
-  return { ...api, store, local };
+  return { ...api, store, local, core: context.AlibiCore };
 }
+
+function savedRun(puzzle) {
+  return {
+    schemaVersion: 1,
+    key: `${puzzle.id}@${puzzle.revision}`,
+    rev: 1,
+    puzzle: clone(puzzle),
+    state: plain(tab(null).core.registry[puzzle.type].initial(puzzle)),
+    undo: [],
+    redo: [],
+    moves: 0,
+    hints: 0,
+    elapsed: 0,
+    completedAt: null,
+    firstCompletedAt: null,
+    updatedAt: '2026-10-31T00:00:00.000Z',
+    note: 'Retained progress must survive pack admission.',
+  };
+}
+
+test('a removed pack cannot be replaced with changed content under a retained saved identity', async () => {
+  const original = pack(),
+    run = savedRun(original.puzzles[0]);
+  const db = disk([], [{ key: run.key, value: run }]),
+    current = tab(db);
+  const replacement = pack('replacement-pack');
+  replacement.puzzles[0] = {
+    ...clone(sample.puzzles[1]),
+    id: run.puzzle.id,
+    revision: run.puzzle.revision,
+  };
+  const before = db.rows('runs');
+  await assert.rejects(current.install(replacement), /saved puzzle.*ID.*revision/i);
+  assert.deepEqual(db.rows('runs'), before);
+  assert.deepEqual(db.rows(), []);
+  assert.equal(current.packs().length, 1, 'rejected content is not published');
+});
+
+test('an exact reinstall and a new revision preserve the retained run and unrelated packs', async () => {
+  const original = pack(),
+    run = savedRun(original.puzzles[0]),
+    keep = pack('keep-pack', 'keep-picture');
+  const db = disk([{ key: keep.id, value: keep }], [{ key: run.key, value: run }]),
+    current = tab(db);
+  const before = db.rows('runs');
+  await current.install(original);
+  assert.deepEqual(plain(db.rows().find((row) => row.key === original.id).value), original);
+  await current.store.removePack(original.id);
+  const revised = pack('revised-pack');
+  revised.puzzles[0] = {
+    ...clone(sample.puzzles[1]),
+    id: run.puzzle.id,
+    revision: run.puzzle.revision + 1,
+  };
+  await current.install(revised);
+  assert.deepEqual(plain(db.rows().find((row) => row.key === revised.id).value), revised);
+  assert.deepEqual(
+    db.rows().find((row) => row.key === keep.id),
+    { key: keep.id, value: keep },
+  );
+  assert.deepEqual(db.rows('runs'), before);
+});
+
+test('one conflicting saved identity rejects an entire mixed pack', async () => {
+  const original = pack(),
+    run = savedRun(original.puzzles[0]);
+  const db = disk([], [{ key: run.key, value: run }]),
+    current = tab(db);
+  const mixed = pack('mixed-pack', 'safe-picture');
+  mixed.puzzles.push({
+    ...clone(sample.puzzles[1]),
+    id: run.puzzle.id,
+    revision: run.puzzle.revision,
+  });
+  await assert.rejects(current.install(mixed), /saved puzzle/);
+  assert.deepEqual(db.rows(), []);
+  assert.deepEqual(db.rows('runs'), [{ key: run.key, value: run }]);
+});
+
+for (const value of [null, undefined, {}, { puzzle: null }]) {
+  test('a damaged retained row reserves its key: ' + JSON.stringify(value), async () => {
+    const original = pack(),
+      key = `${original.puzzles[0].id}@1`;
+    const db = disk([], [{ key, value }]),
+      current = tab(db);
+    const before = db.rows('runs');
+    await assert.rejects(current.install(original), /saved puzzle/);
+    assert.deepEqual(db.rows('runs'), before);
+    assert.deepEqual(db.rows(), []);
+  });
+}
+
+test('a save already queued in another tab is included in pack admission', async () => {
+  const original = pack(),
+    run = savedRun(original.puzzles[0]),
+    db = disk();
+  const saving = tab(db).store.saveRun(run, 0);
+  const replacement = pack('replacement-pack');
+  replacement.puzzles[0].title = 'Conflicting title';
+  const importing = tab(db).install(replacement);
+  const saved = await saving;
+  await assert.rejects(importing, /saved puzzle/);
+  assert.deepEqual(db.rows('runs'), [{ key: run.key, value: plain(saved) }]);
+  assert.deepEqual(db.rows(), []);
+});
+
+test('session memory reserves retained identities but permits their exact reinstall and next revision', async () => {
+  const current = tab(null),
+    original = pack(),
+    run = savedRun(original.puzzles[0]);
+  current.store.mode = 'session';
+  current.store.memory.runs[run.key] = clone(run);
+  const changed = pack('replacement-pack');
+  changed.puzzles[0].title = 'Conflicting title';
+  await assert.rejects(current.install(changed), /saved puzzle/);
+  await current.install(original);
+  await current.store.removePack(original.id);
+  changed.puzzles[0].revision++;
+  await current.install(changed);
+  assert.deepEqual(current.store.memory.runs[run.key], run);
+});
 
 test('a stale tab cannot overwrite a pack installed after that tab loaded', async () => {
   const db = disk(),

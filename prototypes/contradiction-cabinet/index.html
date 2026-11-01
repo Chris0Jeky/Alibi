@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An original, standalone experiment in conflicting reports and counterexamples."
+    />
+    <title>The lantern reports — Contradiction cabinet</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./cabinet.css" />
+    <script type="module" src="./cabinet.mjs"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#reports-title">Skip to the reports</a>
+    <main>
+      <header>
+        <h1>The lantern reports</h1>
+        <p id="story">
+          At the small harbour of Merewick, five reports reached the night clerk after the bell.
+          Each described the same instant. Before writing a confident account, the clerk needs to
+          find which reports cannot fit together — and what a quieter set of evidence still leaves
+          open.
+        </p>
+        <p class="scope">
+          A standalone reasoning experiment. No timer or sound. Rehearsal stays in memory and clears
+          on reload.
+        </p>
+        <nav aria-label="Cabinet controls">
+          <button id="story-toggle" type="button" aria-pressed="true">Turn story off</button>
+          <button id="restart" type="button">Restart rehearsal</button>
+        </nav>
+      </header>
+      <p class="assumptions">
+        All reports concern the same bell, with no clock uncertainty. Each of the East, West and
+        Stair lanterns was either lit or dark. “Not both lit” allows either one to be lit, or both
+        to be dark. These are the only rules.
+      </p>
+      <div class="tasks">
+        <section aria-labelledby="reports-title">
+          <h2 id="reports-title" tabindex="-1">Find the smallest conflict</h2>
+          <p>
+            Select the fewest reports that cannot all be true together. There may be more than one
+            equally small answer. Selecting every report is not enough.
+          </p>
+          <fieldset>
+            <legend>Reports to compare</legend>
+            <div id="reports"></div>
+          </fieldset>
+          <div class="actions">
+            <button id="check-conflict" class="primary" type="button">
+              Check selected reports
+            </button>
+            <button
+              id="conflict-hint"
+              type="button"
+              aria-expanded="false"
+              aria-controls="conflict-hint-text"
+            >
+              Hint for the conflict
+            </button>
+          </div>
+          <p id="conflict-result" class="result" role="status">
+            Choose reports, then check the group.
+          </p>
+          <p id="conflict-hint-text" class="hint" hidden>
+            Try one positive report and a circuit rule. Which other positive report would make them
+            clash?
+          </p>
+          <p class="scope">
+            A conflict shows that these reports cannot all fit. It does not establish which report
+            is wrong or who lied.
+          </p>
+        </section>
+        <section aria-labelledby="counterexample-title">
+          <h2 id="counterexample-title">Build a counterexample</h2>
+          <p>
+            This is a separate exercise. Keep only the three premises below fixed; your selection in
+            the other exercise does not change them.
+          </p>
+          <ol id="retained" aria-label="Fixed retained premises"></ol>
+          <blockquote>The Stair lantern must have been lit.</blockquote>
+          <p>
+            Can you make that claim false while keeping every fixed premise true? Choose a state for
+            all three lanterns.
+          </p>
+          <table>
+            <caption>
+              Your proposed state at the bell
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Lantern</th>
+                <th scope="col">Your state</th>
+              </tr>
+            </thead>
+            <tbody id="world"></tbody>
+          </table>
+          <div class="actions">
+            <button id="check-counterexample" class="primary" type="button">
+              Check counterexample
+            </button>
+            <button
+              id="counterexample-hint"
+              type="button"
+              aria-expanded="false"
+              aria-controls="counterexample-hint-text"
+            >
+              Hint for the counterexample
+            </button>
+          </div>
+          <p id="counterexample-result" class="result" role="status">
+            Choose a state for each lantern, then check.
+          </p>
+          <p id="counterexample-hint-text" class="hint" hidden>
+            A counterexample makes the claim false, but it must keep all three listed premises true.
+          </p>
+        </section>
+      </div>
+      <section class="worked-section" aria-labelledby="worked-title">
+        <h2 id="worked-title">Compare your explanation</h2>
+        <p>
+          Before revealing, explain why each selected report matters, or why your counterexample
+          fits every premise.
+        </p>
+        <button id="reveal" type="button" aria-expanded="false" aria-controls="worked">
+          Reveal worked explanations
+        </button>
+        <div id="worked" hidden>
+          <h3>Two smallest conflicts</h3>
+          <p>
+            R1 and R2 light East and West, but R3 forbids both. R1 and R4 light East and Stair, but
+            R5 forbids both. Either triple works. Every group of one or two reports has at least one
+            possible state, so three really is the smallest size.
+          </p>
+          <h3>A possible state that defeats “must”</h3>
+          <p>
+            East dark, West lit, Stair dark. R2 is true because West is lit. R3 and R5 are true
+            because East is dark. Stair is dark, so the claim is false. Stair lit would also fit the
+            same premises: they leave its state open.
+          </p>
+          <p>
+            If no state fitted the premises, that would be inconsistent evidence, not proof of the
+            claim and not a counterexample.
+          </p>
+        </div>
+      </section>
+      <footer>
+        Original fictional experiment · No saves, accounts or automatic telemetry · Technical checks
+        do not establish player understanding.
+      </footer>
+    </main>
+  </body>
+</html>
