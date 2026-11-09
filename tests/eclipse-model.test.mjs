@@ -249,3 +249,24 @@ test('sparse boards and target arrays are rejected', () => {
   assert.throws(() => validatePuzzle({ ...base, rowTargets: Array(4) }));
   assert.throws(() => check(base, Array(16)));
 });
+
+test('Mirror hints alone, including solver fallbacks, solve every level without reading the answer', () => {
+  for (const p of PUZZLES.filter((p) => p.mode === 'mirror')) {
+    const answer = solve(p).solutions[0];
+    const poisoned = { ...p };
+    Object.defineProperty(poisoned, 'solution', {
+      get() {
+        throw Error('answer read');
+      },
+    });
+    let cells = [...p.givens];
+    for (let step = 0; step < cells.length && !check(p, cells).complete; step++) {
+      const h = hint(poisoned, cells);
+      assert.ok(h, `${p.id} offers a hint at step ${step}`);
+      assert.equal(h.value, answer[h.cell], `${p.id} hint ${step} is correct`);
+      cells = [...cells];
+      cells[h.cell] = h.value;
+    }
+    assert.equal(check(p, cells).complete, true, `${p.id} completes by hints`);
+  }
+});
