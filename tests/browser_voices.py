@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = (ROOT / 'dist').resolve()
@@ -45,6 +45,38 @@ def check(value, label):
     assert value, label
     checks += 1
     print('PASS', label, flush=True)
+
+
+def lab_feedback_snapshot(review, label, stage):
+    """Keep save/focus evidence without hiding the original assertion on failure."""
+    try:
+        state = review.evaluate('''(button) => {
+            const root = button.getRootNode(), active = root.activeElement;
+            return {
+                disabled: button.disabled,
+                focused: active === button,
+                activeTag: active?.tagName,
+                activeAction: active?.dataset?.action,
+                message: root.querySelector('.message')?.textContent,
+                feedbackMessage: root.querySelector('.feedback-message')?.textContent,
+                sheetOpen: !!document.querySelector('dialog.vo-sheet[open]')
+            };
+        }''')
+    except Exception as error:
+        state = {'diagnosticError': str(error)}
+    print('LAB_FEEDBACK', json.dumps({'viewport': label, 'stage': stage, **state}), flush=True)
+
+
+def save_lab_feedback(page, review, label):
+    page.get_by_role('button', name='Save feedback', exact=True).click()
+    lab_feedback_snapshot(review, label, 'save-clicked')
+    try:
+        # The previous save's message can remain visible while this IndexedDB write is pending.
+        # Review becomes enabled only after the current draft is saved and the player rerenders.
+        expect(review).to_be_enabled()
+        page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+    finally:
+        lab_feedback_snapshot(review, label, 'save-wait-finished')
 
 
 if not (DIST / 'index.html').is_file():
@@ -704,8 +736,7 @@ with sync_playwright() as pw:
         page.locator('[data-difficulty]').select_option('just-right')
         page.locator('[data-feedback]').fill('Earlier saved note.' if viewport is NARROW else 'The linked clues made sense.')
         check(review.is_disabled(), f'unsaved Lab draft cannot be sent at {label}')
-        page.get_by_role('button', name='Save feedback', exact=True).click()
-        page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+        save_lab_feedback(page, review, label)
         if viewport is NARROW:
             held = []
             page.route('**/assets/voices.*.js', lambda route: held.append(route))
@@ -717,11 +748,14 @@ with sync_playwright() as pw:
             page.get_by_text('Feedback changed. Save or discard your draft, then try again.', exact=True).wait_for()
             check(not sheet_open(page) and review.is_disabled(), 'editing a Lab draft during loading cancels the stale composer and keeps Review disabled')
             page.unroute('**/assets/voices.*.js')
-            page.get_by_role('button', name='Save feedback', exact=True).click()
-            page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+            save_lab_feedback(page, review, label)
         review.focus()
-        page.keyboard.press('Enter')
-        page.locator('#vo-text').wait_for()
+        check(review.evaluate('(e) => e === e.getRootNode().activeElement'), f'saved Lab feedback can receive keyboard focus at {label}')
+        try:
+            page.keyboard.press('Enter')
+            page.locator('#vo-text').wait_for()
+        finally:
+            lab_feedback_snapshot(review, label, 'keyboard-open-finished')
         draft = page.locator('#vo-text').input_value()
         check('constellation-01' in draft and 'Enjoyment: 4/5' in draft and 'just-right' in draft and 'The linked clues made sense.' in draft, f'saved Lab impressions are shown before sending at {label}')
         check(page.locator('#vo-count').inner_text() == f'{len(draft)} of 2,000 characters', f'prefilled message count is correct at {label}')
@@ -744,8 +778,7 @@ with sync_playwright() as pw:
         check(page.locator('[data-feedback]').input_value() == 'The linked clues made sense.', f'composer edits do not rewrite the saved Lab note at {label}')
         if viewport is PHONE:
             page.locator('[data-feedback]').fill('x' * 2000)
-            page.get_by_role('button', name='Save feedback', exact=True).click()
-            page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+            save_lab_feedback(page, review, label)
             review.click()
             page.locator('.feedback-message', has_text='Shorten your note by').wait_for()
             check(review.evaluate('(e) => e === e.getRootNode().activeElement'), 'an overlong-note error preserves the feedback control focus')
