@@ -6,6 +6,53 @@ Player-facing changes, newest first. The same history is available offline in th
 
 These entries describe the versions when they arrived. The original 0.2 source bundle predates the first public release listed here. Technical deployment evidence remains in the linked release receipts.
 
+## 0.16.0 · More Sun & Moon, a new Lab, and sturdier saves
+
+2026-11-09
+
+- Sunrise Studies adds new Sun & Moon, Futoshiki, Lantern and route boards, bringing the collection to 612 puzzles.
+- Try the Eclipse Lab, an experimental corner of linked Sun & Moon levels with rules, undo, redo and hints; send your impressions only if you choose to.
+- Castle rooms now explain which rule a rejected answer breaks.
+- The Workshop keeps drafts safe across tabs, lets you remove an added pack without losing progress, and recovers from a failed import.
+- Phones offer a first-puzzle starter, and you can practise a technique without leaving your game.
+- Restores are checked, damaged data is kept for recovery, and large collections start faster.
+
+[Release record](docs/RELEASE-0.16.0.md)
+
+## 0.15.2 · Paintings for your desk and games
+
+2026-10-14
+
+- New paintings decorate your desk, Lantern Duel and Pocket Borough, with clearer navigation and puzzle-family icons.
+- Artwork keeps working offline, with a compact edition when sharper images are unavailable.
+- The first load is lighter; six advanced Crime Scene boards load on demand and remain available offline.
+- Pause restores focus to its control and keeps Bridges boards visible in landscape.
+
+[Release record](docs/RELEASE-0.15.2.md)
+
+## 0.15.1 · Keep your latest edits and the screen you opened
+
+2026-10-02
+
+- Workshop keeps newer edits while generation or checks finish, and reports save errors for the current draft.
+- Backup review and picker errors stay on their original screen when you navigate away.
+- Save & update preserves the latest moves before reloading, and lesson completion keeps the screen you opened.
+- Import limits count UTF-8 bytes consistently; responsive controls keep boards and offers reachable.
+- Twenty-four optional Lattice Workshop studies are available as a JSON import.
+
+[Release record](docs/RELEASE-0.15.1.md)
+
+## 0.15.0 · Tell us what you think, and the vaults open
+
+2026-09-27
+
+- Send feedback with the Feedback button, report a problem with a puzzle, rate a finished puzzle Too easy, Just right or Too hard, and take an occasional short survey. Nothing is sent until you choose to; offline messages wait and send later.
+- Play the 24 Archive Heist vaults as rooms 10–33, and a challenge library grouped by family with real boards and Duel endgames where Ink replies.
+- Wrenmere Castle shows when Chapter I is complete, suggests the next room, names the room that opens a locked door, and accepts 21:00 or 2100 at the clock.
+- Keep the board in view on phones in the Games Room, see the chosen Duel strength, and play again in one tap. Library filters stay with one puzzle type, and crime scenes say when to accuse.
+
+[Release record](docs/RELEASE-0.15.0.md)
+
 ## 0.14.1 · A Beta notice that stays out of the way
 
 2026-09-26
