@@ -91,3 +91,23 @@ test('Planned rooms are not presented as undiscovered content', () => {
   for (const r of W.rooms.filter((r) => !r.implemented))
     assert.equal(E.roomStatus(E.initial(), r).open, false);
 });
+
+test('Failed Castle answers identify the applicable constraint without revealing a solution', () => {
+  const state = E.complete(E.initial(), 'gate', W.puzzles.gate.solution).state;
+  const feedback = (id, answer) => E.complete(state, id, answer).error;
+  assert.match(feedback('gate', [0, 0, 0]), /increase|total/i);
+  assert.match(feedback('gate', [1, 2, 6]), /4 more/i);
+  assert.match(feedback('shelves', ['moss', 'letters', 'tides', 'atlas', 'stars']), /first.*last/i);
+  assert.match(feedback('shelves', ['atlas', 'stars', 'tides', 'moss', 'letters']), /immediately/i);
+  assert.match(feedback('lamps', Array(9).fill(0)), /unlit lanterns: \d+/i);
+  assert.match(feedback('magic', W.puzzles.magic.setup), /row.*column.*diagonal/i);
+  assert.match(feedback('bridges', { odd: [], conclusion: '' }), /odd number/i);
+  assert.match(
+    feedback('bridges', { odd: ['N', 'S', 'I', 'E'], conclusion: 'possible' }),
+    /arrival.*departure/i,
+  );
+  assert.match(feedback('ur', 1), /positions/i);
+  assert.match(feedback('route', ['S', 'B']), /not reached the tower/i);
+  assert.match(feedback('route', ['S', 'L', 'A', 'T']), /arrives too late/i);
+  assert.equal(E.complete(state, 'route', ['S', 'B', 'O', 'T']).ok, true);
+});
