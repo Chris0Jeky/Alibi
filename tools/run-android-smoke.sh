@@ -5,6 +5,17 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 OUT="$ROOT/test-results/native"
 mkdir -p "$OUT"
+TRACE_ATTEMPTED=0
+TRACE_DEVICE=/data/misc/perfetto-traces/alibi-native.pftrace
+# A fresh directory keeps this invocation distinct even if older evidence cannot be removed.
+if TRACE_OUT="$(timeout --signal=TERM --kill-after=2s 5s mktemp -d "$OUT/draw-trace.XXXXXX" 2>/dev/null)" &&
+  printf 'start=not_attempted\n' > "$TRACE_OUT/draw-trace-status.txt" 2>/dev/null; then
+  printf 'native trace output=%s\n' "${TRACE_OUT##*/}"
+else
+  TRACE_OUT=''
+  printf 'native trace output=unavailable\n'
+fi
+TRACE_STATUS="$TRACE_OUT/draw-trace-status.txt"
 # Keep the original audited digest across Gradle's potentially rebuilding install step.
 EXPECTED_APK_SHA256="$(python tools/android-smoke-evidence.py prepare)"
 # A failed or skipped run must not reuse an earlier success receipt/report.
@@ -28,6 +39,26 @@ emulator -avd alibi_native -port 5554 -no-window -no-audio -no-boot-anim \
 EMU_PID=$!
 cleanup() {
   local exit_status=$?
+  if test "$TRACE_ATTEMPTED" = 1; then
+    {
+      printf 'stop_host_utc=%s\n' "$(date -u +%FT%TZ)"
+      printf 'stop_guest_uptime='
+      (ulimit -f 1024; timeout --signal=TERM --kill-after=2s 5s adb shell cat /proc/uptime) || printf 'unavailable\n'
+    } >> "$TRACE_STATUS" 2>/dev/null || true
+    if (ulimit -f 1024; timeout --signal=TERM --kill-after=2s 15s adb shell perfetto --attach=alibi-native --stop) >> "$TRACE_OUT/draw-trace-commands.log" 2>&1; then
+      printf 'stop=ok\n' >> "$TRACE_STATUS" || true
+    else
+      printf 'stop=failed_or_expired\n' >> "$TRACE_STATUS" || true
+    fi
+    # Even if stop failed, an expired session may have written a trace. It is not proof of coverage.
+    # The on-device ring is 32 MiB; independently cap a broken or oversized pull at 64 MiB.
+    if (ulimit -f 65536; timeout --signal=TERM --kill-after=2s 20s adb pull "$TRACE_DEVICE" "$TRACE_OUT/draw-trace.pftrace") >> "$TRACE_OUT/draw-trace-commands.log" 2>&1 && test -s "$TRACE_OUT/draw-trace.pftrace"; then
+      printf 'pull=ok\n' >> "$TRACE_STATUS" || true
+    else
+      rm -f "$TRACE_OUT/draw-trace.pftrace" || true
+      printf 'pull=failed_or_empty\n' >> "$TRACE_STATUS" || true
+    fi
+  fi
   timeout --signal=TERM --kill-after=5s 15s adb logcat -d > "$OUT/logcat.txt" 2>&1 || true
   if test "$exit_status" -ne 0; then
     python3 "$ROOT/tools/android-native-diagnostic-excerpt.py" < "$OUT/logcat.txt" || true
@@ -72,6 +103,46 @@ adb shell settings put global window_animation_scale 0
 adb shell settings put global transition_animation_scale 0
 adb shell settings put global animator_duration_scale 0
 adb shell input keyevent 82
+# Detached trace has a ten-minute hard deadline, a 32 MiB ring, and an explicit stop in cleanup.
+# Failed instrumentation and failed tracing remain separate outcomes. See Perfetto detached mode.
+if test -n "$TRACE_OUT"; then
+TRACE_ATTEMPTED=1
+{
+  printf 'github_run_id=%s\ngithub_run_attempt=%s\n' "${GITHUB_RUN_ID:-unavailable}" "${GITHUB_RUN_ATTEMPT:-unavailable}"
+  printf 'expected_debug_apk_sha256=%s\n' "$EXPECTED_APK_SHA256"
+  printf 'source_sha='
+  timeout --signal=TERM --kill-after=2s 5s git rev-parse HEAD 2>/dev/null || printf 'unavailable\n'
+  printf 'duration_ms=600000\nbuffer_kib=32768\n'
+  printf 'start_host_utc=%s\n' "$(date -u +%FT%TZ)"
+  printf 'start_guest_uptime='
+  (ulimit -f 1024; timeout --signal=TERM --kill-after=2s 5s adb shell cat /proc/uptime) || printf 'unavailable\n'
+} > "$TRACE_STATUS" 2>/dev/null || true
+if (ulimit -f 1024; timeout --signal=TERM --kill-after=2s 15s adb shell perfetto -c - --txt --detach=alibi-native -o "$TRACE_DEVICE") >> "$TRACE_OUT/draw-trace-commands.log" 2>&1 <<'TRACE_CONFIG'
+duration_ms: 600000
+write_into_file: true
+file_write_period_ms: 1000000000
+buffers: { size_kb: 32768 fill_policy: RING_BUFFER }
+data_sources: { config { name: "linux.ftrace" ftrace_config {
+  ftrace_events: "sched/sched_switch"
+  ftrace_events: "sched/sched_waking"
+  atrace_categories: "gfx"
+  atrace_categories: "view"
+  atrace_categories: "wm"
+  atrace_categories: "ss"
+  atrace_apps: "example.unapproved.alibi.preview"
+} } }
+data_sources: { config { name: "linux.process_stats" } }
+TRACE_CONFIG
+then
+  printf 'start=ok\n' >> "$TRACE_STATUS" || true
+else
+  printf 'start=failed\n' >> "$TRACE_STATUS" || true
+fi
+{
+  printf 'start_return_guest_uptime='
+  (ulimit -f 1024; timeout --signal=TERM --kill-after=2s 5s adb shell cat /proc/uptime) || printf 'unavailable\n'
+} >> "$TRACE_STATUS" 2>/dev/null || true
+fi
 # nativeHostBootsAndNavigatesOffline checks installed sourceDir before and after controls.
 (cd android && ./gradlew --no-daemon --dependency-verification=strict \
   "-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=$EXPECTED_APK_SHA256" \
