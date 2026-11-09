@@ -32,6 +32,10 @@ const groupNames = [
   'Aborted IndexedDB fixture protection',
   'Deferred shared-town reset-intent race',
   'Restore keeper source guards',
+  'Retryable lock misses still allow a game move',
+  'A shared Borough seed is persisted when opened',
+  'A shared Borough seed cannot replace state after a save conflict',
+  'Room API settings refuse unprimed save conflicts and export the prior setting',
   'Tic-Tac-Toe move, undo, replacement and reload',
 ];
 const executedGroups = [],
@@ -654,6 +658,168 @@ group('Restore keeper source guards', async () => {
   );
 });
 
+group('Retryable lock misses still allow a game move', async () => {
+  const shared = store(),
+    context = await tab(shared);
+  await context.AlibiClub.onRoute({ page: 'salon', id: 'tictactoe' });
+  const before = shared.getItem('alibi-afterhours-v1');
+  let release;
+  const held = shared.locks.request(
+    'alibi-afterhours-v1',
+    { ifAvailable: true },
+    () =>
+      new Promise((resolve) => {
+        release = resolve;
+      }),
+  );
+  await Promise.resolve();
+  try {
+    await context.AlibiClub.save();
+    check(
+      context.AlibiClub.diagnostics().saveError.includes('Another tab is saving'),
+      'A Web Lock miss is exposed as retryable contention',
+    );
+    await context.AlibiClub.action({ dataset: { action: 'club-tictactoe-cell', cell: '0' } });
+    await context.AlibiClub.flush();
+    check(
+      JSON.stringify(context.AlibiClub.diagnostics().state.runs.tictactoe.log) === '[0]',
+      'A retryable lock warning does not discard a Tic-Tac-Toe move',
+    );
+    check(
+      shared.getItem('alibi-afterhours-v1') === before,
+      'A move during lock contention does not write without the lock',
+    );
+  } finally {
+    release();
+    await held;
+  }
+  await context.AlibiClub.save();
+  const persisted = JSON.parse(shared.getItem('alibi-afterhours-v1'));
+  check(
+    JSON.stringify(persisted.data.runs.tictactoe.log) === '[0]',
+    'The accepted move persists after the retryable lock clears',
+  );
+  check(!context.AlibiClub.diagnostics().saveError, 'A successful retry clears the warning');
+});
+
+group('A shared Borough seed is persisted when opened', async () => {
+  const shared = store(),
+    context = await tab(shared);
+  context.location.hash = '#/salon/borough?seed=SHARED-01';
+  await context.AlibiClub.onRoute({ page: 'salon', id: 'borough' });
+  await context.AlibiClub.flush();
+
+  const persisted = JSON.parse(shared.getItem('alibi-afterhours-v1'));
+  check(
+    persisted.data.runs.borough?.seed === 'SHARED-01',
+    'Opening an unused shared town commits its seed before the player moves',
+  );
+  const reloaded = await tab(shared);
+  check(
+    reloaded.AlibiClub.diagnostics().state.runs.borough?.seed === 'SHARED-01',
+    'The opened shared town survives a reload without requiring a move',
+  );
+});
+
+group('A shared Borough seed cannot replace state after a save conflict', async () => {
+  const shared = store(),
+    stale = await tab(shared);
+  stale.location.hash = '#/salon/borough?seed=SHARED-01';
+  await stale.AlibiClub.onRoute({ page: 'salon', id: 'borough' });
+  await stale.AlibiClub.save();
+
+  const writer = await tab(shared);
+  await writer.AlibiClub.action({ dataset: { action: 'club-assist', value: 'tidy' } });
+  await writer.AlibiClub.flush();
+  await stale.AlibiClub.save();
+  check(
+    stale.AlibiClub.diagnostics().saveError.includes('changed in another tab'),
+    'The old Borough tab detects a real revision conflict',
+  );
+  const before = shared.getItem('alibi-afterhours-v1');
+
+  stale.location.hash = '#/salon/borough?seed=REPLACEMENT-02';
+  await stale.AlibiClub.onRoute({ page: 'salon', id: 'borough' });
+  check(
+    stale.AlibiClub.diagnostics().state.runs.borough.seed === 'SHARED-01',
+    'A conflicted tab keeps its saved Borough seed when opening another shared town',
+  );
+  await stale.AlibiClub.save();
+  check(
+    shared.getItem('alibi-afterhours-v1') === before,
+    'A refused shared-town replacement leaves the committed Club record unchanged',
+  );
+});
+
+group('Room API settings refuse unprimed save conflicts and export the prior setting', async () => {
+  const shared = store(),
+    previousApi = 'https://previous.rooms.example.test/api',
+    api = { value: 'https://rooms.example.test/api' },
+    requests = [],
+    downloads = [],
+    document = {
+      addEventListener() {},
+      createElement() {
+        return { click() {} };
+      },
+      getElementById(id) {
+        return id === 'club-api' ? api : null;
+      },
+      body: { append() {} },
+    },
+    DownloadURL = class extends URL {
+      static createObjectURL(blob) {
+        downloads.push(blob);
+        return 'blob:club-export';
+      }
+      static revokeObjectURL() {}
+    };
+
+  await tab(shared);
+  const seeded = JSON.parse(shared.getItem('alibi-afterhours-v1'));
+  seeded.data.settings.api = previousApi;
+  shared.setItem('alibi-afterhours-v1', JSON.stringify(seeded));
+
+  const stale = await tabWith(shared, {
+    Blob,
+    URL: DownloadURL,
+    document,
+    setTimeout() {
+      return 1;
+    },
+    clearTimeout() {},
+    async fetch(...args) {
+      requests.push(args);
+      throw Error('Unexpected room request');
+    },
+  });
+  check(
+    stale.AlibiClub.diagnostics().state.settings.api === previousApi,
+    'The stale tab begins with a previously saved room API',
+  );
+  await tab(shared);
+  check(!stale.AlibiClub.diagnostics().saveError, 'The stale tab has not observed the writer yet');
+
+  await stale.AlibiClub.action({ dataset: { action: 'club-room-create' } });
+  check(
+    stale.AlibiClub.diagnostics().saveError.includes('changed in another tab'),
+    'The attempted settings save detects the real stale revision',
+  );
+  check(
+    stale.AlibiClub.diagnostics().state.settings.api === previousApi,
+    'A failed room-settings save restores the previous API in memory',
+  );
+  check(requests.length === 0, 'The unprimed conflict sends no room-creation request');
+
+  await stale.AlibiClub.action({ dataset: { action: 'club-export' } });
+  check(downloads.length === 1, 'The conflicted session can export its save');
+  const exported = JSON.parse(await downloads[0].text());
+  check(
+    exported.settings.api === previousApi,
+    'The exported save retains the previously committed room API',
+  );
+});
+
 group('Tic-Tac-Toe move, undo, replacement and reload', async () => {
   // Commit-game contract through the public Club action path. Same VM +
   // localStorage boundary as above: no real IndexedDB or browser durability.
@@ -714,7 +880,7 @@ after(() => {
         executedGroups,
         failedGroups,
         scope:
-          'Separate Node VM sessions sharing a localStorage fixture. Tests fallback, rotation, pinning, conflicts, unknown IndexedDB reads, reset-intent races, restore keeper invalidation and one Tic-Tac-Toe commitGame contract. Not real IndexedDB transactions, Worker interleaving or browser durability.',
+          'Separate Node VM sessions sharing a localStorage fixture. Tests fallback, rotation, pinning, retryable lock gameplay, Club conflicts, shared Borough routes, room settings, unknown IndexedDB reads, reset-intent races, restore keeper invalidation and Tic-Tac-Toe commits. Not real IndexedDB transactions, Worker interleaving or browser durability.',
         checks,
       },
       null,

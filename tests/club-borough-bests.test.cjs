@@ -380,7 +380,9 @@ test('profile explains the bounded local table and reads bests outside the journ
   );
   const html = tab.club.profile();
   assert.match(html, /town records in journal/);
-  assert.match(html, /Keep up to 100 personal bests, one per seed label/);
+  assert.match(html, /Keep up to 100 local bests, one per seed, sorted high to low/);
+  assert.match(html, /They remain when older games leave the journal/);
+  assert.match(html, /Cross-seed scores aren't comparable; no global ranking is implied/);
   assert.match(html, /Town planner[\s\S]*?COLLECTED/);
   assert.match(html, /<strong>PROFILE-1<\/strong><span>88 points<\/span>/);
 });

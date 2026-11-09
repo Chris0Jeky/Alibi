@@ -63,6 +63,7 @@ ORIGIN_SCENARIOS = (
     "newer_database",
     "club_read_abort",
     "club_conflict",
+    "club_api_conflict",
     "club_conflict_zen_exit",
     "rehearsal",
 )
@@ -2314,16 +2315,24 @@ def scenario_club_read_abort(pw: Any, root: Path) -> None:
 
 
 def scenario_club_conflict(pw: Any, root: Path) -> None:
-    """Issue #884: after a Club save conflict, Undo and settings refuse instead of feigning a save."""
+    """Issue #884/#905: conflicted Club tabs refuse controls that would change or export unsaved state."""
     context = launch_profile(pw, root / "club-conflict")
     try:
         # Booting a tab bumps the Club revision, so the tab opened first is the stale one.
         stale = new_page(context, "club-conflict-stale")
         boot(stale)
+        route(stale, "salon/borough?seed=SHARED-01")
+        stale.evaluate("AlibiClub.flush()")
+        shared_town = read_club_state(stale)
+        check(
+            shared_town["data"]["runs"]["borough"]["seed"] == "SHARED-01",
+            "Opening an unused shared Borough link persists its seed before any move",
+        )
         route(stale, "salon/tictactoe")
         stale.locator('[data-action="club-tictactoe-mode"][data-value="local"]').click()
         wait_page(stale, "AlibiClub.diagnostics().state.runs.tictactoe.mode === 'local'", what="club local table")
         stale.evaluate("AlibiClub.flush()")
+
         writer = new_page(context, "club-conflict-writer")
         boot(writer)
         route(writer, "salon/tictactoe")
@@ -2372,6 +2381,36 @@ def scenario_club_conflict(pw: Any, root: Path) -> None:
             "Edition switch after a conflict is refused",
         )
 
+        route(stale, "salon")
+        api = urljoin(BASE, "club-conflict-room-api")
+        room_attempts = []
+
+        def reject_room_request(request_route):
+            room_attempts.append(request_route.request.url)
+            request_route.fulfill(
+                status=503,
+                content_type="application/json",
+                body=json.dumps({"error": "Conflicted settings must not start a request"}),
+            )
+
+        context.route(api + "/**", reject_room_request)
+        api_before = stale.evaluate("AlibiClub.diagnostics().state.settings.api || ''")
+        stale.locator('[data-action="club-online-settings"]').click()
+        stale.locator("#club-api").fill(api)
+        stale.locator('[data-action="club-room-create"]').click()
+        stale.locator("#toasts .toast.error").wait_for()
+        check(
+            stale.evaluate("AlibiClub.diagnostics().state.settings.api || ''") == api_before,
+            "Room API settings remain unchanged after a Club save conflict",
+        )
+        check(not room_attempts, "Room creation sends no request from a conflicted settings dialog")
+
+        route(stale, "salon/borough?seed=REPLACEMENT-02")
+        check(
+            stale.evaluate("AlibiClub.diagnostics().state.runs.borough.seed") == "SHARED-01",
+            "A shared-town link cannot replace the old Borough in a conflicted tab",
+        )
+
         stale.reload(wait_until="domcontentloaded")
         wait_diag(stale)
         wait_page(stale, "AlibiClub.diagnostics().storageMode === 'indexeddb'", what="stale tab reload")
@@ -2381,6 +2420,92 @@ def scenario_club_conflict(pw: Any, root: Path) -> None:
         check(reloaded["state"]["settings"]["zen"] is False, "reloaded stale tab keeps none of the refused changes")
         final = read_club_state(stale)
         check(final["data"]["runs"]["tictactoe"]["log"] == [0], "the refused controls wrote nothing to the Club save")
+    finally:
+        try:
+            context.close()
+        except Exception:
+            pass
+
+
+def scenario_club_api_conflict(pw: Any, root: Path) -> None:
+    """A room API conflict first detected by its save cannot leak to a request or export."""
+    context = launch_profile(pw, root / "club-api-conflict")
+    try:
+        stale = new_page(context, "club-api-conflict-stale")
+        boot(stale)
+        route(stale, "salon")
+        previous_api = urljoin(BASE, "club-previous-room-api")
+        previous_attempts = []
+
+        def reject_previous_room_request(request_route):
+            previous_attempts.append(request_route.request.url)
+            request_route.fulfill(
+                status=400,
+                content_type="application/json",
+                body=json.dumps({"error": "Setup request only"}),
+            )
+
+        context.route(previous_api + "/**", reject_previous_room_request)
+        stale.locator('[data-action="club-online-settings"]').click()
+        stale.locator("#club-api").fill(previous_api)
+        stale.locator('[data-action="club-room-create"]').click()
+        wait_page(
+            stale,
+            "AlibiClub.diagnostics().state.settings.api === " + json.dumps(previous_api),
+            what="prior room API setting persisted",
+        )
+        stale.locator("#toasts .toast.error").filter(has_text="Setup request only").wait_for()
+        check(len(previous_attempts) == 1, "prior API setup reached its intercepted endpoint once")
+        dismiss_dialog(stale)
+
+        committed_before = read_club_state(stale)
+        check(
+            committed_before["data"]["settings"]["api"] == previous_api,
+            "the previous room API is committed before the other tab opens",
+        )
+        writer = new_page(context, "club-api-conflict-writer")
+        boot(writer)
+        writer.evaluate("AlibiClub.flush()")
+        committed_after = read_club_state(writer)
+        check(
+            committed_after["rev"] > committed_before["rev"],
+            "opening the writer commits a newer Club revision",
+        )
+        check(not stale.evaluate("AlibiClub.diagnostics().saveError"), "the stale tab has not detected the newer revision")
+
+        unprimed_api = urljoin(BASE, "club-unprimed-room-api")
+        unprimed_attempts = []
+
+        def reject_unprimed_room_request(request_route):
+            unprimed_attempts.append(request_route.request.url)
+            request_route.fulfill(
+                status=503,
+                content_type="application/json",
+                body=json.dumps({"error": "A stale save must stop this request"}),
+            )
+
+        context.route(unprimed_api + "/**", reject_unprimed_room_request)
+        stale.locator('[data-action="club-online-settings"]').click()
+        stale.locator("#club-api").fill(unprimed_api)
+        stale.locator('[data-action="club-room-create"]').click()
+        wait_page(
+            stale,
+            "AlibiClub.diagnostics().saveError.includes('changed in another tab')",
+            what="room settings discover an unprimed save conflict",
+        )
+        check(
+            stale.evaluate("AlibiClub.diagnostics().state.settings.api") == previous_api,
+            "an unprimed API save conflict restores the previous in-memory setting",
+        )
+        check(not unprimed_attempts, "an unprimed API save conflict sends no room request")
+        dismiss_dialog(stale)
+        with stale.expect_download() as club_export_info:
+            stale.locator('[data-action="club-export"]').first.click()
+        club_export = json.loads(Path(club_export_info.value.path()).read_text(encoding="utf-8"))
+        check(
+            club_export["settings"]["api"] == previous_api,
+            "a conflict export retains the previous committed room API setting",
+        )
     finally:
         try:
             context.close()
@@ -2522,6 +2647,7 @@ def run() -> int:
                 scenario_newer_database,
                 scenario_club_read_abort,
                 scenario_club_conflict,
+                scenario_club_api_conflict,
                 scenario_club_conflict_zen_exit,
                 scenario_rehearsal,
             ]
