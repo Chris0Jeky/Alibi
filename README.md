@@ -82,6 +82,10 @@ The workshop validates a definition, checks uniqueness where that family’s con
 
 [Eclipse Lab](docs/ECLIPSE-LAB.md) adds four experiments and 32 separate levels at `#/quiet/eclipse`: Constellation, Eclipse, Harbour and Switchback. Try linked implications, overlapping window totals and run changes with keyboard controls, an undoable linked-group fill and a clue lens. Hints use constraints rather than stored answers. Ratings and feedback save locally; an explicit link opens a prefilled GitHub issue for the player to review and submit. The Lab has its own backup and optional offline asset, outside the 612-puzzle official count.
 
+### Timeline Desk (experimental)
+
+Timeline Desk at `#/quiet/timeline` has twelve original levels: place events in hourly slots from plain-language clues, including an uncertain witness clock. It uses a native grid with keyboard marks, undo, and hints that name the clue behind a certain cell. It is a separate lazy asset with its own local save; see [the state note](docs/state/2026-11-09-timeline-desk-lab.md).
+
 ### Saves and offline
 
 Cabinet saves use IndexedDB database `alibi-device`, version 1 (`src/storage.js`): revision-pinned continuations, notes, undo and redo, favorites, recovery, and JSON backup. The service worker (`sw.js`, emitted by the build) caches application files. Optional room and media packs stay off the critical path. Two origins do not share storage. Export the cabinet, Club, and Quiet Wing backups, the separate challenge export, and the Eclipse Lab backup before you change site, browser, or device.
