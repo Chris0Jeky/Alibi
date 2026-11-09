@@ -143,7 +143,7 @@ def trial(pw, runs, depth, index, order, expected_build, expected_identity):
             cdp.send('Emulation.setCPUThrottlingRate', {'rate': 1})
             browser_version = cdp.send('Browser.getVersion')
             page.goto(BASE, wait_until='load', timeout=60000)
-            page.wait_for_function('window.__startup?.readyMs !== null && !!window.AlibiDiagnostics', timeout=60000)
+            page.wait_for_function('() => window.__startup?.readyMs !== null && !!window.AlibiDiagnostics', timeout=60000)
             # Let the observer deliver tasks that ended at readiness.
             page.wait_for_timeout(100)
             result = page.evaluate("""() => {

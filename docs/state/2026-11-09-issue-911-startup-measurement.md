@@ -28,3 +28,15 @@ files and rejected an intentionally mismatched index hash. Chromium execution is
 and the prior official download returned a SiteUnavailable response. The workflow needs a real
 successful run and artifact review before drawing any timing conclusion. No hosted origin or
 physical device was accessed. Existing HUMAN_TODO owner decisions remain open.
+
+## First hosted run and follow-up
+
+PR #920 run 42599339769, job 129099658034 failed before completing a trial. Build,
+fixture test, Chromium installation and the ten-file served-origin preflight succeeded. The
+Playwright readiness wait used a bare expression, which Playwright evaluated through `eval`;
+the actual app CSP rejects that evaluation. This follow-up passes a function expression to
+the same wait with the same condition and timeout; the application CSP is unchanged. The only
+`wait_for_function` call in this benchmark was checked. The uploaded failure receipt is artifact
+13664438971, ZIP SHA-256 `1917657e0e5ca3a97dc015e61b914dfb71f61c5b4cfcb8b3f699efb11674e764`.
+It reports zero observations: no medians, restoration success, or timing conclusion can be drawn.
+The corrected browser run remains pending.
