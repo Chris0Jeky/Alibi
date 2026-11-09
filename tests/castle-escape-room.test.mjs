@@ -174,7 +174,7 @@ test('A/B/A navigation keeps each room and refuses controls from an earlier visi
   assert.equal(renderedButton(a1Markup, 'escape-object', 'locker').route, String(a1));
   assert.equal(renderedAnswer(a1Inspector, open).route, String(a1));
   assert.equal(renderedButton(a1Inspector, 'escape-act', open).route, String(a1));
-  assert.equal(renderedButton(a1Inspector, 'keep-observation', 'locker').route, String(a1));
+  assert.doesNotMatch(a1Inspector, /keep-observation/, 'session-only rooms never write notes');
 
   const b = host.enter('counterweight-loft');
   assert.equal(host.act(a1, open, '9472').code, 'stale');
