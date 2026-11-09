@@ -94,7 +94,7 @@ def run():
                                 dialog = page.locator('dialog[open]')
                                 expect(dialog.locator('.deduction-title')).to_have_text(rule)
                                 expect(dialog.locator('.hint-box')).to_contain_text(coordinate)
-                                expect(dialog).to_contain_text('does not look at the stored answer')
+                                expect(dialog).to_contain_text('Uses clues and your board, not the stored answer')
                                 after = current(page)
                                 for field in ('state', 'undo', 'redo', 'hints', 'completedAt'):
                                     if after.get(field) != before.get(field):

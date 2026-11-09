@@ -95,6 +95,7 @@
     draftRev = 0,
     draftStale = null,
     pendingBackup = null,
+    pendingPackRemoval = null,
     restoreBusy = false,
     backupPickerBusy = false,
     backupPickerSerial = 0,
@@ -190,6 +191,17 @@
     isCurrentCompletion,
     onOpen: openPractice,
   });
+  const channel =
+    typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('alibi-saves') : null;
+  let packReady = false,
+    packSync = false,
+    packDirty = false;
+  channel?.addEventListener('message', (e) => {
+    if (store.mode !== 'indexeddb') return;
+    if (!['pack-removed', 'pack-added'].includes(e.data?.type)) return;
+    packDirty = true;
+    if (packReady) syncPacks();
+  });
   try {
     if (store.fatal) throw Error(store.problem);
     settings = { ...settings, ...validSettings(await store.get('meta', 'settings')) };
@@ -237,6 +249,8 @@
   } catch (e) {
     storageFatal = e.message;
   }
+  packReady = true;
+  syncPacks();
   function theme() {
     const dark =
       settings.theme === 'night' ||
@@ -405,9 +419,7 @@
       .catch((e) => toast('Preferences could not be saved: ' + e.message, true));
   }
   const staleDraft =
-    'This draft changed in another tab and is no longer saved. Export draft to keep it, then reload.';
-  const channel =
-    typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('alibi-saves') : null;
+    'Draft changed in another tab. Export draft keeps this version; full backup includes the saved draft. Reload to save.';
   channel?.addEventListener('message', async (e) => {
     if (e.data?.type === 'draft') {
       if (e.data.rev > draftRev && !draftStale) {
@@ -670,7 +682,7 @@
       library.difficulty === 'all' &&
       !library.browseAll
     )
-      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then find your next level. Every puzzle is available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary', 'id="library-browse-all" data-focus-fallback="main"')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div><section class="club-news"><div class="news-heading"><div><span class="eyebrow">OR CHOOSE A SETTING</span><h2>Four places to follow your curiosity.</h2><p>Standalone puzzles in illustrated collections.</p></div></div>${globalThis.AlibiCuration.collectionCards('', true)}</section>`;
+      return `<div class="page-head"><div><div class="eyebrow">FIND YOUR NEXT FAVOURITE</div><h1>The puzzle collection.</h1><p>Choose a game, then a puzzle. All are available from the start.</p></div>${B('Browse all puzzles', 'browse-all', 'library', 'secondary', 'id="library-browse-all" data-focus-fallback="main"')}</div><div class="family-grid">${C.TYPES.map(familyCard).join('')}</div><section class="club-news"><div class="news-heading"><div><span class="eyebrow">OR CHOOSE A SETTING</span><h2>Four places to follow your curiosity.</h2><p>Standalone puzzles in illustrated collections.</p></div></div>${globalThis.AlibiCuration.collectionCards('', true)}</section>`;
     let ps = all().filter(
       (p) =>
         (!type || p.type === type) &&
@@ -711,7 +723,7 @@
             C.insights.techniques(p).some(([rule]) => rule === library.technique),
         );
     }
-    return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, number games and visual logic. Every puzzle is available from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${C.DIFFICULTIES.map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
+    return `<div class="page-head"><div><div class="eyebrow">${m ? m.tag : 'Pick something that catches your eye'}</div><h1>${m ? esc(m.title) + '.' : 'The puzzle collection.'}</h1><p>${m ? esc(m.line) : 'Mysteries, numbers and visual logic. Every puzzle is open from the start.'}</p></div>${B(m ? 'All puzzles' : 'Your favorites', m ? 'navigate' : 'favorites-filter', m ? 'back' : 'heart', 'secondary', m ? 'data-page="library"' : '')}</div>${m ? `<div class="family-intro">${icon(m.icon)}<p>${esc(m.goal)}</p>${B('Learn to play', 'lesson', 'book', 'secondary small', `data-type="${type}"`)}</div>` : ''}${m ? globalThis.AlibiAtmosphere.family(type) : ''}${globalThis.AlibiCuration.collectionPicker(library.venue)}<div class="filters"><div class="filter-top"><div class="search-field">${icon('search')}<input id="library-search" type="search" placeholder="Search titles, types or settings…" aria-label="Search puzzles" value="${esc(library.search)}"></div><select id="difficulty-filter" aria-label="Difficulty"><option value="all">Every difficulty</option>${C.DIFFICULTIES.map((d) => `<option ${library.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select><select id="status-filter" aria-label="Progress filter">${[
       ['all', 'All puzzles'],
       ['new', 'Not started'],
       ['started', 'In progress'],
@@ -748,7 +760,7 @@
   function casebooksPage() {
     const b = books.find((b) => b.id === route.id);
     if (!b)
-      return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Stormbound lighthouses, silent houses and midnight departures. Open a file and follow the evidence.</p></div></div>${globalThis.AlibiAtmosphere.family('bridges')}<div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>Every part of a casebook is yours to open.</h3><p>Follow the continuous investigations in Bellweather and The unfinished invitation in order, or follow your curiosity through the standalone records.</p></div></div>`;
+      return `<div class="page-head"><div><div class="eyebrow">A longer thread to follow</div><h1>Mystery casebooks.</h1><p>Stormbound lights, silent houses and midnight departures. Open a file to follow the evidence.</p></div></div>${globalThis.AlibiAtmosphere.family('bridges')}<div class="book-grid full-books">${books.map(bookCard).join('')}</div><div class="club-note">${icon('book')}<div><h3>Every part of a casebook is yours to open.</h3><p>Read Bellweather and The unfinished invitation in order, or open standalone records in any order.</p></div></div>`;
     const done = b.chapters.filter((c) => solved(rec(find(c.id)))).length,
       next = b.chapters.find((c) => !solved(rec(find(c.id)))) || b.chapters[0],
       nextPuzzle = next ? find(next.id) : undefined,
@@ -803,11 +815,11 @@
       completionLabel = anthology ? 'ANTHOLOGY COMPLETE' : 'EPILOGUE',
       completionTitle = anthology ? 'The records are filed.' : 'The file is in order.',
       formatNote = anthology
-        ? '<p class="story-format-note">Standalone record. Open any record in any order; completed records stay available in the case file.</p>'
+        ? '<p class="story-format-note">Standalone record: open in any order; solved records stay in the case file.</p>'
         : '',
       completedText = anthology
         ? 'This record is complete. The solved evidence stays in the anthology file.'
-        : 'Another record is complete. The case file keeps your discovery.';
+        : 'Record complete. Your discovery stays in the case file.';
     return `<article class="story-page">${B('Back to case file', 'navigate', 'back', 'secondary', `data-page="casebooks" data-id="${esc(book.id)}"`)}<div class="case-illustration">${caseArt(book.id, true)}</div><div class="eyebrow">${esc(book.title)} · ${finished ? completionLabel : `${unit} ${index + 1} OF ${book.chapters.length}`}</div><h1>${esc(finished ? completionTitle : chapter.name)}</h1>${formatNote}${!done && index === 0 ? `<p>${esc(book.intro)}</p>` : ''}<p>${esc(done ? chapter.revelation || completedText : chapter.brief)}</p>${finished ? `<p>${esc(book.ending)}</p>` : ''}<div class="story-actions">${finished ? B('Choose another casebook', 'navigate', 'arrow', '', 'data-page="casebooks"') : done ? B(anthology ? 'Continue to the next record' : 'Continue the story', 'story-next', 'arrow') : B('Continue to puzzle', 'story-play', 'arrow', '', openAttrs(puzzle, book.id))}${done ? B('Revisit this puzzle', 'story-play', 'book', 'secondary', openAttrs(puzzle, book.id)) : ''}</div></article>`;
   }
   function chapterReveal(p) {
@@ -822,7 +834,7 @@
       complete = rs.filter(solved),
       ongoing = activeRecords(),
       fav = all().filter((p) => prefs.favorites.includes(p.id));
-    return `<div class="page-head"><div><div class="eyebrow">The little discoveries add up</div><h1>Your journal.</h1><p>No league tables. Just the puzzles you’ve enjoyed and the threads you’ve left open. <a href="#/club">Club journal →</a></p></div>${B('Back up progress', 'export', 'download', 'secondary')}</div><div class="stat-grid"><div class="stat-card"><strong>${new Set(complete.map((r) => r.puzzle.id)).size}</strong><span>Puzzles solved</span></div><div class="stat-card"><strong>${ongoing.length}</strong><span>In progress</span></div><div class="stat-card"><strong>${new Set(complete.map((r) => r.puzzle.type)).size} <small>/ ${C.TYPES.length}</small></strong><span>Game types explored</span></div><div class="stat-card"><strong>${books.filter((b) => b.chapters.every((c) => solved(rec(find(c.id))))).length}</strong><span>Casebooks completed</span></div></div>${ongoing.length ? `<div class="section-head"><h2>Pick up the thread.</h2><span class="tag">Most recently played first</span></div><div class="puzzle-grid">${ongoing.map((r) => puzzleCard(r.puzzle)).join('')}</div>` : complete.length ? '' : `<div class="empty"><h2>A fresh page.</h2><p>Start any puzzle. Your unfinished boards and personal notes will be waiting here.</p>${B('Find a puzzle', 'navigate', 'arrow', '', 'data-page="library"')}</div>`}${fav.length ? `<div class="section-head"><h2>Saved for a quieter moment.</h2></div><div class="puzzle-grid">${fav.map(puzzleCard).join('')}</div>` : ''}<div class="section-head"><h2>Your collection, explored.</h2></div><div class="family-grid">${Object.entries(
+    return `<div class="page-head"><div><div class="eyebrow">The little discoveries add up</div><h1>Your journal.</h1><p>No leagues: just puzzles enjoyed and threads left open. <a href="#/club">Club journal →</a></p></div>${B('Back up progress', 'export', 'download', 'secondary')}</div><div class="stat-grid"><div class="stat-card"><strong>${new Set(complete.map((r) => r.puzzle.id)).size}</strong><span>Puzzles solved</span></div><div class="stat-card"><strong>${ongoing.length}</strong><span>In progress</span></div><div class="stat-card"><strong>${new Set(complete.map((r) => r.puzzle.type)).size} <small>/ ${C.TYPES.length}</small></strong><span>Game types explored</span></div><div class="stat-card"><strong>${books.filter((b) => b.chapters.every((c) => solved(rec(find(c.id))))).length}</strong><span>Casebooks completed</span></div></div>${ongoing.length ? `<div class="section-head"><h2>Pick up the thread.</h2><span class="tag">Most recently played first</span></div><div class="puzzle-grid">${ongoing.map((r) => puzzleCard(r.puzzle)).join('')}</div>` : complete.length ? '' : `<div class="empty"><h2>A fresh page.</h2><p>Start a puzzle; your unfinished boards and notes will be here.</p>${B('Find a puzzle', 'navigate', 'arrow', '', 'data-page="library"')}</div>`}${fav.length ? `<div class="section-head"><h2>Saved for a quieter moment.</h2></div><div class="puzzle-grid">${fav.map(puzzleCard).join('')}</div>` : ''}<div class="section-head"><h2>Your collection, explored.</h2></div><div class="family-grid">${Object.entries(
       M,
     )
       .map(([t, m]) => {
@@ -1199,7 +1211,7 @@
         })
         .join(
           '',
-        )}</div><div class="toolrow">${tool(pencil ? 'Cell notes: on' : 'Cell notes: off', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Notes mode: select an empty square, then tap numbers to add or remove small candidates.' : 'Select a square, then a number. Turn on Cell notes to try small candidates.'} A tick means all ${p.size} copies are placed, not that they are correct.<span class="kb"> Keyboard: 1–${p.size}, N for notes, Delete to erase.</span></p>`;
+        )}</div><div class="toolrow">${tool(pencil ? 'Cell notes: on' : 'Cell notes: off', 'pencil', 'pencil', pencil)}${tool('Erase', 'erase', 'erase')}</div><p class="control-note">${pencil ? 'Notes: select an empty square, then tap numbers to toggle candidates.' : 'Select a square and number; turn on Cell notes to try candidates.'} A tick means all ${p.size} copies are placed, not that they are correct.<span class="kb"> Keyboard: 1–${p.size}, N for notes, Delete to erase.</span></p>`;
     } else if (t === 'scene')
       content = `<div class="toolrow" aria-label="Scene marking mode">${[
         ['cycle', 'Tap cycle'],
@@ -1219,15 +1231,15 @@
         )
         .join(
           '',
-        )}${tool('Remove selected', 'erase', 'erase')}${tool('Square actions', 'scene-cell-menu', 'pencil')}${tool('Person actions', 'scene-person-menu', 'scene')}</div><p class="control-note">${sceneMarkMode === 'cycle' ? 'Repeat taps: person → note → exclusion → X → person. Selection stays fixed.' : sceneMarkMode === 'board-cross' ? 'Tap any empty square to add or remove a board X. No person selection is needed.' : sceneMarkMode === 'candidate' ? 'Choose a person above, then tap empty squares to add or remove their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Choose a person, then tap empty squares to mark their initial with ×. Other people’s marks remain visible.' : 'Choose a person, then an empty square. Tap a placed person to select or remove them.'} Notes return when placements are removed. Hold a square to clear marks or a name for tools, or use the action buttons.</p>`;
+        )}${tool('Remove selected', 'erase', 'erase')}${tool('Square actions', 'scene-cell-menu', 'pencil')}${tool('Person actions', 'scene-person-menu', 'scene')}</div><p class="control-note">${sceneMarkMode === 'cycle' ? 'Repeat taps: person → note → exclusion → X → person. Selection stays fixed.' : sceneMarkMode === 'board-cross' ? 'Tap empty squares to toggle a board X; no person is needed.' : sceneMarkMode === 'candidate' ? 'Select a person, then tap empty squares to toggle their initial as a possibility.' : sceneMarkMode === 'exclude' ? 'Select a person, then tap empty squares to mark their initial ×; other marks remain.' : 'Select a person, then an empty square to place them. Tap placed people to select or remove them.'} Notes return when a person moves. Hold a square or name for tools, or use the buttons.</p>`;
     else if (t === 'binary')
       content = `<div class="toolrow">${tool('Sun', 'symbol', 'sun', brush === 0, 'data-value="0"')}${tool('Moon', 'symbol', 'moon', brush === 1, 'data-value="1"')}${tool('Cycle', 'symbol', 'refresh', brush === 'cycle', 'data-value="cycle"')}${tool('Erase', 'symbol', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">${brush === 'cycle' ? 'Tap a square: sun → moon → blank.' : 'The selected symbol is a brush. Tap a square to place it.'} Printed symbols cannot change.</p>`;
     else if (['nonogram', 'tents', 'lightup'].includes(t)) {
       const fill = t === 'tents' ? 'Tent' : t === 'lightup' ? 'Lantern' : 'Fill',
         mark = t === 'tents' ? 'Grass' : 'Cross';
-      content = `<div class="toolrow">${tool(fill, 'brush', t === 'tents' ? 'tents' : t === 'lightup' ? 'lightup' : 'nonogram', brush === 1, 'data-value="1"')}${tool(mark, 'brush', t === 'tents' ? 'grass' : 'close', brush === 0, 'data-value="0"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Tap or drag to ${brush === 1 ? fill.toLowerCase() : brush === 0 ? mark.toLowerCase() : 'erase'}. Tap an identical mark to clear it. Scroll outside the board.${t === 'nonogram' ? '<span class="kb"> Right-click adds a cross. C reads clues.</span>' : ''}</p>`;
+      content = `<div class="toolrow">${tool(fill, 'brush', t === 'tents' ? 'tents' : t === 'lightup' ? 'lightup' : 'nonogram', brush === 1, 'data-value="1"')}${tool(mark, 'brush', t === 'tents' ? 'grass' : 'close', brush === 0, 'data-value="0"')}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Tap or drag to ${brush === 1 ? fill.toLowerCase() : brush === 0 ? mark.toLowerCase() : 'erase'}. Tap a mark again to clear it; scroll outside the board.${t === 'nonogram' ? '<span class="kb"> Right-click adds a cross. C reads clues.</span>' : ''}</p>`;
     } else if (t === 'aquarium')
-      content = `<div class="toolrow">${tool('Set waterline', 'brush', 'aquarium', brush === 1, 'data-value="1"')}${tool('Drain tank', 'brush', 'erase', brush === 0, 'data-value="0"')}</div><p class="control-note">Tap at a height to fill that tank downwards. Tap its current top water row to lower it.</p>`;
+      content = `<div class="toolrow">${tool('Set waterline', 'brush', 'aquarium', brush === 1, 'data-value="1"')}${tool('Drain tank', 'brush', 'erase', brush === 0, 'data-value="0"')}</div><p class="control-note">Tap a height to fill down; tap the top water row to lower it.</p>`;
     else if (t === 'network')
       content = `<div class="toolrow">${tool('Turn left', 'turn-left', 'undo')}${tool('Turn right', 'turn-right', 'redo')}</div><p class="control-note kb">Right-click or Shift+Enter turns anticlockwise. Arrows move selection.</p>`;
     else if (t === 'dossier')
@@ -1240,10 +1252,10 @@
         )
         .join(
           '',
-        )}</div><div class="toolrow">${tool(brush === -1 ? 'Erasing' : 'Next: ' + trailValue, 'trail-mode', brush === -1 ? 'erase' : 'trail', brush !== -1)}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Choose a number, then a square. The next unused number is selected automatically.</p>`;
+        )}</div><div class="toolrow">${tool(brush === -1 ? 'Erasing' : 'Next: ' + trailValue, 'trail-mode', brush === -1 ? 'erase' : 'trail', brush !== -1)}${tool('Erase', 'brush', 'erase', brush === -1, 'data-value="-1"')}</div><p class="control-note">Choose a number and square; the next unused number is selected automatically.</p>`;
     if (t === 'nonogram') {
       const tidy = AlibiClub.assistance() === 'tidy';
-      content += `<div class="toolrow">${tool('Read clues', 'read-clues', '', false, 'aria-keyshortcuts="C"')}${tool('Auto-cross completed lines: ' + (tidy ? 'on' : 'off'), 'club-assist', 'check', tidy, `data-value="${tidy ? 'off' : 'tidy'}"`)}</div><p class="control-note">Uses the Desk assistant’s tidy setting. Crosses appear when your filled runs match a row or column clue. Change the filled squares and automatic crosses disappear; your manual crosses stay.</p>`;
+      content += `<div class="toolrow">${tool('Read clues', 'read-clues', '', false, 'aria-keyshortcuts="C"')}${tool('Auto-cross completed lines: ' + (tidy ? 'on' : 'off'), 'club-assist', 'check', tidy, `data-value="${tidy ? 'off' : 'tidy'}"`)}</div><p class="control-note">Follows Tidy mode: completed rows and columns are crossed when their runs match clues. Edit squares to clear automatic marks; manual crosses stay.</p>`;
     }
     return `<div class="controls">${content}</div>`;
   }
@@ -1255,11 +1267,11 @@
     const hasClues = ['scene', 'dossier'].includes(p.type);
     let content = '';
     if (evidenceTab === 'notes') {
-      content = `<h2>Your working notes.</h2><p style="margin-bottom:15px">Thoughts, possibilities, a thread to come back to. These notes stay with this puzzle.</p><label class="sr-only" for="play-notes">Personal puzzle notes</label><textarea class="notes-box" id="play-notes" maxlength="5000" placeholder="What do you know so far?">${esc(current.note)}</textarea><p class="evidence-foot">${temporaryProgress() ? 'Kept in this tab with the board.' : 'Saved on this device with the board.'} ${current.note.length} / 5,000 characters.</p>`;
+      content = `<h2>Your working notes.</h2><p style="margin-bottom:15px">Thoughts and possibilities, saved with this puzzle.</p><label class="sr-only" for="play-notes">Personal puzzle notes</label><textarea class="notes-box" id="play-notes" maxlength="5000" placeholder="What do you know so far?">${esc(current.note)}</textarea><p class="evidence-foot">${temporaryProgress() ? 'Kept in this tab with the board.' : 'Saved on this device with the board.'} ${current.note.length} / 5,000 characters.</p>`;
     } else if (evidenceTab === 'rules') {
       content = `<h2>How it works.</h2><p>${esc(M[p.type].gesture)}</p><div class="guide-rules">${M[p.type].rules.map((r) => `<div class="guide-rule">${esc(r)}</div>`).join('')}</div><div class="guide-tip"><strong>A good starting point</strong><br>${esc(M[p.type].tip)}</div><div style="margin-top:18px">${B('Try the mini lesson', 'lesson', 'book', 'secondary wide', `data-type="${p.type}"`)}</div>`;
     } else if (hasClues) {
-      content = `<div class="eyebrow">${esc(p.subtitle)}</div><h2>${p.type === 'scene' ? 'The evidence.' : 'The case notes.'}</h2><div class="case-intro">${esc(p.story)}</div><div class="row between" style="margin-bottom:12px"><h3 style="font-size:11px">${p.clues.length} reliable clues</h3><span class="tag" style="font-size:9px">Every clue is true</span></div>${clueList(p, s)}<p class="evidence-foot">Check clues off as you use them. These are your notes; checking a clue does not verify your answer.</p>`;
+      content = `<div class="eyebrow">${esc(p.subtitle)}</div><h2>${p.type === 'scene' ? 'The evidence.' : 'The case notes.'}</h2><div class="case-intro">${esc(p.story)}</div><div class="row between" style="margin-bottom:12px"><h3 style="font-size:11px">${p.clues.length} reliable clues</h3><span class="tag" style="font-size:9px">Every clue is true</span></div>${clueList(p, s)}<p class="evidence-foot">Check clues as notes; this does not verify your answer.</p>`;
     } else {
       content = `<div class="eyebrow">${esc(M[p.type].tag)}</div><h2>${p.type === 'witness' ? 'The case file.' : 'A place to start.'}</h2>${p.story ? `<div class="case-intro">${esc(p.story)}</div>` : ''}<p>${esc(M[p.type].goal)}</p><div class="guide-tip"><strong>Your first deduction</strong><br>${esc(M[p.type].tip)}</div><div class="guide-rules">${M[
         p.type
@@ -1290,9 +1302,9 @@
       has = ['scene', 'dossier'].includes(p.type);
     let body = '';
     if (tab === 'notes')
-      body = `<p>These notes stay with this puzzle. You can return to the board without losing your place.</p><label for="quick-notes">Your working notes</label><textarea id="quick-notes" class="notes-box" maxlength="5000" placeholder="What do you know so far?">${esc(current.note)}</textarea>`;
+      body = `<p>Notes stay with the puzzle while you leave the board.</p><label for="quick-notes">Your working notes</label><textarea id="quick-notes" class="notes-box" maxlength="5000" placeholder="What do you know so far?">${esc(current.note)}</textarea>`;
     else if (has)
-      body = `<p>${esc(p.story)}</p><div class="evidence-list">${p.clues.map((cl, i) => `<button class="clue ${current.state.clueMarks.includes(i) ? 'marked' : ''}" data-action="quick-clue" data-index="${i}" aria-pressed="${current.state.clueMarks.includes(i)}"><span class="checkbox">${current.state.clueMarks.includes(i) ? icon('check') : ''}</span><span class="clue-text"><span class="clue-num">${i + 1}.</span>${esc(p.type === 'scene' ? C.clueText(p, cl) : X.dossierClue(p, cl))}</span></button>`).join('')}</div><p class="fine">Check off clues as you use them. These checks are your notes, not answer verification.</p>`;
+      body = `<p>${esc(p.story)}</p><div class="evidence-list">${p.clues.map((cl, i) => `<button class="clue ${current.state.clueMarks.includes(i) ? 'marked' : ''}" data-action="quick-clue" data-index="${i}" aria-pressed="${current.state.clueMarks.includes(i)}"><span class="checkbox">${current.state.clueMarks.includes(i) ? icon('check') : ''}</span><span class="clue-text"><span class="clue-num">${i + 1}.</span>${esc(p.type === 'scene' ? C.clueText(p, cl) : X.dossierClue(p, cl))}</span></button>`).join('')}</div><p class="fine">Check clues as notes; this does not verify your answer.</p>`;
     else
       body = `<p>${esc(M[p.type].goal)}</p><div class="guide-rules">${M[p.type].rules.map((r) => `<div class="guide-rule">${esc(r)}</div>`).join('')}</div><div class="guide-tip">${esc(M[p.type].tip)}</div>`;
     dialog(
@@ -1366,7 +1378,7 @@
       )}</div>${workTab === 'scene' ? sceneMaker() : workTab === 'packs' ? packDesk() : authorGuide()}`;
   }
   function sceneMaker() {
-    return `<div class="workshop-grid"><section class="panel"><h2>A story of your own.</h2><p>Start with a solver-checked draft. Then edit rooms, furniture and clues in the visual editor below.</p><form id="scene-form"><div class="form-grid"><div class="field"><label for="draft-title">Case title</label><input id="draft-title" name="title" maxlength="90" value="${esc(makerFields.title)}" required></div><div class="field"><label for="draft-setting">Setting</label><input id="draft-setting" name="setting" maxlength="120" value="${esc(makerFields.setting)}" required></div><div class="field full"><label for="draft-story">Opening story</label><textarea id="draft-story" name="story" maxlength="1200" required>${esc(makerFields.story)}</textarea></div><div class="field full"><label for="draft-names">Five names, separated by commas</label><input id="draft-names" name="names" value="${esc(makerFields.names)}" required><span class="fine">The last person is the victim.</span></div><div class="field"><label for="draft-seed">Puzzle seed</label><input id="draft-seed" name="seed" type="number" min="1" max="2147483647" value="${esc(makerFields.seed)}" required></div><div class="field" style="align-self:end"><button type="submit" class="btn wide" ${draftBusy ? 'disabled' : ''}>${draftBusy ? '<span class="spinner"></span>' : icon('star')} Generate draft</button></div></div></form><div class="row actions">${B('Import draft', 'import-draft', 'upload', 'secondary small', draftBusy ? 'disabled' : '')}</div></section><section class="panel"><h2>From idea to playable.</h2><div class="workshop-step"><i>1</i><span><strong>Name the case.</strong> Set the scene, people and seed.</span></div><div class="workshop-step"><i>2</i><span><strong>Shape the floor plan.</strong> Paint rooms, move furniture and revise clues.</span></div><div class="workshop-step"><i>3</i><span><strong>Check the logic.</strong> Verify that the edited rules still allow exactly one solution.</span></div><div class="workshop-step"><i>4</i><span><strong>Play or share.</strong> Add it locally, or export a JSON pack for another player.</span></div><div class="verification"><strong>A useful boundary</strong><br>The generator provides a mechanical draft, not a fully edited mystery. Human playtesting still determines whether the clues feel elegant, the story makes sense, and the difficulty is right.</div><div class="docs-card"><h3>Already have a puzzle pack?</h3><p>Any supported puzzle family can be imported as data. Packs cannot execute code or fetch remote assets.</p>${B('Open the pack desk', 'work-tab', 'upload', 'secondary small', 'data-value="packs"')}</div></section></div>${draft ? draftEditor() : ''}`;
+    return `<div class="workshop-grid"><section class="panel"><h2>A story of your own.</h2><p>Generate a solver-checked draft, then edit its rooms, furniture and clues.</p><form id="scene-form"><div class="form-grid"><div class="field"><label for="draft-title">Case title</label><input id="draft-title" name="title" maxlength="90" value="${esc(makerFields.title)}" required></div><div class="field"><label for="draft-setting">Setting</label><input id="draft-setting" name="setting" maxlength="120" value="${esc(makerFields.setting)}" required></div><div class="field full"><label for="draft-story">Opening story</label><textarea id="draft-story" name="story" maxlength="1200" required>${esc(makerFields.story)}</textarea></div><div class="field full"><label for="draft-names">Five names, separated by commas</label><input id="draft-names" name="names" value="${esc(makerFields.names)}" required><span class="fine">The last person is the victim.</span></div><div class="field"><label for="draft-seed">Puzzle seed</label><input id="draft-seed" name="seed" type="number" min="1" max="2147483647" value="${esc(makerFields.seed)}" required></div><div class="field" style="align-self:end"><button type="submit" class="btn wide" ${draftBusy ? 'disabled' : ''}>${draftBusy ? '<span class="spinner"></span>' : icon('star')} Generate draft</button></div></div></form><div class="row actions">${B('Import draft', 'import-draft', 'upload', 'secondary small', draftBusy ? 'disabled' : '')}</div></section><section class="panel"><h2>From idea to playable.</h2><div class="workshop-step"><i>1</i><span><strong>Name the case.</strong> Set the scene, people and seed.</span></div><div class="workshop-step"><i>2</i><span><strong>Shape the floor plan.</strong> Paint rooms, move furniture and revise clues.</span></div><div class="workshop-step"><i>3</i><span><strong>Check the logic.</strong> Verify that the edited rules still allow exactly one solution.</span></div><div class="workshop-step"><i>4</i><span><strong>Play or share.</strong> Add it locally, or export a JSON pack for another player.</span></div><div class="verification"><strong>A useful boundary</strong><br>The generator makes a mechanical draft, not a finished mystery. Playtesting judges clue quality, story and difficulty.</div><div class="docs-card"><h3>Already have a puzzle pack?</h3><p>Any supported puzzle family can be imported as data. Packs cannot execute code or fetch remote assets.</p>${B('Open the pack desk', 'work-tab', 'upload', 'secondary small', 'data-value="packs"')}</div></section></div>${draft ? draftEditor() : ''}`;
   }
   function draftEditor() {
     const p = draft;
@@ -1410,7 +1422,7 @@
       })
       .join(
         '',
-      )}</div><div class="row wrap">${B(draftShowSolution ? 'Hide author solution' : 'Show author solution', 'draft-solution', 'eye', 'secondary small', !draftVerified && blankSolution(p) ? 'disabled' : '')}</div><p class="fine" style="margin-top:12px">Edit squares using room letters or colours. Changes require verification; the shown solution is the last verified arrangement.</p><div class="form-grid" style="margin-top:17px">${p.roomNames.map((name, i) => `<div class="field"><label for="room-name-${i}">Room ${String.fromCharCode(65 + i)}</label><input id="room-name-${i}" value="${esc(name)}" data-room-name="${i}" maxlength="40"></div>`).join('')}</div></div><div><h3 style="margin-bottom:12px">${p.clues.length} clues in this draft</h3><div class="draft-clues" data-scroll-key="draft-clues">${p.clues.map((cl, i) => `<div class="draft-clue"><span>${i + 1}. ${esc(C.clueText(p, cl))}</span>${round('remove-draft-clue', 'close', `Remove clue ${i + 1}`, `data-index="${i}"`)}</div>`).join('')}</div><form id="clue-form" class="clue-builder"><div class="eyebrow">Add a clue</div><div class="row"><select name="who" id="clue-who" aria-label="Person">${p.people.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><select name="kind" id="clue-kind" aria-label="Clue relation">${[
+      )}</div><div class="row wrap">${B(draftShowSolution ? 'Hide author solution' : 'Show author solution', 'draft-solution', 'eye', 'secondary small', !draftVerified && blankSolution(p) ? 'disabled' : '')}</div><p class="fine" style="margin-top:12px">Edit squares with room letters or colours. Reverify changes; the shown solution is last verified.</p><div class="form-grid" style="margin-top:17px">${p.roomNames.map((name, i) => `<div class="field"><label for="room-name-${i}">Room ${String.fromCharCode(65 + i)}</label><input id="room-name-${i}" value="${esc(name)}" data-room-name="${i}" maxlength="40"></div>`).join('')}</div></div><div><h3 style="margin-bottom:12px">${p.clues.length} clues in this draft</h3><div class="draft-clues" data-scroll-key="draft-clues">${p.clues.map((cl, i) => `<div class="draft-clue"><span>${i + 1}. ${esc(C.clueText(p, cl))}</span>${round('remove-draft-clue', 'close', `Remove clue ${i + 1}`, `data-index="${i}"`)}</div>`).join('')}</div><form id="clue-form" class="clue-builder"><div class="eyebrow">Add a clue</div><div class="row"><select name="who" id="clue-who" aria-label="Person">${p.people.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select><select name="kind" id="clue-kind" aria-label="Clue relation">${[
       ['room', 'Was in room'],
       ['notRoom', 'Not in room'],
       ['row', 'Was in row'],
@@ -1425,7 +1437,7 @@
       .map(([v, l]) => `<option value="${v}">${l}</option>`)
       .join(
         '',
-      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form>${draftStale ? `<p class="verification warn" role="alert">${esc(draftStale.message)}</p>` : ''}<div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Rehearse', 'rehearse-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Audit clues', 'audit-draft', '', 'secondary small', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export draft', 'export-scene-draft', 'download', 'secondary small', draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">Multiple solutions? Add a clue. None? Correct or remove a clue. Keep furniture consistent with “next to” clues.</p></div></div>${draftComparisonView()}${draftConflictView()}${draftAuditView()}</section>`;
+      )}</select><select name="value" id="clue-value" aria-label="Clue value">${p.roomNames.map((v, i) => `<option value="${i}">${esc(v)}</option>`).join('')}</select><button type="submit" class="btn small secondary">Add clue</button></div></form>${draftStale ? `<p class="verification warn" role="alert">${esc(draftStale.message)}</p>` : ''}<div class="verification ${draftVerified ? '' : 'warn'}" id="draft-verification" role="status">${draftBusy ? '<span class="spinner"></span> Checking all possible arrangements…' : draftVerified ? 'Verified: these rules produce exactly one solution. Add the puzzle locally, or export it as a pack.' : draftComparison ? 'At least two arrangements fit. Compare them below before revising a clue.' : draftConflict ? 'No arrangement fits. See below.' : 'The draft has not been verified since the last change. Check its logic before publishing.'}</div><div class="row actions">${B('Verify the logic', 'verify-draft', 'check', '', draftBusy ? 'disabled' : '')}${B('Add & play', 'add-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Rehearse', 'rehearse-draft', 'play', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export pack', 'export-draft', 'download', 'secondary', !draftVerified || draftBusy ? 'disabled' : '')}${B('Audit clues', 'audit-draft', '', 'secondary small', !draftVerified || draftBusy ? 'disabled' : '')}${B('Export draft', 'export-scene-draft', 'download', 'secondary small', draftBusy ? 'disabled' : '')}</div><p class="fine" style="margin-top:15px">Multiple solutions? Add a clue. None? Revise a clue. Keep furniture consistent with “next to”.</p></div></div>${draftComparisonView()}${draftConflictView()}${draftAuditView()}</section>`;
   }
   function clueLinks(list) {
     return `<ul class="draft-comparison-text">${list.map((i) => `<li>${B(`Clue ${i + 1}`, 'focus-draft-clue', '', 'ghost small', `data-index="${i}"`)} ${esc(C.clueText(draft, draft.clues[i]))}</li>`).join('')}</ul>`;
@@ -1465,16 +1477,15 @@
       .join('')}</ul></section>`;
   }
   function packDesk() {
-    return `<div class="workshop-grid"><section class="panel"><h2>Bring another collection.</h2><p>Import a JSON puzzle pack. The browser checks the format, rules and uniqueness in a background worker before adding anything.</p><div class="drop-zone">${icon('upload')}<p>A data-only pack for any supported puzzle family.</p>${B('Choose a JSON pack', 'import-pack', 'upload')}</div><p class="fine">Maximum 3 MB, 150 puzzles per pack. Imports cannot overwrite an existing puzzle ID. Validation is bounded and aborts safely if a pack is too expensive to check.</p><div class="row actions">${B('Export all starter examples', 'export-template', 'download', 'secondary')}${B('Authoring guide', 'work-tab', 'book', 'ghost', 'data-value="guide"')}</div></section><section class="panel"><h2>On your workbench.</h2><p>Installed custom packs stay local. To share one, export it and give the JSON file to another player.</p><div class="library-summary"><div class="mini-stat"><strong>${C.TYPES.length}</strong><small>Supported engines</small></div><div class="mini-stat"><strong>${packs.length - 1}</strong><small>Custom packs</small></div><div class="mini-stat"><strong>${all().length - starter.puzzles.length}</strong><small>Custom puzzles</small></div></div>${
+    return `<div class="workshop-grid"><section class="panel"><h2>Bring another collection.</h2><p>Import a JSON puzzle pack. The browser checks the format, rules and uniqueness in a background worker before adding anything.</p><div class="drop-zone">${icon('upload')}<p>A data-only pack for any supported puzzle family.</p>${B('Choose a JSON pack', 'import-pack', 'upload')}</div><p class="fine">Maximum 3 MB, 150 puzzles per pack. Imports cannot overwrite an existing puzzle ID. Validation is bounded and aborts safely if a pack is too expensive to check.</p><div class="row actions">${B('Export all starter examples', 'export-template', 'download', 'secondary')}${B('Authoring guide', 'work-tab', 'book', 'ghost', 'data-value="guide"')}</div></section><section class="panel"><h2>On your workbench.</h2><p>Installed custom packs stay local. To share one, export it and give the JSON file to another player.</p><div class="library-summary"><div class="mini-stat"><strong>${C.TYPES.length}</strong><small>Supported engines</small></div><div class="mini-stat"><strong>${packs.length - 1}</strong><small>Custom packs</small></div><div class="mini-stat"><strong>${all().length - starter.puzzles.length}</strong><small>Custom puzzles</small></div></div><div id="pack-list">${
       packs
         .slice(1)
         .map(
           (p) =>
             `<div class="pack-row">${icon('dossier')}<div><strong>${esc(p.title)}</strong><small>${p.puzzles.length} puzzles · v${p.version}</small></div>${B('Export', 'export-pack', 'download', 'secondary small', `data-id="${esc(p.id)}"`)}${B('Remove', 'remove-pack', '', 'ghost small', `data-id="${esc(p.id)}" aria-label="Remove ${esc(p.title)}"`)}</div>`,
         )
-        .join('') ||
-      '<div class="verification">No custom packs yet. Make a scene in the editor or import a pack to begin.</div>'
-    }</section></div>`;
+        .join('') || '<div class="verification">No custom packs yet. Create or import one.</div>'
+    }</div></section></div>`;
   }
   function authorGuide() {
     return `<div class="workshop-grid"><section class="panel"><h2>Scenarios are data.</h2><p>Packs contain an ID, title, version and puzzles. Each puzzle needs a stable ID, revision and engine fields. Export starter examples for every format.</p><div class="guide-rules"><div class="guide-rule">Use a unique lowercase ID, such as my-puzzle-01, that is not already installed.</div><div class="guide-rule">Include a solution for validation and reveals. The importer independently checks uniqueness.</div><div class="guide-rule">Rule changes require a new revision. Saves retain their original puzzle.</div><div class="guide-rule">Use plain text; imported packs cannot contain HTML, remote assets or executable plugins.</div></div><div class="row actions">${B('Export starter examples', 'export-template', 'download')}${B('Open scene maker', 'work-tab', 'scene', 'secondary', 'data-value="scene"')}</div></section><section class="panel"><h2>Publish deliberately.</h2><p>Imports stay on your device. To publish an official pack, add it to the source catalogue, run tests, build a release and update the existing deployment.</p><div class="docs-card"><h3>A new family needs an engine.</h3><p>Implement state, actions, constraints, completion, a bounded solver, validation, controls and a lesson. See the source extension guide.</p></div><div class="docs-card"><h3>Before calling a puzzle finished</h3><p>Verify uniqueness, solve without hints, check clues, test on a phone and ask someone to play. Uniqueness alone does not guarantee enjoyable deductions.</p></div></section></div>`;
@@ -1664,7 +1675,7 @@
       return true;
     }
     if (current.completedAt) {
-      toast('This puzzle is solved. Restart to play again, or use Undo to review a step.');
+      toast('Solved. Restart or undo to review a step.');
       return true;
     }
     return false;
@@ -1687,8 +1698,7 @@
       paused = false;
       render();
       const mystery = ['scene', 'dossier', 'witness'].includes(p.type);
-      let explanation =
-        'Every constraint is satisfied. Your completed board and notes stay in your journal.';
+      let explanation = 'All constraints fit; your board and notes stay in the journal.';
       if (p.type === 'scene') {
         const id = C.murderer(p, current.state),
           who = p.people.find((x) => x.id === id),
@@ -2029,13 +2039,13 @@
     }
     const explanation =
       hint?.tank !== undefined
-        ? 'This follows only the public clues; your waterlines remain choices. The outlined tank and clues stay marked when you close this hint.'
+        ? 'Uses public clues only; waterlines stay your choice. The tank and clues stay marked until you close the hint.'
         : hint
-          ? 'This follows the clues and your current board; it does not look at the stored answer. If an earlier entry is wrong, revisit it first.'
+          ? 'Uses clues and your board, not the stored answer. If an entry is wrong, revisit it first.'
           : 'This is a general strategy, not a check against the hidden answer.';
     dialog(
       hint ? 'Follow the reasoning.' : 'A small nudge.',
-      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${/^Revisit/.test(hint.rule) ? esc(hint.message) : `<details class="hint-step"><summary>Show the step</summary>${esc(hint.message)}</details>`}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">An optional reveal places one answer-based step. Reveals are counted, with no penalty.</p>`,
+      `<div class="hint-box">${hint ? `<div class="deduction-title">${esc(hint.rule)}</div>${/^Revisit/.test(hint.rule) ? esc(hint.message) : `<details class="hint-step"><summary>Show the step</summary>${esc(hint.message)}</details>`}` : esc(M[current.puzzle.type].tip)}</div><p>${explanation}</p><p class="fine">Reveals place one answer-based step and count without penalty.</p>`,
       [
         { label: 'Keep thinking', action: 'close-dialog', secondary: true },
         { label: 'Reveal one step', action: 'reveal-confirm', icon: 'eye' },
@@ -2048,7 +2058,7 @@
     hintAction = h.action;
     dialog(
       'Reveal one step?',
-      `<p>${esc(h.message)}</p><p class="fine">This suggestion consults the stored solution. Confirming places one correct answer or corrects one entry, and adds one to your reveal count.</p>`,
+      `<p>${esc(h.message)}</p><p class="fine">Uses the stored solution. Confirm to place or correct one entry; this adds one reveal.</p>`,
       [
         { label: 'Not yet', action: 'close-dialog', secondary: true },
         ...(h.action ? [{ label: 'Place this step', action: 'reveal-apply', icon: 'eye' }] : []),
@@ -2063,7 +2073,7 @@
       used = reasoning.techniques?.(current.puzzle) || [];
     dialog(
       'The completed record.',
-      `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>${used.length ? `<p class="fine">Techniques the hints use here. Choose one to practise it on other puzzles.</p><div class="row wrap">${used.map(([rule, n]) => B(`${esc(rule)} (${n})`, 'practise', '', 'ghost small', `data-value="${esc(rule)}"`)).join('')}</div>` : ''}`,
+      `<p>${esc(current.puzzle.title)}</p><ul class="debrief-list">${rows.map((line) => `<li>${esc(line)}</li>`).join('')}</ul>${used.length ? `<p class="fine">Hint techniques here; choose one to practise elsewhere.</p><div class="row wrap">${used.map(([rule, n]) => B(`${esc(rule)} (${n})`, 'practise', '', 'ghost small', `data-value="${esc(rule)}"`)).join('')}</div>` : ''}`,
       [
         {
           label: current.rehearsal
@@ -2166,7 +2176,7 @@
     if (l.step === 0) {
       dialog(
         m.title + '.',
-        `<div class="dialog-eyebrow">${m.tag} · A short hands-on lesson</div><div class="lesson-art">${art(l.type)}</div><p>${esc(m.goal)}</p><div class="hint-box">${esc(m.gesture)}</div><p class="fine">You can replay this lesson from the puzzle’s How to play button at any time.</p>`,
+        `<div class="dialog-eyebrow">${m.tag} · A short hands-on lesson</div><div class="lesson-art">${art(l.type)}</div><p>${esc(m.goal)}</p><div class="hint-box">${esc(m.gesture)}</div><p class="fine">Replay from the puzzle’s How to play button.</p>`,
         [
           { label: 'Try a tiny example', action: 'lesson-example', icon: 'arrow' },
           { label: 'Start playing', action: 'lesson-finish', secondary: true },
@@ -2292,7 +2302,7 @@
         .join('')}</div>`;
     dialog(
       'Try it once.',
-      `<div class="dialog-eyebrow">${m.title} · A miniature example</div><p>${esc(m.lesson)}</p><div class="lesson-demo">${demo}${l.done ? `<div class="lesson-success" role="status">${icon('check')} ${esc(m.lessonNote)}</div>` : '<div class="lesson-text">Use the example above. This does not change your puzzle.</div>'}</div><div class="lesson-progress"><i class="on"></i><i class="${l.done ? 'on' : ''}"></i></div>`,
+      `<div class="dialog-eyebrow">${m.title} · A miniature example</div><p>${esc(m.lesson)}</p><div class="lesson-demo">${demo}${l.done ? `<div class="lesson-success" role="status">${icon('check')} ${esc(m.lessonNote)}</div>` : '<div class="lesson-text">This example does not change your puzzle.</div>'}</div><div class="lesson-progress"><i class="on"></i><i class="${l.done ? 'on' : ''}"></i></div>`,
       [
         {
           label: l.done ? 'Ready to play' : 'Skip example',
@@ -2392,9 +2402,10 @@
     data.runs = [...deviceByKey.values()];
     // IndexedDB is the record of installed packs; a tab that has not seen another tab's removal must
     // not write the removed pack back into the backup. Memory adds packs only in session mode.
-    const stored = new Set(data.packs.map((p) => p.id)),
-      local = packs.slice(1).filter((p) => store.mode !== 'indexeddb' || stored.has(p.id));
-    data.packs = [...new Map([...data.packs, ...local].map((p) => [p.id, C.clone(p)])).values()];
+    if (store.mode !== 'indexeddb')
+      data.packs = [
+        ...new Map([...data.packs, ...packs.slice(1)].map((p) => [p.id, C.clone(p)])).values(),
+      ];
     data.settings = C.clone(settings);
     data.preferences = C.clone(prefs);
     data.applicationVersion = cfg.version;
@@ -2411,7 +2422,12 @@
   async function exportBackup() {
     const { data, session } = await cabinetBackup();
     offerCabinetCopies(data, session, `alibi-backup-${new Date().toISOString().slice(0, 10)}.json`);
-    if (!session) toast('Backup exported. Keep a copy outside this browser.');
+    if (!session)
+      toast(
+        data.damaged?.packRows?.length
+          ? 'Damaged pack rows were exported for manual recovery.'
+          : 'Backup exported. Keep a copy outside this browser.',
+      );
   }
   async function exportLegacy() {
     download('alibi-legacy-browser-data.json', {
@@ -2457,6 +2473,8 @@
   async function exportAll() {
     const { data: cabinet, session: cabinetSession } = await cabinetBackup();
     const warnings = [];
+    if (cabinet.damaged?.packRows?.length)
+      warnings.push('Damaged pack rows are included for manual recovery, not automatic restore.');
     await AlibiClub.flush().catch((e) =>
       warnings.push('Club save could not be flushed: ' + e.message),
     );
@@ -2538,7 +2556,7 @@
       stagedAll = data;
       dialog(
         'Choose a section to restore',
-        `<p>All available sections passed validation. Nothing has been restored. Review one section at a time. Each restore keeps its own recovery copy; later failure cannot undo an earlier section. Keep this combined file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
+        `<p>All sections passed validation; nothing is restored. Review each separately. Each keeps a recovery copy, and later failure cannot undo earlier restores. Keep this file and reopen it after a cabinet restore reloads Alibi.</p>${Array.isArray(data.warnings) && data.warnings.length ? `<p class="notice">Warnings: ${data.warnings.map((warning) => esc(warning)).join(' ')}</p>` : ''}`,
         [
           { label: 'Review cabinet restore', action: 'all-cabinet' },
           { label: 'Review Club restore', action: 'all-club' },
@@ -2629,7 +2647,7 @@
       const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
       dialog(
         'Restore your progress.',
-        `<p>This backup contains <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> preserves every existing device save and adds records you do not have. <strong>Replace device data</strong> replaces all progress and custom packs with the backup.</p><p class="fine">Both use an atomic database transaction and retain a pre-restore recovery copy. Export your current progress first for an independent backup.</p>`,
+        `<p>Backup: <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> keeps current saves and adds missing records. <strong>Replace device data</strong> replaces all progress and packs with this backup.</p><p class="fine">Both are atomic and keep a pre-restore recovery copy. Export first for an independent backup.</p>`,
         [
           { label: 'Add missing only', action: 'restore-merge', icon: 'upload' },
           { label: 'Replace device data', action: 'restore-replace', danger: true },
@@ -2747,10 +2765,65 @@
   async function installPack(p) {
     p = await store.addPack(p, starter);
     packs.push(p);
+    if (store.mode === 'indexeddb') channel?.postMessage({ type: 'pack-added', id: p.id });
+    packDirty = true;
+    syncPacks();
     render();
-    toast(
-      `${p.puzzles.length} puzzle${p.puzzles.length === 1 ? '' : 's'} added to your collection.`,
-    );
+    toast(`${p.puzzles.length} puzzle${p.puzzles.length === 1 ? '' : 's'} added.`);
+  }
+  async function syncPacks() {
+    if (!packReady || packSync || store.mode !== 'indexeddb') return;
+    packSync = true;
+    while (packDirty) {
+      packDirty = false;
+      try {
+        const next = [starter];
+        let damaged = false;
+        for (const stored of await store.getAll('packs')) {
+          try {
+            const safe = C.validatePack(stored, false);
+            if (
+              next.some(
+                (p) =>
+                  p.id === safe.id ||
+                  safe.puzzles.some((q) => p.puzzles.some((x) => x.id === q.id)),
+              )
+            )
+              throw Error('Pack collision');
+            next.push(safe);
+          } catch {
+            damaged = true;
+          }
+        }
+        packs = next;
+        if (damaged) toast('A stored pack needs attention. Export your data.', true);
+        const list = $('#pack-list');
+        if (!list) {
+          toast('Collection changed in another tab. Reopen the list to refresh.');
+          continue;
+        }
+        const focused = list.contains(document.activeElement) ? document.activeElement : null,
+          action = focused?.dataset.action,
+          selectedId = focused?.dataset.id,
+          temp = document.createElement('div');
+        temp.innerHTML = packDesk();
+        list.replaceWith(temp.querySelector('#pack-list'));
+        const stats = document.querySelectorAll('.library-summary .mini-stat strong');
+        if (stats.length === 3) {
+          stats[1].textContent = packs.length - 1;
+          stats[2].textContent = all().length - starter.puzzles.length;
+        }
+        if (focused)
+          (
+            [...document.querySelectorAll('#pack-list [data-action]')].find(
+              (x) => x.dataset.action === action && x.dataset.id === selectedId,
+            ) || $('[data-action="import-pack"]')
+          )?.focus();
+      } catch {
+        toast('This pack changed in another tab. Reload before continuing.', true);
+      }
+    }
+    packSync = false;
   }
   async function importPack(file) {
     if (file.size > 3 * 1024 * 1024) throw Error('Pack exceeds 3 MB.');
@@ -2758,11 +2831,11 @@
     try {
       data = JSON.parse(await file.text());
     } catch {
-      throw Error('That file is not a readable puzzle pack. Choose a JSON pack file.');
+      throw Error('Choose a readable JSON pack.');
     }
     dialog(
       'Checking the collection.',
-      `<div class="busy"><span class="spinner"></span>Validating definitions and unique solutions…</div><p style="margin-top:17px">Nothing is installed until every puzzle passes. You can close this message; validation will finish in this session.</p>`,
+      `<div class="busy"><span class="spinner"></span>Validating definitions and unique solutions…</div><p style="margin-top:17px">Nothing installs until validation finishes. You may close this message.</p>`,
     );
     const startedSerial = routeSerial;
     const p = await inWorker({ type: 'pack', pack: data });
@@ -3083,7 +3156,7 @@
     if (cfg.standalone) {
       dialog(
         'Install the published version.',
-        `<p>This self-contained preview plays locally. Installation and offline updates use the separate Cloudflare upload build.</p><p>Publish that ZIP, open its permanent HTTPS address on Android, then use the browser menu’s <strong>Install app</strong> or <strong>Add to Home screen</strong> option.</p><p class="fine">Export progress from this preview first. A different website address has a different save store.</p>`,
+        `<p>This local preview plays here; installation and offline updates require the Cloudflare upload build.</p><p>Publish the ZIP, open its permanent HTTPS address on Android, then choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p><p class="fine">Export first; each website address has a separate save.</p>`,
         [
           { label: 'Got it', action: 'close-dialog' },
           { label: 'Export progress', action: 'export', secondary: true },
@@ -3099,7 +3172,7 @@
     }
     dialog(
       'Keep Alibi on your home screen.',
-      `<p><strong>Android:</strong> Open this address in Chrome or another install-capable browser. In its menu, choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p><p><strong>iPhone or iPad:</strong> Open it in Safari, use Share, then Add to Home Screen. Browser support and wording vary.</p><p class="fine">Wait for “Offline ready”, then test opening it in airplane mode. Installation does not create a cloud backup.</p>`,
+      `<p><strong>Android:</strong> Open this address in an install-capable browser, then choose <strong>Install app</strong> or <strong>Add to Home screen</strong> from its menu.</p><p><strong>iPhone or iPad:</strong> Open it in Safari, tap Share, then Add to Home Screen. Support and wording vary.</p><p class="fine">Wait for “Offline ready”; test in airplane mode. Installation is not a cloud backup.</p>`,
       [
         { label: 'Got it', action: 'close-dialog' },
         {
@@ -3115,7 +3188,7 @@
     const p = current?.puzzle;
     dialog(
       'Create a puzzle issue report.',
-      `<p>Export the app version and browser information${p ? `, plus the puzzle definition and board state for <strong>${esc(p.title)}</strong>` : ''}. Personal puzzle notes are excluded.</p><p>Nothing is sent automatically. Review the file, then attach a small reproduction to <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>. Keep any personal information private.</p>${p ? '<p class="fine">The report includes the puzzle’s stored solution. Avoid opening it while still solving that puzzle.</p>' : ''}`,
+      `<p>Exports app/browser details${p ? `, plus the definition and board for <strong>${esc(p.title)}</strong>` : ''}. Personal notes are excluded.</p><p>Nothing is sent. Review the file before attaching it to <a href="https://github.com/Chris0Jeky/Alibi/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a>; remove personal information.</p>${p ? '<p class="fine">Includes the stored solution; do not open while solving.</p>' : ''}`,
       [
         { label: 'Export report', action: 'export-issue', icon: 'download' },
         { label: 'Cancel', action: 'close-dialog', secondary: true },
@@ -3647,11 +3720,12 @@
         break;
       case 'remove-pack':
         {
-          const p = packs.find((p) => p.id === id);
-          if (p)
+          const p = packs.slice(1).find((p) => p.id === id);
+          if (p) {
+            pendingPackRemoval = C.clone(p);
             dialog(
               `Remove ${p.title}?`,
-              `<p>This removes the pack and its ${p.puzzles.length} puzzle${p.puzzles.length === 1 ? '' : 's'} from your collection. Saved progress for them is kept, and you can add the pack again later.</p>`,
+              `<p>Remove ${p.puzzles.length} puzzle${p.puzzles.length === 1 ? '' : 's'}? Saved progress for them is kept. You can add this pack again.</p>`,
               [
                 { label: 'Keep it', action: 'close-dialog', secondary: true },
                 {
@@ -3662,17 +3736,22 @@
                 },
               ],
             );
+          }
         }
         break;
       case 'remove-pack-confirm':
-        const confirmed = packs.slice(1).find((p) => p.id === id);
-        if (!confirmed) break;
+        const confirmed = pendingPackRemoval;
+        pendingPackRemoval = null;
+        if (!confirmed || confirmed.id !== id) break;
         await store.removePack(id, confirmed);
+        if (store.mode === 'indexeddb') channel?.postMessage({ type: 'pack-removed', id });
+        packDirty = true;
+        syncPacks();
         packs = packs.filter((p) => p.id !== id);
         closeDialog();
         render();
         ($('.pack-row [data-action="remove-pack"]') || $('[data-action="import-pack"]'))?.focus();
-        toast('Pack removed. Your saved progress is kept.');
+        toast('Pack removed; saved progress kept.');
         break;
       case 'draft-mode':
         draftMode = v;

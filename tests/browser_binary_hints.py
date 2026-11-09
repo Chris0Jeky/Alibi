@@ -64,7 +64,7 @@ def run():
                                 expect(dialog.get_by_role('button', name='Keep thinking', exact=True)).to_be_focused()
                                 dialog.get_by_text('Show the step', exact=True).click()
                                 expect(box).to_contain_text(coordinate, use_inner_text=True)
-                            expect(dialog).to_contain_text('does not look at the stored answer')
+                            expect(dialog).to_contain_text('Uses clues and your board, not the stored answer')
                             unchanged_hint(page, before)
                             if step == len(STEPS) - 1:
                                 expect(dialog.locator('.hint-box')).to_contain_text('must be different')

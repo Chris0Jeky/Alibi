@@ -288,8 +288,7 @@ def honest_hint_no_autoapply(page: Page) -> None:
     check(dialog.count() == 1, "Bridges hint opens its own dialog")
     text = dialog.inner_text().lower()
     check(
-        "does not look at the stored answer" in text
-        or "not a check against the hidden answer" in text,
+        "uses clues and your board, not the stored answer" in text,
         "Bridges deduction hint is honest about its evidence",
     )
     check(state(page)["cells"] == before, "Bridges deduction hint does not auto-apply an answer")

@@ -41,6 +41,7 @@ function setup() {
     ctx,
   );
   return {
+    localStorage: ls,
     Store: ctx.AlibiStorage.Store,
     draftRevision: ctx.AlibiStorage.draftRevision,
     validateBackup: ctx.AlibiBackupValidation(ctx.AlibiCore, { puzzles: [] }).validateBackup,
@@ -224,7 +225,10 @@ test('export and validated import into a fresh store preserve an unfinished work
   const exported = JSON.parse(JSON.stringify(await source.store.export()));
   const backup = setup().validateBackup(exported);
   await target.store.restore(backup);
-  assert.deepEqual(plain((await target.store.get('meta', 'workshop-draft')) ?? null), draft);
+  assert.deepEqual(plain((await target.store.get('meta', 'workshop-draft')) ?? null), {
+    ...draft,
+    rev: 1,
+  });
   assert.deepEqual(exported.workshopDraft, draft);
   assert.equal(exported.schemaVersion, 1);
 });
@@ -307,7 +311,7 @@ test('a damaged local draft yields to a valid backup draft and stays importable 
     { ...validBackup(), runs: [], packs: [], workshopDraft: incoming },
     { ...expected, workshopDraft: damaged },
   );
-  assert.deepEqual(disk.meta.get('workshop-draft'), incoming);
+  assert.deepEqual(disk.meta.get('workshop-draft'), { ...incoming, rev: 1 });
   const recovery = plain(disk.meta.get('pre-restore-backup'));
   assert.equal(Object.hasOwn(recovery, 'workshopDraft'), false);
   assert.deepEqual(recovery.damagedWorkshopDraft, damaged);
@@ -602,4 +606,99 @@ test('restoring a backup of the same draft ignores the local save revision', asy
   const result = await store.restore({ ...validBackup(), workshopDraft: unfinishedDraft() });
   assert.equal(result.note, '');
   assert.deepEqual(disk.meta.get('workshop-draft'), draft);
+});
+
+test('a restored draft fences a tab that loaded no draft and missed the broadcast', async () => {
+  const { tabA, tabB, disk } = draftTabs();
+  await tabA.restore({ ...validBackup(), workshopDraft: titled('Restored') });
+  assert.ok(disk.meta.get('workshop-draft').rev > 0);
+  await assert.rejects(tabB.saveDraft(titled('Stale'), 0), { name: 'ConflictError' });
+  assert.equal(disk.meta.get('workshop-draft').puzzle.title, 'Restored');
+});
+
+test('fallback overlapping same-tab saves have distinct revisions and capture each input at call time', async () => {
+  const { Store } = setup(),
+    store = await new Store().init();
+  const draft = titled('First');
+  const first = store.saveDraft(draft, 0);
+  draft.puzzle.title = 'Second';
+  const second = store.saveDraft(draft, 0);
+  draft.puzzle.title = 'Later';
+  const [a, b] = await Promise.all([first, second]);
+  assert.equal(a.puzzle.title, 'First');
+  assert.equal(b.puzzle.title, 'Second');
+  assert.deepEqual([a.rev, b.rev], [1, 2]);
+  assert.equal((await store.get('meta', 'workshop-draft')).puzzle.title, 'Second');
+});
+
+test('indexed draft saves capture a snapshot before the deferred transaction read', async () => {
+  const { tabA, disk } = draftTabs();
+  const draft = titled('At call');
+  const pending = tabA.saveDraft(draft, 0);
+  draft.puzzle.title = 'Changed later';
+  const saved = await pending;
+  assert.equal(saved.puzzle.title, 'At call');
+  assert.equal(disk.meta.get('workshop-draft').puzzle.title, 'At call');
+});
+
+test('fallback refuses malformed draft bytes without replacing them', async () => {
+  const { Store, localStorage } = setup(),
+    store = await new Store().init();
+  const key = 'alibi.v1.meta.workshop-draft';
+  localStorage.setItem(key, '{damaged');
+  await assert.rejects(store.saveDraft(titled('New'), 0), /damaged/i);
+  assert.equal(localStorage.getItem(key), '{damaged');
+});
+
+test('fallback preserves a valid JSON record containing a damaged draft', async () => {
+  const { Store, localStorage } = setup(),
+    store = await new Store().init();
+  const key = 'alibi.v1.meta.workshop-draft',
+    raw = '{"puzzle":{"type":"scene"}}';
+  localStorage.setItem(key, raw);
+  await assert.rejects(store.saveDraft(titled('New'), 0), /damaged/i);
+  assert.equal(localStorage.getItem(key), raw);
+});
+
+for (const rev of [null, '1', -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+  test(`draft revision ${String(rev)} is preserved and refuses saves and restore`, async () => {
+    const draft = { ...unfinishedDraft(), rev };
+    const { tabA, disk } = draftTabs(draft);
+    const before = snap(disk);
+    await assert.rejects(tabA.saveDraft(titled('Overwrite'), 0), /damaged/i);
+    assert.equal(snap(disk), before);
+    await assert.rejects(
+      tabA.restore({ ...validBackup(), workshopDraft: titled('Restore') }),
+      /revision/i,
+    );
+    assert.equal(snap(disk), before);
+  });
+}
+
+test('restoring over a damaged draft with an exhausted revision leaves every row untouched', async () => {
+  const damaged = { puzzle: { type: 'scene' }, rev: Number.MAX_SAFE_INTEGER };
+  const { store, disk } = await seededStore({
+    ...seedData(),
+    meta: { ...seedData().meta, 'workshop-draft': damaged },
+  });
+  const before = snap(disk);
+  await assert.rejects(
+    store.restore({ ...validBackup(), workshopDraft: titled('Restore') }),
+    /revision/i,
+  );
+  assert.equal(snap(disk), before);
+});
+
+test('a damaged puzzle with a valid draft revision restores at the next revision with recovery', async () => {
+  const damaged = { puzzle: { type: 'scene' }, rev: 9 };
+  const { store, disk } = await seededStore({ meta: { 'workshop-draft': damaged } });
+  await store.restore({ ...validBackup(), workshopDraft: titled('Restore') });
+  assert.equal(disk.meta.get('workshop-draft').rev, 10);
+  assert.deepEqual(plain(disk.meta.get('pre-restore-backup').damagedWorkshopDraft), damaged);
+});
+
+test('an explicit legacy zero draft revision remains writable', async () => {
+  const { tabA, disk } = draftTabs({ ...unfinishedDraft(), rev: 0 });
+  assert.equal((await tabA.saveDraft(titled('Edited'), 0)).rev, 1);
+  assert.equal(disk.meta.get('workshop-draft').puzzle.title, 'Edited');
 });

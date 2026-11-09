@@ -110,7 +110,7 @@ def run():
                             expect(dialog.locator('.deduction-title')).to_have_text(rule)
                             coordinate = chr(65 + index % 5) + str(index // 5 + 1)
                             expect(dialog.locator('.hint-box')).to_contain_text(coordinate)
-                            expect(dialog).to_contain_text('does not look at the stored answer')
+                            expect(dialog).to_contain_text('Uses clues and your board, not the stored answer')
                             unchanged_hint(page, before)
                             if rule not in seen:
                                 page.screenshot(path=str(OUT / f'{width}-{index}.png'))

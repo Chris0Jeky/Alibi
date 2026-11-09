@@ -9,7 +9,8 @@ Branch `claude/workshop-draft-877`, based on `origin/main` b577ce41 (#874). Not 
    only when the stored revision is the one this tab loaded or last confirmed, or when the stored
    record was written by this same Store (`tab`, a random id per page load). The second rule lets
    a tab's own edits follow each other before earlier writes confirm: `saveDraft` still issues the
-   write synchronously per edit, as before, so IndexedDB order and clone-at-`put()` are unchanged.
+   write synchronously per edit. At this historical commit, IndexedDB cloned the value when
+   `put()` ran after the read completed, so intervening in-place edits could change that snapshot.
    Anything else raises the existing `ConflictError` and writes nothing. Records are
    `{ puzzle, rev, tab }`; `AlibiStorage.draftRevision` reads a missing or invalid `rev` as 0, so
    drafts saved before this change load and are never erased. `alibi-device` stays version 1.

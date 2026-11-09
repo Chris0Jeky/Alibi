@@ -103,12 +103,12 @@ def run():
                     probe.get_by_role('button', name='Puzzle packs', exact=True).click()
                     context.route('**/assets/workshop/add.*.js', lambda route: route.abort())
                     probe.get_by_role('button', name='Add a curated collection', exact=True).click()
-                    expect(probe.locator('#toasts')).to_contain_text('Adding a collection needs a connection', timeout=20000)
+                    expect(probe.locator('#toasts')).to_contain_text('Collection tools could not load', timeout=20000)
                     expect(probe.locator('#toasts')).not_to_contain_text('dynamically imported')
                     expect(probe.locator('dialog.collections-add')).to_have_count(0)
                     context.unroute('**/assets/workshop/add.*.js')
                     probe.close()
-                    checks.append({'width': width, 'case': 'adder-chunk-offline-plain-message'})
+                    checks.append({'width': width, 'case': 'adder-chunk-online-failure-plain-message'})
 
                     # Keyboard entry, focus, phone layout and Escape return.
                     button, dialog = open_adder(page)
