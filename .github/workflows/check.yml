@@ -130,6 +130,8 @@ jobs:
         if: steps.scope.outputs.mode == 'full'
       - run: python tests/browser_save_error_controls.py
         if: steps.scope.outputs.mode == 'full'
+      - run: python tests/browser_paint_render.py
+        if: steps.scope.outputs.mode == 'full'
       - run: python tests/browser_note_digit_repeat.py
         if: steps.scope.outputs.mode == 'full'
       - run: python tests/browser_pencil_repeat.py

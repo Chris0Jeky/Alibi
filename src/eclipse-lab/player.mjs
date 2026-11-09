@@ -1,6 +1,7 @@
 import { MODES, applyMark, check, component, hint } from './model.mjs';
 import { PUZZLES } from './puzzles.mjs';
 import { parseBackup } from './storage.mjs';
+import { feedbackText, canSendFeedback, reviewFeedback } from './feedback.mjs';
 
 // Drafts outlive route changes and mounts; no text is transmitted.
 const drafts = new Map();
@@ -33,6 +34,7 @@ export function mount({ root, css, preferences, store, offline }) {
     selected = 0,
     highlight = [],
     message = '',
+    feedbackMessage = '',
     preview = null,
     busy = false,
     offlineReady = !!offline;
@@ -155,10 +157,10 @@ export function mount({ root, css, preferences, store, offline }) {
     const d = draftFor();
     const params = new URLSearchParams({
       title: `Eclipse Lab feedback: ${p.title}`,
-      body: `Experiment: ${p.mode}\nPuzzle: ${p.id}\nRevision: ${p.revision}\nEnjoyment: ${run.rating ?? 'not rated'}/5\nDifficulty: ${run.difficulty ?? 'not selected'}\n\nFeedback:\n${run.feedback}`,
+      body: feedbackText(p, run),
     });
     const share = `https://github.com/Chris0Jeky/Alibi/issues/new?${params}`;
-    return `<section class="feedback"><span class="eyebrow">Your impressions</span><h2>Help shape this room</h2><p>Ratings and notes save on this device. Sharing them is optional.</p><fieldset><legend>Enjoyment</legend><div class="rating">${[1, 2, 3, 4, 5].map((x) => `<label><input type="radio" name="rating" value="${x}" ${d.rating === x ? 'checked' : ''}> ${x}</label>`).join('')}</div></fieldset><label>Difficulty <select data-difficulty><option value="">Choose an impression</option><option value="gentle" ${d.difficulty === 'gentle' ? 'selected' : ''}>Gentle</option><option value="just-right" ${d.difficulty === 'just-right' ? 'selected' : ''}>Just right</option><option value="tough" ${d.difficulty === 'tough' ? 'selected' : ''}>Tough</option></select></label><label>Notes <textarea data-feedback maxlength="2000" rows="4">${esc(d.feedback)}</textarea></label><p class="small">${d.dirty ? 'Unsaved draft. Save or discard before updating or exporting.' : 'Optional. You can change this later.'}</p><div class="actions"><button data-action="save-feedback">Save feedback</button><button data-action="discard-feedback">Discard draft</button></div><p class="small">Saved feedback stays on this device. To send it, review and submit a GitHub issue (GitHub sign-in required).</p><a href="${esc(share)}" target="_blank" rel="noopener noreferrer">Share feedback on GitHub</a></section>`;
+    return `<section class="feedback"><span class="eyebrow">Your impressions</span><h2>Help shape this room</h2><p>Ratings and notes save on this device. Sharing them is optional.</p><fieldset><legend>Enjoyment</legend><div class="rating">${[1, 2, 3, 4, 5].map((x) => `<label><input type="radio" name="rating" value="${x}" ${d.rating === x ? 'checked' : ''}> ${x}</label>`).join('')}</div></fieldset><label>Difficulty <select data-difficulty><option value="">Choose an impression</option><option value="gentle" ${d.difficulty === 'gentle' ? 'selected' : ''}>Gentle</option><option value="just-right" ${d.difficulty === 'just-right' ? 'selected' : ''}>Just right</option><option value="tough" ${d.difficulty === 'tough' ? 'selected' : ''}>Tough</option></select></label><label>Notes <textarea data-feedback maxlength="2000" rows="4">${esc(d.feedback)}</textarea></label><p class="small">${d.dirty ? 'Unsaved draft. Save or discard before updating or exporting.' : 'Optional. You can change this later.'}</p><div class="actions"><button data-action="save-feedback">Save feedback</button><button data-action="discard-feedback">Discard draft</button></div><p class="small">Saved feedback stays on this device. ${canSendFeedback() ? 'Review it in the feedback composer, then press Send to share it with the maintainer.' : 'To send it, review and submit a GitHub issue (GitHub sign-in required).'}</p>${canSendFeedback() ? `<button data-action="send-feedback" ${d.dirty ? 'disabled' : ''}>Review and send saved feedback</button><p class="small">Save or discard any draft first. Sends only the experiment details, rating, difficulty impression and note shown for review, plus app version, screen and device type. No board or history.</p><p class="feedback-message" role="status" aria-live="polite">${esc(feedbackMessage)}</p>` : ''}<a href="${esc(share)}" target="_blank" rel="noopener noreferrer">Share feedback on GitHub</a></section>`;
   }
   function play() {
     const m = MODES[p.mode],
@@ -281,6 +283,7 @@ export function mount({ root, css, preferences, store, offline }) {
       selected = 0;
       highlight = [];
       message = '';
+      feedbackMessage = '';
       preview = null;
     }
     render();
@@ -293,6 +296,11 @@ export function mount({ root, css, preferences, store, offline }) {
     else if (e.target.matches('[data-feedback]')) d.feedback = e.target.value;
     else return;
     d.dirty = true;
+    feedbackMessage = '';
+    const feedbackStatus = root.querySelector('.feedback-message');
+    if (feedbackStatus) feedbackStatus.textContent = '';
+    const send = root.querySelector('[data-action="send-feedback"]');
+    if (send) send.disabled = true;
     const small = root.querySelector('.feedback .small');
     if (small) small.textContent = 'Unsaved draft. Save or discard before updating or exporting.';
   }
@@ -372,6 +380,41 @@ export function mount({ root, css, preferences, store, offline }) {
           : 'Feedback saved locally.';
       }
       render();
+    } else if (action === 'send-feedback') {
+      const draft = draftFor();
+      if (draft.dirty) return;
+      const key = idOf(p),
+        hash = location.hash,
+        saved = run,
+        opener = e.target.closest('[data-action]'),
+        here = () => !disposed && p && idOf(p) === key && location.hash === hash,
+        current = () => here() && run === saved && draftFor() === draft && !draft.dirty,
+        tell = (text) => {
+          feedbackMessage = text;
+          const status = root.querySelector('.feedback-message');
+          if (status) status.textContent = text;
+        };
+      let opened = false;
+      opener.disabled = true;
+      tell('Opening feedback for review. Nothing has been sent.');
+      try {
+        opened = await reviewFeedback(p, saved, opener, current);
+        if (here())
+          tell(opened ? '' : 'Feedback changed. Save or discard your draft, then try again.');
+      } catch (err) {
+        if (here()) tell(err.message || 'Feedback could not open. Try again.');
+      } finally {
+        if (opener.isConnected) {
+          opener.disabled = !here() || draftFor().dirty;
+          if (
+            !opened &&
+            !opener.disabled &&
+            (document.activeElement === document.body || document.activeElement === root.host) &&
+            (!root.activeElement || root.activeElement === opener)
+          )
+            opener.focus();
+        }
+      }
     } else if (action === 'discard-feedback') {
       drafts.delete(idOf(p));
       message = 'Feedback draft discarded.';

@@ -74,6 +74,8 @@ export async function mount({ root, preferences = null, practice = null }) {
     restoredPracticeFocus = false;
   root.innerHTML = `<style>${styles}${nativeStyle}</style><header></header><div id="warning" class="warning" role="status" hidden></div><main id="castle-main" tabindex="-1"></main><footer></footer><dialog id="castle-dialog" aria-labelledby="castle-title"></dialog><div class="live" role="status" aria-live="polite" id="castle-live"></div>`;
   const $ = (selector) => root.querySelector(selector);
+  const mainSelector = '#castle-main',
+    filmSelector = '#castle-film';
   const dialog = $('#castle-dialog');
   const announce = (text) => {
     $('#castle-live').textContent = text;
@@ -149,7 +151,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     prefs();
     header();
     if (view === 'case') return;
-    $('#castle-main').innerHTML =
+    $(mainSelector).innerHTML =
       (routeNotice
         ? `<p class="page" id="castle-route-notice" role="status">${escape(routeNotice)}</p>`
         : '') +
@@ -173,7 +175,7 @@ export async function mount({ root, preferences = null, practice = null }) {
       (candidate) => candidate.dataset.value === focus,
     );
     starter?.closest('details')?.setAttribute('open', '');
-    (starter || $('#castle-main')).focus({ preventScroll: true });
+    (starter || $(mainSelector)).focus({ preventScroll: true });
     return !!starter;
   }
   function visit(id) {
@@ -202,11 +204,11 @@ export async function mount({ root, preferences = null, practice = null }) {
     clearTimeout(filmTimer);
     filmTimer = null;
     filmPlaying = false;
-    $('#castle-film')?.pause();
+    $(filmSelector)?.pause();
   }
   function releaseFilm() {
     stopFilm();
-    const video = $('#castle-film');
+    const video = $(filmSelector);
     if (video) {
       video.removeAttribute('src');
       video.load();
@@ -225,7 +227,7 @@ export async function mount({ root, preferences = null, practice = null }) {
         : opener?.href && el.href === opener.href,
     );
     const next = candidates.find((el) => el.className === opener?.className) || candidates[0];
-    (next || $('#castle-main')).focus({ preventScroll: true });
+    (next || $(mainSelector)).focus({ preventScroll: true });
   }
   function download(text, name) {
     const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
@@ -375,10 +377,10 @@ export async function mount({ root, preferences = null, practice = null }) {
         `<summary>Read the complete text</summary><p>The house is open. Its history isn’t.</p><p>A ticket. A clock. Seventeen missing minutes.</p><p>Not every answer is a verdict.</p><p>Alibi · Wrenmere Castle. A house of unfinished questions.</p>`;
       dialog.querySelector('p.small').textContent =
         'An optional 18-second silent illustrated film. Press play when you are ready. Its complete text is below; no clue depends on playback.';
-      $('#castle-film').addEventListener(
+      $(filmSelector).addEventListener(
         'error',
         () => {
-          if ($('#castle-film'))
+          if ($(filmSelector))
             dialog.querySelector('p.small').textContent =
               'The film is unavailable here. Its complete text is below; you can continue the visit.';
         },
@@ -881,7 +883,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (view === 'map') selected = thread(state)[1][0] || selected;
     render();
     if (view === 'case') {
-      const main = $('#castle-main');
+      const main = $(mainSelector);
       main.textContent = 'Opening experimental case…';
       const url = globalThis.ALIBI_QUIET_CONFIG?.castle?.caseStudy;
       if (!url) main.textContent = 'Open the hosted app to install the experimental case.';
@@ -895,7 +897,7 @@ export async function mount({ root, preferences = null, practice = null }) {
           });
     }
     restoredPracticeFocus = focusPracticeStarter();
-    if (!restoredPracticeFocus) $('#castle-main').focus({ preventScroll: true });
+    if (!restoredPracticeFocus) $(mainSelector).focus({ preventScroll: true });
     // Until a first question is solved, arriving at the grounds opens the keeper's letter once
     // per visit. Derived from the save; nothing new is stored. A host that left the page during
     // mount cannot show a modal.
@@ -936,7 +938,7 @@ export async function mount({ root, preferences = null, practice = null }) {
         restoredPracticeFocus = false;
         return true;
       }
-      $('#castle-main').focus({ preventScroll: true });
+      $(mainSelector).focus({ preventScroll: true });
       return true;
     },
     flush: () => store.flush(),

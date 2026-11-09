@@ -31,7 +31,8 @@ def controls(page, width, output):
         if value is not None:
             selector += f'[data-value="{value}"]'
         scope = page.locator('#castle-dialog') if page.locator('#castle-dialog').is_visible() else page
-        scope.locator(selector).first.click()
+        control = scope.locator(selector).first
+        control.tap() if width == 390 else control.click()
     def puzzle(room):
         go('room/' + room)
         click('puzzle')
@@ -61,7 +62,12 @@ def controls(page, width, output):
     expect(page.locator('#castle-dialog')).to_contain_text('maintenance slip')
     click('close')
     puzzle('gatehouse')
-    click('check')
+    check_button = page.locator('#castle-dialog [data-do=check]')
+    check_button.focus()
+    page.keyboard.press('Enter')
+    expect(page.locator('#feedback')).to_contain_text('increase from left to right')
+    expect(page.locator('#feedback')).to_have_attribute('role', 'status')
+    page.screenshot(path=str(output / f'feedback-gate-{width}.png'))
     expect(page.locator('.score')).to_have_text(progress(0, 0))
     record('incorrect board receives no points')
     for i, value in enumerate([1, 3, 5]):
@@ -70,12 +76,24 @@ def controls(page, width, output):
     expect(page.locator('[data-do="puzzle"]')).to_be_focused()
     record('closing puzzle restores its launch control')
     puzzle('library')
+    click('check')
+    expect(page.locator('#feedback')).to_contain_text('Atlas is first')
     swap_to(['atlas', 'tides', 'stars', 'moss', 'letters'])
     check(2)
     puzzle('observatory')
     page.locator('#clock-answer').fill('21:00')
     check(3)
     puzzle('cartography')
+    click('route', 'B')
+    click('check')
+    expect(page.locator('#feedback')).to_contain_text('not reached the tower')
+    click('reset')
+    for node in ['L', 'A', 'T']:
+        click('route', node)
+    click('check')
+    expect(page.locator('#feedback')).to_contain_text('arrives too late')
+    page.screenshot(path=str(output / f'feedback-route-{width}.png'))
+    click('reset')
     for node in ['B', 'O', 'T']:
         click('route', node)
     click('undo')
@@ -96,6 +114,8 @@ def controls(page, width, output):
     click('close')
     record('chapter opens stair and preserves testimony uncertainty')
     puzzle('orangery')
+    click('check')
+    expect(page.locator('#feedback')).to_contain_text('Unlit lanterns:')
     for tile in [0, 4, 8]:
         click('lamp', tile)
     check(5, 1)
@@ -108,21 +128,31 @@ def controls(page, width, output):
     click('exhibit', 'bridges')
     expect(page.locator('#castle-dialog')).to_contain_text('Euler')
     click('puzzle', 'bridges')
+    click('check')
+    expect(page.locator('#feedback')).to_contain_text('odd number')
     click('river-start', 'N')
     click('river', 0)
     expect(page.locator('#board')).to_contain_text('Used 1 / 7')
     for node in ['N', 'S', 'I', 'E']:
         click('odd', node)
+    click('verdict', 'possible')
+    click('check')
+    expect(page.locator('#feedback')).to_contain_text('arrival and a departure')
     click('verdict', 'impossible')
     check(5, 3)
     click('exhibit', 'magic')
     click('puzzle', 'magic')
+    click('check')
+    expect(page.locator('#feedback')).to_contain_text('Every row, every column')
     swap_to([4, 9, 2, 3, 5, 7, 8, 1, 6])
     check(5, 4)
     click('exhibit', 'ur')
     expect(page.locator('#castle-dialog')).to_contain_text('modern fair-dice model')
     click('puzzle', 'ur')
     assert page.locator('.patterns > span').count() == 16
+    click('ur', 1)
+    click('check')
+    expect(page.locator('#feedback')).to_contain_text('different positions')
     click('ur', 2)
     check(5, 5)
     puzzle('gatehouse')
@@ -221,7 +251,7 @@ def main():
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
             for width in [390, 1280]:
-                context = browser.new_context(viewport={'width': width, 'height': 900})
+                context = browser.new_context(viewport={'width': width, 'height': 900}, has_touch=width == 390, is_mobile=width == 390)
                 page = context.new_page()
                 errors = []
                 page.on('pageerror', lambda error: errors.append(str(error)))

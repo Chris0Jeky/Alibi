@@ -3,6 +3,8 @@ import * as E from './engine.mjs';
 import { button, escape } from './html.mjs';
 
 // Coordinates share the original room illustration's 1000 by 660 canvas.
+const mapRoom = 'cartography',
+  stair = 'west-stair';
 const rooms = {
   gatehouse: [
     'Rain on slate. A lantern against wet stone.',
@@ -14,7 +16,7 @@ const rooms = {
   library: [
     'Low lamps, leather bindings, a long quiet aisle.',
     'Separate what is stated from what you assume.',
-    ['gatehouse', 'cartography', 'observatory', 'study'],
+    ['gatehouse', mapRoom, 'observatory', 'study'],
     [16, 33],
     [52, 70],
   ],
@@ -35,7 +37,7 @@ const rooms = {
   orangery: [
     'Glass, leaf shadows and the last warmth of the day.',
     'Use the consequences of one choice to constrain the next.',
-    ['cartography', 'workshop', 'conservatory'],
+    [mapRoom, 'workshop', 'conservatory'],
     [50, 70],
     [58, 30],
   ],
@@ -49,18 +51,18 @@ const rooms = {
   workshop: [
     'Polished pegs and a disk carefully mended by hand.',
     'Make a smaller version of the same problem.',
-    ['gatehouse', 'cartography', 'orangery'],
+    ['gatehouse', mapRoom, 'orangery'],
     [57, 57],
     [44, 70],
   ],
   study: [
     'Damp cloth binding and the weight of a public verdict.',
     'Possibility is not proof. Keep the difference visible.',
-    ['library', 'observatory', 'cartography', 'west-stair'],
+    ['library', 'observatory', mapRoom, stair],
     [51, 70],
     [17, 33],
   ],
-  'west-stair': [
+  [stair]: [
     'A cold draught rises from beyond the cabinet.',
     'An omitted route changes what is possible, not what is certain.',
     ['study'],
@@ -79,10 +81,10 @@ export function atmosphere(id) {
   const [ambience, method, exits, puzzle, object] = rooms[id] || rooms.gatehouse;
   return { ambience, method, exits, puzzle, object };
 }
-export const listed = (state, room) => room.id !== 'west-stair' || E.has(state, 'inference');
+export const listed = (state, room) => room.id !== stair || E.has(state, 'inference');
 export function nearby(room, state) {
   return `<nav class="nearby" aria-label="Nearby doors"><h2>From here</h2>${atmosphere(room.id)
-    .exits.filter((id) => id !== 'west-stair' || E.has(state, 'inference'))
+    .exits.filter((id) => id !== stair || E.has(state, 'inference'))
     .map((id) => {
       const r = W.rooms.find((x) => x.id === id),
         status = E.roomStatus(state, r);
@@ -109,7 +111,7 @@ export function thread(state) {
   if (E.has(state, 'inference'))
     return [
       `<strong>Chapter I complete.</strong> The unrecorded stair is open and its margin is in your notebook. Optional: ${E.progress(state)[1]} / 5 extra questions answered.`,
-      ['west-stair', ...new Set(extras.filter(([, id]) => !E.has(state, id)).map(([id]) => id))],
+      [stair, ...new Set(extras.filter(([, id]) => !E.has(state, id)).map(([id]) => id))],
     ];
   const map = E.available(state, 'route');
   return [
@@ -124,7 +126,7 @@ export function thread(state) {
       map
         ? 'The Map Room is open. Test the green footpath against the corrected time.'
         : 'Open the Map Room: solve the Gatehouse wheels, or Bridges or Lo Shu in the museum. Then test the route.',
-      map ? ['cartography'] : ['gatehouse', 'museum'],
+      map ? [mapRoom] : ['gatehouse', 'museum'],
     ],
     [
       'inference',

@@ -717,3 +717,17 @@ test('tap() forgets an unqueued choice so the same tap can retry', async () => {
     'the same tap retries once room is free',
   );
 });
+
+test('feedback prefill is escaped, counted and returns focus to an optional activity control', () => {
+  const h = sheetPage({ hash: '#/quiet/eclipse/eclipse-01' });
+  let focused = 0;
+  const opener = { isConnected: true, getClientRects: () => [1], focus: () => focused++ };
+  const text = 'Eclipse Lab <note> & </textarea><script>bad</script>';
+  h.context.AlibiVoicesSheet.open('puzzle', '', text, opener);
+  assert.ok(h.dialog.innerHTML.includes('Eclipse Lab &#60;note&#62; &#38; &#60;/textarea&#62;'));
+  assert.ok(h.dialog.innerHTML.includes(`${text.length} of 2,000 characters`));
+  assert.ok(!h.dialog.innerHTML.includes('<script>bad</script>'));
+  assert.deepEqual(h.calls.fetch, []);
+  h.dialog.listeners.close[0]();
+  assert.equal(focused, 1);
+});

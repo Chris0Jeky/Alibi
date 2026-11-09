@@ -1,5 +1,6 @@
 import { evidenceRecords } from './content.mjs';
 import rooms from './rooms.mjs';
+import puzzles from './puzzles.mjs';
 import { validateTheories, validateLabels } from './investigation.mjs';
 import { validateCaseStudy } from './case-state.mjs';
 const ids = [
@@ -190,10 +191,35 @@ function clockFeedback(text) {
       ? `${time} is in the morning. Use 24-hour time: the ticket reads 21:17.`
       : `${time} does not match a clock running 17 minutes fast.`;
 }
+function diagnostic(id, a) {
+  const p = puzzles[id];
+  if (!p || !validDraft(id, a)) return 'Check the remaining constraints before submitting.';
+  switch (id) {
+    case 'gate':
+      return p.rules[a[0] < a[1] && a[1] < a[2] && a.reduce((x, y) => x + y, 0) === 9 ? 2 : 1];
+    case 'shelves':
+      return p.rules[a[0] === 'atlas' && a[4] === 'letters' ? 2 : 1];
+    case 'route':
+      return a.at(-1) === 'T'
+        ? 'This route arrives too late: it must be before 21:10.'
+        : 'The route has not reached the tower.';
+    case 'lamps':
+      return `Unlit lanterns: ${lights(a).filter((n) => !n).length}.`;
+    case 'magic':
+      return p.rules[1];
+    case 'bridges':
+      return a.odd.length === 4 ? p.hints[1] : p.rules[2];
+    case 'ur':
+      return p.hints[1];
+    default:
+      return 'Check the remaining constraints before submitting.';
+  }
+}
 function complete(s, id, answer, guided = false) {
   if (id === 'clock') answer = clockTime(answer) ?? answer;
-  if (!available(s, id) || !check(id, answer))
+  if (!available(s, id))
     return { ok: false, state: s, error: 'Check the remaining constraints before submitting.' };
+  if (!check(id, answer)) return { ok: false, state: s, error: diagnostic(id, answer) };
   if (has(s, id)) return { ok: true, state: s, newAward: false };
   const n = clone(s);
   n.completed[id] = { answer: clone(answer), guided: !!guided };
