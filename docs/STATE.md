@@ -6,11 +6,13 @@ new per-change notes follow the fragment guide without editing a shared index (#
 
 ## 2026-10-30: baseline after the 30 October builder push
 
-`main` now carries the Workshop draft cross-tab compare-and-swap, pack removal, the phone first-puzzle
+As recorded for the 30 October session, `main` carries the Workshop draft cross-tab compare-and-swap, pack removal, the phone first-puzzle
 starter, run-save restore/damage fixes, Field notes 3D textures (CSP `connect-src blob:`), 3–8× faster
 startup validation for many saves, a non-blocking Practise a technique (#898), and release identity tooling (`npm run cloudflare:release`,
-`cloudflare:probe`). Production still serves `030d5812` (13 October, v0.15.2) pending owner decision
-`alibi-release-20261030`. Open: #899 (Club conflict guard, needs a main merge and re-measure). Full list by value tier, parked work and follow-ups:
+`cloudflare:probe`). The last recorded production receipt is `030d5812` (13 October, v0.15.2), pending owner decision
+`alibi-release-20261030`; this source review does not reverify the live deployment. Follow-up checked 9 November:
+#899 merged on 2 November as `7636d385`, and #901 merged on 31 October, addressing #889 item 1.
+#905 and the remaining #884/#889 items continue separately. Full list by value tier, historical parked work and follow-ups:
 [2026-10-30-pr-900-builder-session-close.md](state/2026-10-30-pr-900-builder-session-close.md).
 
 ## 2026-10-19: retain native WebView callback failure context (#133)

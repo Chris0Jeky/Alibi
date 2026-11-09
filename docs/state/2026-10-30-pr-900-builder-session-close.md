@@ -1,6 +1,7 @@
 # 2026-10-30 builder session close (claude-alibi-builder-1030)
 
-Merged to `main` through the estate gate (merge commits, CI green, one or two review lenses each).
+Historical session record, with later outcomes noted below. At the session close, these changes
+had merged to `main` through the estate gate (merge commits, CI green, one or two review lenses each).
 
 ## By value tier
 
@@ -19,11 +20,18 @@ Merged to `main` through the estate gate (merge commits, CI green, one or two re
 How the later bugs were found: Muse bug-hunt lenses isolated on `origin/main`, four exploratory-tester passes
 (phone 390×844 touch and desktop), and a 4×/6× CPU-throttled performance measurement.
 
-## Parked (open PRs, not merged)
+## Parked at the 30 October session close
 
 - **#899** Club controls refuse after a save conflict; Exit Zen still works (#884 item 1): reviewed, green on
   `9a05c8b4`. Needs `origin/main` merged (budget/catalogue conflict with #898), re-measured ceilings and the
-  Node + `browser_origin.py` runs before landing.
+  Node + `browser_origin.py` runs before landing. **Later outcome:** #899 merged on 2 November as
+  `7636d385050e8a3c308cf46cccc615fc3e6fd9ce`; its smaller review follow-ups are tracked in #905.
+
+## Follow-up checked 9 November
+
+#901 merged on 31 October and addresses #889 item 1 (reused pack ID shadowing). The remaining
+#889 items and #884 items 2–3 remain open. These outcomes update the historical parked list;
+they do not claim current production deployment or physical-device acceptance.
 
 ## Tracked follow-ups (noticed / non-blocking)
 
@@ -33,8 +41,8 @@ taps render twice), claude-config#1206 (estate_gate check-runs 500).
 
 ## Owner decisions (agent-hq inbox, rendered in HUMAN_TODO.md)
 
-- `alibi-release-20261030`: production still serves `030d5812` (13 October, v0.15.2); main is ~150 merges
-  ahead. Recommended: an agent releases main with `npm run cloudflare:release -- --deploy` after the
+- `alibi-release-20261030`: the session recorded production at `030d5812` (13 October, v0.15.2), with main ~150 merges
+  ahead at that time. Recommended: an agent releases main with `npm run cloudflare:release -- --deploy` after the
   Pulseboard collector deploy (q-13).
 - `alibi-sharing-features-20261030`: blocks #827 and #834.
 
