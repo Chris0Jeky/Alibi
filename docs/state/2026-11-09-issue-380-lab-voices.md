@@ -41,6 +41,13 @@ The existing Voices browser fixture now covers the Lab at 320/390/1280px and kee
 intercepted. Follow-up independent review found no remaining blocker. Complete integrated Node
 suites, current-head CI and screenshot inspection are pending.
 
+Integrated runs 42600364396 and 42600372455 reached the delayed-load regression and correctly
+refused its stale draft, then timed out reopening the composer. The fixture waited for the previous
+save's still-visible message; that did not establish that the second asynchronous save had finished.
+It now waits for Review to become enabled after each save and verifies focus before native Enter.
+Save, focus and composer state are recorded even on failure. The fresh-head browser run remains the
+qualification gate; there is no retry, longer timeout or production behavior change in this fix.
+
 This is not live collector or production evidence. Human calibration, Android/TalkBack and a
 structured experiment-rating registry remain open. Issue #380's optional reviewed diagnostic-state
 attachment is separate: ordinary feedback still never attaches boards, answers or recovery bytes.
