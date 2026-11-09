@@ -6,8 +6,13 @@ const buildCastle = require('./build-castle.cjs');
 module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experience) {
   const quiet = buildQuietPack(root, dist, baseMedia, inlineBase, experience);
   const castle = buildCastle(root, dist);
+  const eclipse = require('./build-eclipse.cjs')(root, dist);
   quiet.config.castle = castle.config;
   quiet.standalone.castle = castle.standalone;
   quiet.castleBytes = castle.bytes;
+  quiet.config.eclipse = eclipse.config;
+  quiet.standalone.eclipse = eclipse.standalone;
+  quiet.eclipseBytes = eclipse.bytes;
+  quiet.eclipseGzipBytes = eclipse.gzipBytes;
   return quiet;
 };

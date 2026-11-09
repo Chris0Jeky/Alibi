@@ -33,7 +33,7 @@ The point is a calm place to deduce something, leave, and come back to the same 
 
 ## Features
 
-Counts below are the trusted registry in `content/official-packs.json`: 32 packs, 570 puzzles. Nine packs listed in its `deferred` list (167 puzzles: the Vault packs, advanced Crime Scene variations, Interlock routes and gardens, Expert Families and Master/Grandmaster studies) load after startup from a precached file; the other 403 are in the initial bundle. `build-info.json` `deferredPuzzles` reports the current split, and [docs/content/DELIVERY.md](docs/content/DELIVERY.md) shows how to defer a pack. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
+Counts below are the trusted registry in `content/official-packs.json`: 33 packs, 612 puzzles. Ten packs listed in its `deferred` list (209 puzzles: the Vault packs, advanced Crime Scene variations, Interlock routes and gardens, Expert Families, Master/Grandmaster studies and Sunrise Studies) load after startup from a precached file; the other 403 are in the initial bundle. `build-info.json` `deferredPuzzles` reports the current split, and [docs/content/DELIVERY.md](docs/content/DELIVERY.md) shows how to defer a pack. `content/catalog.json` is the original 116. `content/legacy.json` holds 40 compatibility fixtures and is not extra playable catalogue. Casebook chapters point at catalogue ids; they are not second copies.
 
 ### Thirteen families
 
@@ -52,11 +52,11 @@ Player names come from `src/presentation.js`. Engines live in `src/core.js` (cri
 | Signal paths | `network` | 44 |
 | Number trails | `trail` | 44 |
 | Sudoku | `sudoku` | 49 |
-| Sun & moon | `binary` | 55 |
-| Futoshiki | `futoshiki` | 51 |
-| **Total** | | **570** |
+| Sun & moon | `binary` | 85 |
+| Futoshiki | `futoshiki` | 63 |
+| **Total** | | **612** |
 
-Inside that 570: thirteen 16-puzzle curation packs (208), the night studies, six 15×15 picture-logic studies, the 80 Vault studies, and the 60 Interlock studies (24 Gardens, 36 Routes). Difficulty labels are provisional until player ratings and solve data say otherwise ([calibration](docs/CALIBRATION.md)). Hints in `src/insights.js` reason from the clues and the current board. They do not read `solution`. An explicit reveal is a separate, labeled action.
+The 42 Sunrise Studies add thirty Sun & Moon boards across 6×6 and 8×8 grids and twelve 7×7 Futoshiki boards. They are deferred with the other optional official study packs. Difficulty labels are provisional until player ratings and solve data say otherwise ([calibration](docs/CALIBRATION.md)); the Sunrise set has not been human-playtested. Hints in `src/insights.js` reason from the clues and the current board. They do not read `solution`. An explicit reveal is a separate, labeled action.
 
 ### Casebooks
 
@@ -72,15 +72,19 @@ Inside that 570: thirteen 16-puzzle curation packs (208), the night studies, six
 
 ### Quiet Wing, rooms, and workshop
 
-Quiet Wing (`src/activities.js`, `src/quiet-wing/`) is optional and loaded when you enter it: a realm builder, four companions (cat, fox, owl, dragon), gardens, and 95 release-owned challenges in `content/challenges/`. Those challenges are not part of the 570. The Curation Cabinet’s editorial layer is the 208-puzzle subset above, not a second app.
+Quiet Wing (`src/activities.js`, `src/quiet-wing/`) is optional and loaded when you enter it: a realm builder, four companions (cat, fox, owl, dragon), gardens, and 95 release-owned challenges in `content/challenges/`. Those challenges are not part of the 612. The Curation Cabinet’s existing editorial layer contains 208 puzzles; Sunrise Studies remain a separate official pack, not a second app.
 
 `content/theatre.json` defines eight atmospheric rooms and four short films. Room sound and films are extras; the puzzles still run without them. See [theatrical edition](docs/THEATRICAL-EDITION.md) and [asset delivery](docs/ASSET-DELIVERY.md).
 
 The workshop validates a definition, checks uniqueness where that family’s contract allows it, and can export or install a local pack. Imports are JSON, checked in a bounded worker (3 MB and 150 puzzles per pack). Local install is not publication.
 
+### Eclipse Lab
+
+[Eclipse Lab](docs/ECLIPSE-LAB.md) adds four experiments and 32 separate levels at `#/quiet/eclipse`: Constellation, Eclipse, Harbour and Switchback. Try linked implications, overlapping window totals and run changes with keyboard controls, an undoable linked-group fill and a clue lens. Hints use constraints rather than stored answers. Ratings and feedback save locally; an explicit link opens a prefilled GitHub issue for the player to review and submit. The Lab has its own backup and optional offline asset, outside the 612-puzzle official count.
+
 ### Saves and offline
 
-Cabinet saves use IndexedDB database `alibi-device`, version 1 (`src/storage.js`): revision-pinned continuations, notes, undo and redo, favorites, recovery, and JSON backup. The service worker (`sw.js`, emitted by the build) caches application files. Optional room and media packs stay off the critical path. Two origins do not share storage. Export the cabinet, Club, and Quiet Wing backups, and the separate challenge export, before you change site, browser, or device.
+Cabinet saves use IndexedDB database `alibi-device`, version 1 (`src/storage.js`): revision-pinned continuations, notes, undo and redo, favorites, recovery, and JSON backup. The service worker (`sw.js`, emitted by the build) caches application files. Optional room and media packs stay off the critical path. Two origins do not share storage. Export the cabinet, Club, and Quiet Wing backups, the separate challenge export, and the Eclipse Lab backup before you change site, browser, or device.
 
 ## Architecture
 

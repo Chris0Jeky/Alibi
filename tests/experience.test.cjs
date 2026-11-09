@@ -12,6 +12,7 @@ test('Optional field-notes exports stay outside the core shell and retain a boun
     info.coreOfflineBytes +
       info.quietWingBytes +
       info.castleBytes +
+      info.eclipseLabBytes +
       info.experienceBytes +
       info.ambienceBytes +
       info.enhancementBytes +

@@ -25,6 +25,7 @@ PUZZLES = {p["id"]: p for p in official_puzzles()}
 BOOKS = json.loads((ROOT / "content/casebooks.json").read_text(encoding="utf-8"))
 BELLWEATHER = next(b for b in BOOKS if b["id"] == "last-light-at-bellweather")
 SUN_AND_MOON = sum(p["type"] == "binary" for p in PUZZLES.values())
+FUTOSHIKI = sum(p["type"] == "futoshiki" for p in PUZZLES.values())
 SALT_COUNT = official_venue_count("salt")
 passed: list[str] = []
 failed: list[str] = []
@@ -233,7 +234,8 @@ def journal_checks(page, width):
 def home_checks(page, width):
     go(page, "home")
     news = page.locator(".news-features").inner_text()
-    check(f"Explore all {SUN_AND_MOON} puzzles" in news, f"{width}: desk news counts Sun & Moon from the catalogue (m1)")
+    check(f"Explore all {SUN_AND_MOON} Sun & Moon puzzles" in news, f"{width}: desk news counts Sun & Moon from the catalogue (m1)")
+    check(f"Explore all {FUTOSHIKI} Futoshiki puzzles" in news, f"{width}: desk news counts Futoshiki from the catalogue")
     page.locator('[data-action="feedback-report"]').first.click()
     text = page.locator("dialog[open]").inner_text()
     check(

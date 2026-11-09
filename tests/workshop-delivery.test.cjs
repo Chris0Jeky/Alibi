@@ -39,6 +39,7 @@ test('optional bytes are counted once in delivery and never hidden from totals',
   const separate = [
     'quietWingBytes',
     'castleBytes',
+    'eclipseLabBytes',
     'experienceBytes',
     'enhancementBytes',
     'ambienceBytes',
@@ -52,7 +53,11 @@ test('optional bytes are counted once in delivery and never hidden from totals',
     info.coreOfflineBytes,
     actualTotal - separate.reduce((sum, key) => sum + info[key], 0),
   );
-  assert.equal(info.puzzles, 570, 'the shelf adds no puzzle to the 570-puzzle official registry');
+  assert.equal(
+    info.puzzles,
+    require('../tools/official-catalogue.cjs').load(root, false).puzzles.length,
+    'the optional shelf adds no puzzle to the official registry',
+  );
 });
 test('optional data and stylesheet bytes belong to the complete runtime payload identity', () => {
   assert.equal(readIdentity(dist).identity.payloadSha256, payloadDigest(dist));

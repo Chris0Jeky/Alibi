@@ -44,7 +44,7 @@ flowchart TD
 | `src/app.css`, `src/cabinet.css`, `src/expedition.css` | Base boards/themes and public mobile cabinet styling |
 | `src/artwork/`, `src/icons/` | Original casebook covers and supplied install icons |
 | `content/catalog.json` | 116 preserved published definitions; stable IDs and revisions |
-| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 570 puzzles across 32 bounded packs (23 initial, 9 deferred via its `deferred` list); the bundled total is `build-info.json` `puzzles` and the deferred count `deferredPuzzles` |
+| `content/official-packs.json`, `content/curation/packs/` | Explicit trusted source registry: 612 puzzles across 33 bounded packs (23 initial, 10 deferred via its `deferred` list); the bundled total is `build-info.json` `puzzles` and the deferred count `deferredPuzzles` |
 | `content/curation/editorial/`, `src/curation.js` | Four standalone anthologies, provisional difficulty and completion-gated answer notes |
 | `content/legacy.json` | Forty compatibility fixtures, not more playable catalogue entries |
 | `content/casebooks.json` | Five casebooks: Bellweather, the invitation and three earlier anthologies |
@@ -70,17 +70,18 @@ flowchart TD
 | Signal paths | 44 | Connected network rotations |
 | Number trails | 44 | Consecutive path through every square |
 | Sudoku | 49 | Row, column and box constraints |
-| Sun & moon | 55 | Balanced binary lines without triples |
-| Futoshiki | 51 | Latin square and inequality constraints |
+| Sun & moon | 85 | Balanced binary lines without triples |
+| Futoshiki | 63 | Latin square and inequality constraints |
 
 Bellweather adds six original, chronological records, and the unfinished invitation adds eight
 continuous records. The earlier three casebooks are anthologies of existing puzzles. Casebook
 entries reference catalogue IDs; they are not extra copies. Daily choices rotate from the catalogue
 using the device date. All progress is device-local.
 
-The 570 total is the trusted-registry count (`content/official-packs.json`, 32 packs); the bundled
-total is `build-info.json` `puzzles`, with `deferredPuzzles` for the precached Vault, Crime Scene and Interlock Routes chunk. The older
-382 figure was the 23-pack baseline before the 48 Night studies and 80 Vault studies.
+The 612 total is the trusted-registry count (`content/official-packs.json`, 33 packs); the bundled
+total is `build-info.json` `puzzles`, with `deferredPuzzles` for the precached Vault, Crime Scene,
+Interlock and Sunrise Studies chunk. The older 382 figure was the 23-pack baseline before the
+Night, Vault, Interlock and Sunrise studies.
 
 ## Known content work
 
@@ -116,13 +117,17 @@ are retained under `assets-source/quiet-wing/` and `assets-source/atmosphere/`. 
 `backup-validation.js` shares pure cabinet/Club validation with `validator-worker.js`; imports,
 combined staging and subsequent section validation use its bounded worker. See RELEASE-0.6.0.md.
 
+## Eclipse Lab
+
+[The player and implementation guide](ECLIPSE-LAB.md) describes four optional experiments and 32 levels outside the official catalogue. `src/eclipse-lab/` owns pure rules, pinned content, local saves, feedback and the keyboard-accessible player. `tools/build-eclipse.cjs` emits one separately budgeted asset through `src/activities.js`; the main service worker serves its cache. `tests/eclipse*.test.*` and `tests/browser_eclipse_lab.py` cover rules, independent uniqueness, save protection, controls, delivery and offline reloads.
+
 ## Curation Cabinet
 
 [CURATION.md](CURATION.md) records the 208-puzzle expansion, trusted source boundaries,
 independent checks and human-playtest limits. The 95 curated classic/Club challenges
 (`src/challenges.js`, `challenge-storage.js`, `challenge-launcher.js`; Quiet Wing › Challenges,
 deep link `#/quiet/challenges?family=<family id>`) are separate experiences, never core imports or
-additions to the 570-puzzle trusted-registry count.
+additions to the 612-puzzle trusted-registry count.
 
 ## Adaptive asset delivery
 

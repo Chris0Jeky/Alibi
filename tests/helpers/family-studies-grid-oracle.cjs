@@ -26,7 +26,9 @@ function binaryLines(size) {
   return lines;
 }
 
-function countBinary(puzzle, limit = 2) {
+function countBinary(puzzle, limit = 2, budget = 500000) {
+  if (!Number.isInteger(limit) || limit < 1) throw new Error('Invalid grid solution limit');
+  if (!Number.isSafeInteger(budget) || budget < 1) throw new Error('Invalid grid node budget');
   const { size } = puzzle;
   const candidates = binaryLines(size);
   const rows = range(size).map((row) =>
@@ -41,9 +43,14 @@ function countBinary(puzzle, limit = 2) {
   let count = 0;
   let first = null;
   let nodes = 0;
+  let exhausted = false;
 
   function search(row) {
-    if (count >= limit) return;
+    if (count >= limit || exhausted) return;
+    if (nodes >= budget) {
+      exhausted = true;
+      return;
+    }
     nodes++;
     if (row === size) {
       const columns = range(size).map((col) => chosen.map((line) => line[col]).join(''));
@@ -67,15 +74,17 @@ function countBinary(puzzle, limit = 2) {
       chosen.push(line);
       search(row + 1);
       chosen.pop();
-      if (count >= limit) return;
+      if (count >= limit || exhausted) return;
     }
   }
 
   search(0);
-  return { count, first, nodes };
+  return { count, first, nodes, exhausted };
 }
 
-function countFutoshiki(puzzle, limit = 2) {
+function countFutoshiki(puzzle, limit = 2, budget = 500000) {
+  if (!Number.isInteger(limit) || limit < 1) throw new Error('Invalid grid solution limit');
+  if (!Number.isSafeInteger(budget) || budget < 1) throw new Error('Invalid grid node budget');
   const { size } = puzzle;
   const grid = puzzle.givens.slice();
   const rows = range(size).map(() => new Set());
@@ -91,14 +100,22 @@ function countFutoshiki(puzzle, limit = 2) {
     const row = Math.floor(cell / size);
     const col = cell % size;
     if (rows[row].has(value) || cols[col].has(value)) {
-      return { count: 0, first: null, nodes: 0 };
+      return { count: 0, first: null, nodes: 0, exhausted: false };
     }
     rows[row].add(value);
     cols[col].add(value);
   }
+  for (const inequality of puzzle.inequalities) {
+    const left = grid[inequality.a];
+    const right = grid[inequality.b];
+    if (left && right && (inequality.op === '<' ? left >= right : left <= right)) {
+      return { count: 0, first: null, nodes: 0, exhausted: false };
+    }
+  }
   let count = 0;
   let first = null;
   let nodes = 0;
+  let exhausted = false;
 
   function satisfies(cell, value) {
     for (const inequality of touching[cell]) {
@@ -121,7 +138,11 @@ function countFutoshiki(puzzle, limit = 2) {
   }
 
   function search() {
-    if (count >= limit) return;
+    if (count >= limit || exhausted) return;
+    if (nodes >= budget) {
+      exhausted = true;
+      return;
+    }
     nodes++;
     let chosen = -1;
     let values = null;
@@ -150,12 +171,12 @@ function countFutoshiki(puzzle, limit = 2) {
       cols[col].delete(value);
       rows[row].delete(value);
       grid[chosen] = 0;
-      if (count >= limit) return;
+      if (count >= limit || exhausted) return;
     }
   }
 
   search();
-  return { count, first, nodes };
+  return { count, first, nodes, exhausted };
 }
 
 module.exports = { countNonogram, countBinary, countFutoshiki };

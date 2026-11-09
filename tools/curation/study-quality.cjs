@@ -190,7 +190,12 @@ function certify(puzzle) {
   const native = C.solve(puzzle, null, 2, budget);
   assert.ok(native.nodes < budget, `${puzzle.id}: native budget exhausted`);
   assert.deepEqual(native.solutions, [puzzle.solution], `${puzzle.id}: native answer/uniqueness`);
-  const independent = counters[puzzle.type](puzzle, 2);
+  const bounded = ['binary', 'futoshiki'].includes(puzzle.type);
+  const independent = bounded
+    ? counters[puzzle.type](puzzle, 2, 500000)
+    : counters[puzzle.type](puzzle, 2);
+  if (bounded)
+    assert.equal(independent.exhausted, false, `${puzzle.id}: independent proof budget exhausted`);
   assert.equal(independent.count, 1, `${puzzle.id}: independent uniqueness`);
   assert.deepEqual(independent.first, puzzle.solution, `${puzzle.id}: independent answer`);
   assert.ok(independent.nodes <= 500000, `${puzzle.id}: independent search exceeds review bound`);

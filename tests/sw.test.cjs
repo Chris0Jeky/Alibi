@@ -132,6 +132,7 @@ named('release install caches the emitted shell', async () => {
               !n.startsWith('enhanced-') &&
               !n.startsWith('pulseboard.') &&
               !n.startsWith('discovery-storage.') &&
+              !n.startsWith('eclipse-lab.') &&
               !n.startsWith('house.') &&
               !n.startsWith('block-motion.') &&
               !n.startsWith('block-replay-worker.') &&
@@ -186,6 +187,7 @@ named('offline release includes core assets', () => {
         !n.startsWith('enhanced-') &&
         !n.startsWith('pulseboard.') &&
         !n.startsWith('discovery-storage.') &&
+        !n.startsWith('eclipse-lab.') &&
         !n.startsWith('house.') &&
         !n.startsWith('block-motion.') &&
         !n.startsWith('block-replay-worker.') &&

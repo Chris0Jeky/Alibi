@@ -10,7 +10,7 @@ with sync_playwright() as pw:
     page=browser.new_page()
     page.goto(BASE+'#/settings')
     page.wait_for_function('() => !!window.AlibiDiagnostics')
-    page.get_by_text('Curated challenge replays are separate:',exact=False).wait_for()
+    page.get_by_text('Export challenge replays from each challenge.',exact=False).wait_for()
     page.context.set_offline(True)
     with page.expect_download() as download:
         page.locator('[data-action="export-all"]').click()

@@ -45,7 +45,9 @@ test('desk news counts Sun & Moon puzzles from the catalogue (0.14.1 audit m1)',
   vm.runInContext(curationSource, ctx);
   const count = catalogue.puzzles.filter((p) => p.type === 'binary').length;
   assert.ok(count > 27, 'the catalogue has grown past the old hard-coded count');
-  assert.ok(ctx.AlibiCuration.news().includes(`Explore all ${count} puzzles.`));
+  assert.ok(ctx.AlibiCuration.news().includes(`Explore all ${count} Sun & Moon puzzles.`));
+  const futoshiki = catalogue.puzzles.filter((p) => p.type === 'futoshiki').length;
+  assert.ok(ctx.AlibiCuration.news().includes(`Explore all ${futoshiki} Futoshiki puzzles.`));
 });
 test('notes returns exactly empty for unknown imported id even when completed', () => {
   const data = load(path.resolve(__dirname, '..'), catalogue);
