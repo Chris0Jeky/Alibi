@@ -52,7 +52,8 @@ export function mount({ root, store, save }) {
       const c = record(),
         step = definition.steps[stage];
       const projection = Session.project(definition, completed(), step.id, story);
-      const bad = (v) => (invalid && !v ? ' aria-invalid="true" aria-describedby="case-status"' : '');
+      const bad = (v) =>
+        invalid && !v ? ' aria-invalid="true" aria-describedby="case-status"' : '';
       const refs = (ids) =>
         ids
           .map((id) => button(definition.records.find((r) => r.id === id).title, 'source', id))
