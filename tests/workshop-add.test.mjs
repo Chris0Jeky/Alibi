@@ -56,7 +56,10 @@ test('a listed pack loads from the same directory only after its size and digest
   assert.deepEqual(Buffer.from(loaded), bytes);
   assert.equal(calls.length, 1);
   assert.equal(calls[0].url, `https://alibi.test/assets/workshop/${entry.download}`);
-  assert.deepEqual(calls[0].options, { credentials: 'same-origin', redirect: 'error' });
+  assert.equal(calls[0].options.credentials, 'same-origin');
+  assert.equal(calls[0].options.redirect, 'error');
+  assert.ok(calls[0].options.signal instanceof AbortSignal);
+  assert.equal(calls[0].options.signal.aborted, false);
   assert.deepEqual(seen.at(-1), [bytes.length, bytes.length], 'progress reaches the listed size');
   assert.ok(seen.length > 1, 'progress is reported while downloading');
   assert.equal(JSON.parse(Buffer.from(loaded)).puzzles.length, 24);
@@ -159,7 +162,7 @@ test('cancelling a pending response discards and cancels even a late body', asyn
     ),
   );
   await assert.rejects(pending, /cancelled.*Nothing was installed/);
-  assert.equal(calls[0].options.signal, controller.signal);
+  assert.equal(calls[0].options.signal.aborted, true, 'cancellation reaches the request');
   assert.equal(cancelled, true, 'an ignored abort cannot leave an unneeded response streaming');
 });
 
@@ -232,51 +235,57 @@ test('a body that stalls is stopped with a clear refusal, and one that keeps mov
   assert.deepEqual(Buffer.from(await slowPending), bytes);
 });
 
-test('a stalled shelf download reports failure and re-enables Add so the user can retry', async (t) => {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
-  const status = { textContent: '' },
-    add = { dataset: { add: 'lattice' }, disabled: false },
-    on = {},
-    dialog = {
-      open: false,
-      setAttribute() {},
-      addEventListener: (type, fn) => (on[type] = fn),
-      querySelector: (sel) => (sel === '[role="status"]' ? status : { focus() {} }),
-      querySelectorAll: (sel) => (sel === '[data-add]' ? [add] : []),
-      showModal() {
-        this.open = true;
+for (const phase of ['body', 'headers'])
+  test(`a stalled ${phase} download re-enables Add for retry`, async (t) => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const status = { textContent: '' },
+      add = { dataset: { add: 'lattice' }, disabled: false },
+      on = {},
+      dialog = {
+        open: false,
+        setAttribute() {},
+        addEventListener: (type, fn) => (on[type] = fn),
+        querySelector: (sel) => (sel === '[role="status"]' ? status : { focus() {} }),
+        querySelectorAll: (sel) => (sel === '[data-add]' ? [add] : []),
+        showModal() {
+          this.open = true;
+        },
+        close() {
+          this.open = false;
+          on.close();
+        },
+        remove() {},
       },
-      close() {
-        this.open = false;
-        on.close();
+      doc = {
+        activeElement: null,
+        querySelector: () => null,
+        getElementById: () => ({ isConnected: true }),
+        createElement: () => dialog,
+        body: { append() {} },
+        defaultView: { addEventListener() {} },
       },
-      remove() {},
-    },
-    doc = {
-      activeElement: null,
-      querySelector: () => null,
-      getElementById: () => ({ isConnected: true }),
-      createElement: () => dialog,
-      body: { append() {} },
-      defaultView: { addEventListener() {} },
-    },
-    entry = { ...listed('lattice'), count: 1, families: [], description: '' },
-    realFetch = globalThis.fetch;
-  globalThis.fetch = async () => stalled();
-  try {
-    open(doc, [entry]);
-    const click = on.click({ target: { closest: (sel) => (sel === '[data-add]' ? add : null) } });
-    await flush();
-    assert.equal(add.disabled, true, 'Add is disabled while downloading');
-    t.mock.timers.tick(10000);
-    await click;
-    assert.match(status.textContent, /stalled.*Nothing was installed/);
-    assert.equal(add.disabled, false, 'the shelf can be retried');
-    assert.equal(dialog.open, true, 'a stall is not a cancel: the dialog stays open');
-  } finally {
-    globalThis.fetch = realFetch;
-  }
-});
+      entry = { ...listed('lattice'), count: 1, families: [], description: '' },
+      realFetch = globalThis.fetch;
+    let requestSignal;
+    globalThis.fetch = (_url, options) => {
+      requestSignal = options.signal;
+      return phase === 'body' ? Promise.resolve(stalled()) : new Promise(() => {});
+    };
+    try {
+      open(doc, [entry]);
+      const click = on.click({ target: { closest: (sel) => (sel === '[data-add]' ? add : null) } });
+      await flush();
+      assert.equal(add.disabled, true, 'Add is disabled while downloading');
+      t.mock.timers.tick(10000);
+      await click;
+      assert.match(status.textContent, /stalled.*Nothing was installed/);
+      assert.equal(add.disabled, false, 'the shelf can be retried');
+      assert.equal(dialog.open, true, 'a stall is not a cancel: the dialog stays open');
+      if (phase === 'headers') assert.equal(requestSignal.aborted, true);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
 
 test('unavailable, offline or invalid listings fail closed before anything is handed on', async () => {
   const entry = listed('lattice');
@@ -288,7 +297,7 @@ test('unavailable, offline or invalid listings fail closed before anything is ha
     fetchPack(entry, BASE, async () => {
       throw TypeError('Failed to fetch');
     }),
-    /needs a connection; installed puzzles still play offline/,
+    /needs a connection/,
   );
   for (const change of [
     { download: '../lattice.json' },
@@ -377,4 +386,136 @@ test('the built adder embeds exactly the shipped listing and verifies the shippe
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
+});
+
+test('a missing response header times out, aborts the request, and cancels any late body', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let resolve,
+    requestSignal,
+    cancelled = false,
+    result;
+  const get = (_url, options) => {
+    requestSignal = options.signal;
+    return new Promise((done) => {
+      resolve = done;
+    });
+  };
+  const pending = fetchPack(listed('lattice'), BASE, get).then(
+    () => {
+      result = 'resolved';
+    },
+    (e) => {
+      result = e.message;
+    },
+  );
+  await flush();
+  t.mock.timers.tick(10000);
+  await flush();
+  try {
+    assert.match(result || '', /stalled.*Nothing was installed/);
+    assert.equal(requestSignal.aborted, true);
+  } finally {
+    resolve(
+      new Response(
+        new ReadableStream({
+          start(c) {
+            setImmediate(() => {
+              try {
+                c.close();
+              } catch {}
+            });
+          },
+          cancel() {
+            cancelled = true;
+          },
+        }),
+      ),
+    );
+    await pending;
+    await flush();
+  }
+  assert.equal(cancelled, true, 'late body is cancelled even if fetch ignored abort');
+});
+
+test('cancelling before headers settles promptly and aborts the request', async () => {
+  const controller = new AbortController();
+  let resolve,
+    requestSignal,
+    cancelled = false;
+  const pending = fetchPack(
+    listed('lattice'),
+    BASE,
+    (_url, options) => {
+      requestSignal = options.signal;
+      return new Promise((done) => {
+        resolve = done;
+      });
+    },
+    undefined,
+    controller.signal,
+  );
+  const outcome = pending.then(
+    () => null,
+    (e) => e.message,
+  );
+  controller.abort();
+  let result;
+  outcome.then((x) => {
+    result = x;
+  });
+  await flush();
+  try {
+    assert.match(result || '', /cancelled.*Nothing was installed/);
+    assert.equal(requestSignal.aborted, true);
+  } finally {
+    resolve(
+      new Response(
+        new ReadableStream({
+          start(c) {
+            setImmediate(() => {
+              try {
+                c.close();
+              } catch {}
+            });
+          },
+          cancel() {
+            cancelled = true;
+          },
+        }),
+      ),
+    );
+    await outcome;
+    await flush();
+  }
+  assert.equal(cancelled, true);
+});
+
+test('receiving headers clears the deadline and does not later abort a completed download', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  let requestSignal;
+  const bytes = source('lattice');
+  const result = await fetchPack(listed('lattice'), BASE, (_url, options) => {
+    requestSignal = options.signal;
+    return Promise.resolve(new Response(chunked(bytes)));
+  });
+  t.mock.timers.tick(10000);
+  assert.deepEqual(Buffer.from(result), bytes);
+  assert.equal(requestSignal.aborted, false);
+});
+
+test('user cancellation just before the deadline is not reported as a stall', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const controller = new AbortController();
+  const pending = fetchPack(
+    listed('lattice'),
+    BASE,
+    () => new Promise(() => {}),
+    undefined,
+    controller.signal,
+  );
+  const rejected = assert.rejects(pending, /cancelled.*Nothing was installed/);
+  t.mock.timers.tick(9999);
+  controller.abort();
+  t.mock.timers.tick(1);
+  await rejected;
 });

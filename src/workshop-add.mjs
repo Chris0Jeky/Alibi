@@ -9,6 +9,19 @@ const esc = (text) => String(text).replace(/[&<>"']/g, (c) => '&#' + c.charCodeA
 const hex = (buffer) =>
   [...new Uint8Array(buffer)].map((b) => b.toString(16).padStart(2, '0')).join('');
 const refused = (why) => Error(why + ' Nothing was installed or changed.');
+const stall = refused('Download stalled.');
+const wait = (promise, stop) => {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, no) => {
+      timer = setTimeout(() => {
+        no(stall);
+        stop?.();
+      }, IDLE_MS);
+    }),
+  ]).finally(() => clearTimeout(timer));
+};
 
 // Same-directory, size-bounded, SHA-256-checked download of one listed pack.
 export async function fetchPack(
@@ -30,27 +43,40 @@ export async function fetchPack(
     entry.bytes < 1 ||
     entry.bytes > LIMIT
   )
-    throw refused('This collection listing is not valid.');
+    throw refused('The listing is not valid.');
   const checkCancelled = () => {
-    if (signal?.aborted) throw refused('Adding this collection was cancelled.');
+    if (signal?.aborted) throw refused('Adding cancelled.');
   };
   checkCancelled();
   let response;
+  const controller = new AbortController(),
+    abort = () => controller.abort(),
+    interrupted = new Promise((_, reject) => (controller.signal.onabort = reject));
+  signal?.addEventListener('abort', abort, { once: true });
   try {
-    response = await get(new URL(entry.download, base), {
-      credentials: 'same-origin',
-      redirect: 'error',
-      ...(signal ? { signal } : {}),
+    const request = (async () =>
+      get(new URL(entry.download, base), {
+        credentials: 'same-origin',
+        redirect: 'error',
+        signal: controller.signal,
+      }))().then((value) => {
+      if (controller.signal.aborted) value.body?.cancel().catch(() => {});
+      return value;
     });
-  } catch {
+    response = await wait(Promise.race([request, interrupted]), abort);
+  } catch (error) {
     checkCancelled();
-    throw refused('Adding a collection needs a connection; installed puzzles still play offline.');
+    if (error === stall) throw error;
+    throw refused('Adding needs a connection.');
+  } finally {
+    controller.signal.onabort = null;
+    signal?.removeEventListener('abort', abort);
   }
   if (signal?.aborted) {
     response.body?.cancel().catch(() => {});
     checkCancelled();
   }
-  if (!response.ok || !response.body) throw refused('That collection is unavailable right now.');
+  if (!response.ok || !response.body) throw refused('Pack unavailable.');
   const reader = response.body.getReader(),
     bytes = new Uint8Array(entry.bytes);
   const cancel = () => reader.cancel().catch(() => {});
@@ -59,21 +85,12 @@ export async function fetchPack(
   try {
     for (;;) {
       checkCancelled();
-      let timer;
-      const { done, value } = await Promise.race([
-        reader.read(),
-        new Promise((_, no) => {
-          timer = setTimeout(
-            () => no(refused('That download stalled, so it was stopped.')),
-            IDLE_MS,
-          );
-        }),
-      ]).finally(() => clearTimeout(timer));
+      const { done, value } = await wait(reader.read());
       checkCancelled();
       if (done) break;
       if (size + value.length > entry.bytes) {
         cancel();
-        throw refused('That download is larger than listed, so it was refused.');
+        throw refused('Download larger than listed.');
       }
       bytes.set(value, size);
       size += value.length;
@@ -82,7 +99,7 @@ export async function fetchPack(
     const digest = size === entry.bytes && hex(await crypto.subtle.digest('SHA-256', bytes));
     checkCancelled();
     if (digest !== entry.sha256)
-      throw refused('That download does not match its listed size and fingerprint.');
+      throw refused('File does not match its listed size and fingerprint.');
     return bytes;
   } catch (error) {
     cancel();
@@ -194,14 +211,14 @@ export function open(doc = document, list = COLLECTIONS, store) {
   };
   d.className = 'collections-add';
   d.setAttribute('aria-labelledby', 'collections-title');
-  d.innerHTML = `<form method="dialog"><button class="dialog-close" aria-label="Close">&times;</button></form><h2 id="collections-title" tabindex="-1">Add a curated collection.</h2><p>Download a data-only pack. Added puzzles play offline. Existing IDs cannot be overwritten. Difficulty is provisional.</p>${list
+  d.innerHTML = `<form method="dialog"><button class="dialog-close" aria-label="Close">&times;</button></form><h2 id="collections-title" tabindex="-1">Add a curated collection.</h2><p>Data-only packs play offline. Existing IDs stay protected. Difficulty is provisional.</p>${list
     .map(
       (c) =>
-        `<section class="panel" aria-labelledby="add-${esc(c.id)}"><h3 id="add-${esc(c.id)}">${esc(c.title)}</h3><p>${c.count} puzzles · ${c.families.map((f) => `${f.count} ${esc(f.type)}`).join(' · ')} · ${c.bytes.toLocaleString('en-GB')} bytes</p><p>${esc(c.description)}</p><p class="fine" data-pack-status="${esc(c.id)}">Checking saved packs…</p><button class="btn" type="button" data-add="${esc(c.id)}">Add ${esc(c.title)}</button></section>`,
+        `<section class="panel" aria-labelledby="add-${esc(c.id)}"><h3 id="add-${esc(c.id)}">${esc(c.title)}</h3><p>${c.count} puzzles · ${c.families.map((f) => `${f.count} ${esc(f.type)}`).join(' · ')} · ${c.bytes.toLocaleString('en-GB')} bytes</p><p>${esc(c.description)}</p><p class="fine" data-pack-status="${esc(c.id)}">Checking…</p><button class="btn" type="button" data-add="${esc(c.id)}">Add ${esc(c.title)}</button></section>`,
     )
     .join(
       '',
-    )}<p class="fine" role="status" aria-live="polite"></p><div class="dialog-actions"><a class="btn secondary" href="${new URL('../../collections/index.html', import.meta.url)}" target="_blank" rel="noopener">Browse downloads (new tab)</a></div>`;
+    )}<p class="fine" role="status" aria-live="polite"></p><div class="dialog-actions"><a class="btn secondary" href="${new URL('../../collections/index.html', import.meta.url)}" target="_blank" rel="noopener">Downloads (new tab)</a></div>`;
   const status = d.querySelector('[role="status"]');
   d.addEventListener('cancel', stop);
   d.addEventListener('close', () => {

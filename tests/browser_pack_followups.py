@@ -6,6 +6,7 @@ import socket
 import subprocess
 import time
 from playwright.sync_api import sync_playwright, expect
+from official_fixture import OFFICIAL_COUNT
 
 ROOT = Path(__file__).resolve().parents[1]
 PACK = json.loads((ROOT / 'content/workshop/afterlight-pictures.json').read_text())
@@ -133,8 +134,56 @@ def main():
         expect(first.get_by_role('button',name='Remove Reinstalled replacement')).to_have_count(0)
         assert rows(first)[0]['value']['id']=='another-pack'
         assert not errors, errors
+        context.close()
+        # Restore a valid legacy backup above the current admission limit. Official
+        # puzzles count toward the limit. Choose enough full packs to cross it once.
+        pack_count=(3000-OFFICIAL_COUNT)//150+1
+        assert pack_count > 0, 'official catalogue alone needs a revised admission policy'
+        custom_count=pack_count*150
+        restored_count=OFFICIAL_COUNT+custom_count
+        context=browser.new_context(viewport={'width':390,'height':900}, service_workers='block')
+        restore=open_page()
+        restore.get_by_role('button',name='Settings',exact=True).first.click()
+        with restore.expect_download() as download:
+            restore.get_by_role('button',name='Export backup',exact=True).click()
+        backup=json.loads(Path(download.value.path()).read_text())
+        catalog=json.loads((ROOT / 'content/catalog.json').read_text())
+        puzzle=next(p for p in catalog['puzzles'] if p['type']=='binary')
+        backup['packs']=[{
+            'schemaVersion':1, 'id':f'capacity-pack-{i:02}', 'title':f'Capacity pack {i:02}', 'version':1,
+            'puzzles':[{**puzzle, 'id':f'capacity-{i}-{j}'} for j in range(150)],
+        } for i in range(pack_count)]
+        restore.locator('#backup-input').set_input_files({
+            'name':'capacity-backup.json','mimeType':'application/json','buffer':json.dumps(backup).encode(),
+        })
+        preview=restore.locator('#dialog[open]')
+        expect(preview).to_contain_text('Restores can exceed 3,000 puzzles',timeout=30000)
+        expect(preview).to_contain_text('Export and remove packs to add more')
+        preview.get_by_role('button',name='Replace device data',exact=True).click()
+        with restore.expect_navigation(wait_until='domcontentloaded',timeout=60000):
+            restore.get_by_role('button',name='Replace with backup',exact=True).click()
+        restore.wait_for_function('(count) => window.AlibiDiagnostics?.getStatus().mode === "indexeddb" && AlibiDiagnostics.getCounts().puzzles === count',arg=restored_count,timeout=60000)
+        restore.goto(base+'#/workshop')
+        restore.get_by_role('button',name='Puzzle packs',exact=True).click()
+        other=open_page()
+        assert other.evaluate('AlibiDiagnostics.getCounts().puzzles')==restored_count
+        assert other.evaluate('AlibiDiagnostics.getCounts().customPacks')==pack_count
+        expect(other.locator('.library-summary .mini-stat').nth(2)).to_contain_text(str(custom_count))
+        expect(other.locator('#pack-list .pack-limit')).to_contain_text(f'{restored_count} total ({custom_count} custom)')
+        expect(other.locator('#pack-list .pack-limit')).to_contain_text('Export and remove packs to add more')
+        focus=other.get_by_role('button',name='Authoring guide',exact=True).first
+        focus.focus()
+        other.evaluate("() => window.capacityFocus = document.activeElement")
+        restore.get_by_role('button',name='Remove Capacity pack 00',exact=True).click()
+        restore.get_by_role('button',name='Remove pack',exact=True).click()
+        other.wait_for_function('(count) => AlibiDiagnostics.getCounts().puzzles === count',arg=restored_count-150,timeout=30000)
+        assert other.evaluate('AlibiDiagnostics.getCounts().customPacks')==pack_count-1
+        expect(other.locator('.library-summary .mini-stat').nth(2)).to_contain_text(str(custom_count-150))
+        expect(other.locator('#pack-list .pack-limit')).to_have_count(0)
+        assert other.evaluate('() => document.activeElement === window.capacityFocus && window.capacityFocus.isConnected')
+        assert not errors, errors
         context.close();browser.close()
-      print('Pack follow-ups: two tabs, replacement, quarantined raw row and import failures passed')
+      print('Pack follow-ups: two tabs, replacement, raw recovery, import failures and restored capacity guidance passed')
     finally:
       if server: server.terminate();server.wait(timeout=5)
 
