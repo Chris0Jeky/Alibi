@@ -216,7 +216,7 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     const status = Q.outcome(payload);
     return status === 202 ? 1 : status === 400 || status === 409 ? 3 : 2;
   }
-  function open(kind, subject) {
+  function open(kind, subject, text = '', from) {
     if (!A.eligible)
       return show(
         'Feedback.',
@@ -225,8 +225,9 @@ src/voices-queue.js to this browser and renders one modal <dialog> for both form
     context = { kind, subject: subject || '', route: route() };
     show(
       kind === 'puzzle' ? 'Report a problem.' : 'Send feedback.',
-      `<form id="vo-form" novalidate><fieldset><legend>What is it about?</legend>${chips('radio', 'kind', ['bug', 'idea', 'puzzle', 'praise', 'other'], kind)}</fieldset><div class="field"><label for="vo-text">Your message</label><textarea id="vo-text" maxlength="2000" rows="5" aria-describedby="vo-count vo-attached"></textarea><span class="fine" id="vo-count">0 of 2,000 characters</span></div><p class="fine" id="vo-attached">Sent with it: app version ${esc(release)}, this screen (${context.route})${context.subject ? `, puzzle ${esc(context.subject)}` : ''} and device type (${device()}). No saves, names or e-mail. We can’t reply, so leave out personal details.</p>${actions('Send')}</form>`,
+      `<form id="vo-form" novalidate><fieldset><legend>What is it about?</legend>${chips('radio', 'kind', ['bug', 'idea', 'puzzle', 'praise', 'other'], kind)}</fieldset><div class="field"><label for="vo-text">Your message</label><textarea id="vo-text" maxlength="2000" rows="5" aria-describedby="vo-count vo-attached">${esc(text)}</textarea><span class="fine" id="vo-count">${text.length} of 2,000 characters</span></div><p class="fine" id="vo-attached">Version ${esc(release)}, this screen (${context.route})${context.subject ? `, puzzle ${esc(context.subject)}` : ''} and device type (${device()}). No saves, names or e-mail. We can’t reply; omit personal details.</p>${actions('Send')}</form>`,
     );
+    if (from) opener = from;
   }
   async function sendFeedback(form) {
     const text = $('#vo-text'),

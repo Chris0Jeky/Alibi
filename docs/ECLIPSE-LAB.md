@@ -27,7 +27,13 @@ Choose a Sun, Moon or Clear brush and select a cell. Arrow keys move within the 
 
 Each level accepts an optional enjoyment rating from 1–5, a difficulty impression and a note of up to 2,000 characters. **Save feedback** keeps this on the current device. Unsaved drafts survive navigation within the app and must be saved or discarded before a software update or export.
 
+On the primary Alibi site, **Review and send saved feedback** opens the existing Voices composer with the saved experiment ID, revision, mode, rating, difficulty and note. Review or edit the message, then press **Send** to submit it to the maintainer through Pulseboard. Opening or canceling the composer sends nothing; editing its text does not rewrite the saved Lab note. Save or discard a local draft before opening it. If the note plus experiment details exceeds the message limit of 2,000 characters, the Lab explains how much to shorten and preserves the complete note.
+
+These are ordinary feedback messages in the maintainer's Voices inbox, not the official-puzzle rating survey. They carry no survey identity and use an empty official-puzzle subject. The composer also shows the app version, screen and device class. Existing [Voices delivery and retention](FEEDBACK-AND-SURVEYS.md) apply: up to 20 explicit submissions may wait on the device for up to 30 days; accepted feedback is retained by Pulseboard for 365 days. This is client behavior, not evidence of a new production deployment or live collector acceptance.
+
 **Share feedback on GitHub** opens a prefilled issue containing the saved experiment ID, revision, mode, rating, difficulty and note. Review and submit it yourself; GitHub sign-in is required. The link does not include board entries, save histories or recovery data, and clicking Save feedback never uploads anything. The separate Lab backup also includes saved feedback for a private record or manual sharing.
+
+The direct-send button is absent from previews, the fallback origin, standalone files and Android. Those copies retain the explicit GitHub handoff and local backup options.
 
 Difficulty labels are provisional. Automated uniqueness checks establish a single answer under the implemented rules; they do not establish enjoyment, teaching quality or a human difficulty ranking. Player reports should guide changes before any experiment becomes an official family.
 
@@ -45,7 +51,9 @@ The one hashed Lab asset is downloaded on entry and cached separately. Wait for 
 - `src/eclipse-lab/puzzles.mjs`: pinned level definitions and explanatory lessons.
 - `src/eclipse-lab/storage.mjs`: validation, serialization, write locks, conflict detection, exports and recovery.
 - `src/eclipse-lab/player.mjs`, `style.css`, `entry.mjs`: controls, local feedback, preferences and the optional activity lifecycle.
+- `src/eclipse-lab/feedback.mjs`: admission-checked adapter for reviewing saved impressions in Voices; it never reads board, answer or recovery fields.
 - `tools/build-eclipse.cjs`: one self-contained asset with a separate 64 KiB uncompressed ceiling. Existing startup and core-shell limits remain unchanged.
 - `tests/eclipse*.test.*` and `tests/browser_eclipse_lab.py`: independent uniqueness, poisoned-answer hint checks, save boundaries, keyboard control, phone layout, feedback, restore and offline reloads.
+- `tests/browser_voices.py`: intercepted collector checks for the Lab composer, explicit-send payload, draft freshness, limits, origin admission and focus at 320/390/1280px. This is not a live collector receipt.
 
 The browser workflow checks the precise pull-request head and retains source/tree identifiers, the build receipt and screenshots. Physical Android, TalkBack and human enjoyment/difficulty assessment remain separate release and playtest work.

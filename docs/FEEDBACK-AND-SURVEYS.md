@@ -19,6 +19,12 @@ enum, status rule or survey option here without changing it there first.
   **Feedback and surveys** panel.
 - **Report a problem with this puzzle** sits with Restart and How to play on the puzzle screen. It
   opens the same sheet with the puzzle kind chosen and the official puzzle id attached.
+- **Eclipse Lab** offers **Review and send saved feedback** on the primary origin. It opens this
+  composer with the saved experiment metadata, enjoyment rating, difficulty impression and note
+  as editable text; the player must still press Send. Lab messages have an empty subject and the
+  `quiet-wing` screen, and create no survey key. Local Lab ratings are not official puzzle surveys.
+  Unsaved drafts cannot open this path, and a note plus its details over 2,000 characters is
+  preserved with an instruction to shorten it. Other origins retain the explicit GitHub handoff.
 - **Puzzle rating**: after an official puzzle is solved, the completion panel shows "How was it?
   Too easy · Just right · Too hard" and a "More like this" heart. A tap sends; changing it sends
   the new answer, which replaces the old one. The heart alone is kept on the device until a
@@ -45,7 +51,7 @@ is built when the player presses Send, submits the survey or taps a rating.
 
 | | Carries | Never carries |
 | --- | --- | --- |
-| Message | a random message id (idempotency), app version, kind, screen (`home`, `puzzle`, `castle`, `quiet-wing`, `games`, `settings`, `other`), an official puzzle id or `''`, the cleaned text, the UTC day of Send, device class (`mobile` < 768 px, `tablet` < 1024 px, else `desktop`) | the survey key, saves, boards, notes, answers, names, e-mail |
+| Message | a random message id (idempotency), app version, kind, screen (`home`, `puzzle`, `castle`, `quiet-wing`, `games`, `settings`, `other`), an official puzzle id or `''`, the cleaned feedback text, the UTC day of Send, device class (`mobile` < 768 px, `tablet` < 1024 px, else `desktop`) | the survey key, saves, boards, gameplay notes, answers, names, e-mail |
 | Survey | survey id, `''` subject, the survey key, app version, answers in registry order (unanswered questions omitted), `{}` meta, the cleaned comment, device class | puzzle ids, saves, usage data |
 | Rating | `puzzle-rating`, the official puzzle id, the survey key, app version, `difficulty` and optionally `more: "yes"`, meta `{ family: puzzle.type, tier: lower-cased difficulty }`, `comment: ''`, device class | answers to the taste survey, saves |
 

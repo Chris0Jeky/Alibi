@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = (ROOT / 'dist').resolve()
@@ -45,6 +45,38 @@ def check(value, label):
     assert value, label
     checks += 1
     print('PASS', label, flush=True)
+
+
+def lab_feedback_snapshot(review, label, stage):
+    """Keep save/focus evidence without hiding the original assertion on failure."""
+    try:
+        state = review.evaluate('''(button) => {
+            const root = button.getRootNode(), active = root.activeElement;
+            return {
+                disabled: button.disabled,
+                focused: active === button,
+                activeTag: active?.tagName,
+                activeAction: active?.dataset?.action,
+                message: root.querySelector('.message')?.textContent,
+                feedbackMessage: root.querySelector('.feedback-message')?.textContent,
+                sheetOpen: !!document.querySelector('dialog.vo-sheet[open]')
+            };
+        }''')
+    except Exception as error:
+        state = {'diagnosticError': str(error)}
+    print('LAB_FEEDBACK', json.dumps({'viewport': label, 'stage': stage, **state}), flush=True)
+
+
+def save_lab_feedback(page, review, label):
+    page.get_by_role('button', name='Save feedback', exact=True).click()
+    lab_feedback_snapshot(review, label, 'save-clicked')
+    try:
+        # The previous save's message can remain visible while this IndexedDB write is pending.
+        # Review becomes enabled only after the current draft is saved and the player rerenders.
+        expect(review).to_be_enabled()
+        page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+    finally:
+        lab_feedback_snapshot(review, label, 'save-wait-finished')
 
 
 if not (DIST / 'index.html').is_file():
@@ -691,6 +723,69 @@ with sync_playwright() as pw:
         check(not collector.voices(), f'nothing is sent at {name} without a Send')
         context.close()
 
+    # ---- Eclipse Lab: saved impressions enter the ordinary reviewable composer ----
+    for viewport, label in ((NARROW, '320'), (PHONE, '390'), (DESKTOP, 'desktop')):
+        collector = Collector()
+        context, page = open_context(browser, collector, errors, viewport=viewport)
+        page.evaluate("location.hash='/quiet/eclipse/constellation-01'")
+        page.get_by_role('heading', name='Constellation 1', exact=True).wait_for()
+        review = page.get_by_role('button', name='Review and send saved feedback', exact=True)
+        review.wait_for()
+        check(not collector.voices(), f'Lab entry sends nothing at {label}')
+        page.locator('[name="rating"][value="4"]').check()
+        page.locator('[data-difficulty]').select_option('just-right')
+        page.locator('[data-feedback]').fill('Earlier saved note.' if viewport is NARROW else 'The linked clues made sense.')
+        check(review.is_disabled(), f'unsaved Lab draft cannot be sent at {label}')
+        save_lab_feedback(page, review, label)
+        if viewport is NARROW:
+            held = []
+            page.route('**/assets/voices.*.js', lambda route: held.append(route))
+            review.click()
+            wait_for(page, lambda: bool(held), 'Lab composer download held')
+            page.locator('[data-feedback]').fill('The linked clues made sense.')
+            held[0].fallback()
+            page.wait_for_function('() => !!window.AlibiVoicesSheet')
+            page.get_by_text('Feedback changed. Save or discard your draft, then try again.', exact=True).wait_for()
+            check(not sheet_open(page) and review.is_disabled(), 'editing a Lab draft during loading cancels the stale composer and keeps Review disabled')
+            page.unroute('**/assets/voices.*.js')
+            save_lab_feedback(page, review, label)
+        review.focus()
+        check(review.evaluate('(e) => e === e.getRootNode().activeElement'), f'saved Lab feedback can receive keyboard focus at {label}')
+        try:
+            page.keyboard.press('Enter')
+            page.locator('#vo-text').wait_for()
+        finally:
+            lab_feedback_snapshot(review, label, 'keyboard-open-finished')
+        draft = page.locator('#vo-text').input_value()
+        check('constellation-01' in draft and 'Enjoyment: 4/5' in draft and 'just-right' in draft and 'The linked clues made sense.' in draft, f'saved Lab impressions are shown before sending at {label}')
+        check(page.locator('#vo-count').inner_text() == f'{len(draft)} of 2,000 characters', f'prefilled message count is correct at {label}')
+        check(not collector.voices(), f'opening the Lab composer sends nothing at {label}')
+        check(fits(page), f'Lab composer fits at {label}')
+        page.screenshot(path=str(SHOTS / f'voices-lab-{label}.png'))
+        close_sheet(page)
+        check(review.evaluate('(e) => e === e.getRootNode().activeElement'), f'Cancel returns to the Lab button at {label}')
+        review.click()
+        page.locator('#vo-text').fill(draft + '\nMore linked puzzles, please.')
+        page.locator('#vo-form').get_by_role('button', name='Send', exact=True).click()
+        page.get_by_text('It was sent.', exact=True).wait_for()
+        check(len(collector.voices()) == 1, f'one explicit Lab Send makes one request at {label}')
+        sent = collector.voices()[0]['body']
+        check(set(sent) == {'v','id','release','kind','route','subject','text','written','context'}, f'Lab keeps the existing closed message contract at {label}')
+        check(sent['subject'] == '' and sent['route'] == 'quiet-wing' and sent['kind'] == 'puzzle', f'Lab does not impersonate an official catalogue rating at {label}')
+        check(sent['text'] == draft + '\nMore linked puzzles, please.' and not any(x in sent['text'] for x in ('cells', 'undo', 'recovery', 'solution')), f'only the reviewed Lab text is submitted at {label}')
+        check(not local(page, KEY), f'Lab feedback creates no survey identity at {label}')
+        close_sheet(page)
+        check(page.locator('[data-feedback]').input_value() == 'The linked clues made sense.', f'composer edits do not rewrite the saved Lab note at {label}')
+        if viewport is PHONE:
+            page.locator('[data-feedback]').fill('x' * 2000)
+            save_lab_feedback(page, review, label)
+            review.click()
+            page.locator('.feedback-message', has_text='Shorten your note by').wait_for()
+            check(review.evaluate('(e) => e === e.getRootNode().activeElement'), 'an overlong-note error preserves the feedback control focus')
+            check(not sheet_open(page) and len(collector.voices()) == 1, 'an overlong saved Lab note opens no composer and sends nothing')
+            check(len(page.locator('[data-feedback]').input_value()) == 2000, 'an overlong Lab note remains intact')
+        context.close()
+
     # ---- Ineligible origin: explanation and the existing issue-report export ----
     collector = Collector()
     context, page = open_context(browser, collector, errors, origin=FALLBACK)
@@ -710,6 +805,10 @@ with sync_playwright() as pw:
     page.evaluate("location.hash='/settings'")
     page.locator('#vo-panel h2').wait_for()
     check('main Alibi site' in page.locator('#vo-panel').inner_text() and page.locator('#vo-survey').count() == 0, 'Settings explains the fallback without a survey')
+    page.evaluate("location.hash='/quiet/eclipse/constellation-01'")
+    page.get_by_role('heading', name='Constellation 1', exact=True).wait_for()
+    check(page.get_by_role('button', name='Review and send saved feedback', exact=True).count() == 0, 'Lab has no direct-send entry outside the primary origin')
+    check(page.get_by_role('link', name='Share feedback on GitHub').count() == 1, 'Lab retains the explicit GitHub handoff outside the primary origin')
     check(not collector.requests, 'an ineligible origin never contacts the collector')
     check(not errors, 'no page errors on any origin')
     context.close()
