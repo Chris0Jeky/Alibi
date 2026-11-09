@@ -169,6 +169,7 @@ jobs:
           ALIBI_URL=http://127.0.0.1:8797 python tests/browser_discovery_storage.py
           ALIBI_URL=http://127.0.0.1:8797 python tests/browser_narrow_layout.py
           ALIBI_URL=http://127.0.0.1:8797 python tests/browser_library_focus.py
+          python tests/browser_folio_fallback_stub.py
           ALIBI_URL=http://127.0.0.1:8797 python tests/browser_quiet_focus.py
           ALIBI_URL=http://127.0.0.1:8797 python tests/browser_quiet_motion.py
           ALIBI_URL=http://127.0.0.1:8797 python tests/browser_player_qa.py

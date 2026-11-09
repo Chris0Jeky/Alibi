@@ -90,17 +90,47 @@
       function icon(k) {
         return `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${ICONS[k] || ICONS.realm}"/></svg>`;
       }
+      function placeToast() {
+        const t = $('#toast'),
+          tools = $('.world-tools');
+        t.style.bottom = '';
+        t.style.transitionProperty = '';
+        if (A.route !== 'realm' || $('#modal').open || !tools || !t.classList.contains('show'))
+          return;
+        const box = tools.getBoundingClientRect(),
+          height = t.offsetHeight,
+          width = t.offsetWidth,
+          left = (G.innerWidth - width) / 2,
+          bottom = G.innerHeight - 26,
+          top = bottom - height;
+        t.style.transitionProperty = 'opacity, transform';
+        if (box.right <= left || box.left >= left + width || box.bottom <= top || box.top >= bottom)
+          return;
+        const above = box.top - height - 8,
+          below = box.bottom + 8,
+          target = above >= 8 ? above : below + height <= G.innerHeight - 8 ? below : 8;
+        t.style.bottom = `${Math.max(8, G.innerHeight - target - height)}px`;
+      }
       function toast(text) {
         const t = $('#toast');
         t.textContent = text;
         t.classList.add('show');
+        placeToast();
         clearTimeout(A.toastTimer);
-        A.toastTimer = setTimeout(() => t.classList.remove('show'), 4200);
+        A.toastTimer = setTimeout(() => {
+          t.classList.remove('show');
+          t.style.bottom = '';
+          t.style.transitionProperty = '';
+        }, 4200);
       }
+      G.addEventListener('scroll', placeToast, { signal: listeners.signal, capture: true });
+      G.addEventListener('resize', placeToast, { signal: listeners.signal });
       function modal(title, html) {
         const d = $('#modal');
         d.innerHTML = `<div class="dialog-body"><button class="close" aria-label="Close dialog" data-close>×</button><h2 id="modal-title">${esc(title)}</h2>${html}</div>`;
         if (!d.open) d.showModal();
+        placeToast();
+        d.addEventListener('close', placeToast, { once: true, signal: listeners.signal });
         $('[data-close]', d).onclick = () => d.close();
         d.addEventListener(
           'click',
@@ -351,6 +381,7 @@
             });
           },
         })[A.route]();
+        placeToast();
         if (A.route !== 'folio' && !G.ALIBI_CONFIG.standalone) {
           const atmosphere = document.createElement('label');
           atmosphere.className = 'ambient-choice';
