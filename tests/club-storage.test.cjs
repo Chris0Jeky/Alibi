@@ -518,10 +518,6 @@ group('Denied storage session warning', async () => {
 
 group('Club source guards', async () => {
   check(
-    /VersionError[\s\S]*\|\|\s*db/.test(clubSource),
-    'Unknown IndexedDB read stays protected instead of falling back (source guard)',
-  );
-  check(
     clubSource.includes('__clubReset === intent'),
     'Delayed borough confirmation only consumes its own reset intent (source guard)',
   );

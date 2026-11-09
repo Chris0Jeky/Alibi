@@ -185,8 +185,13 @@
   async function init(api) {
     bridge = api;
     let foundSave = false,
-      recoveredEmptyRunList = false;
+      recoveredEmptyRunList = false,
+      unavailable = false;
     try {
+      if (typeof indexedDB === 'undefined' || !indexedDB || typeof indexedDB.open !== 'function') {
+        unavailable = true;
+        throw Error('IndexedDB is unavailable.');
+      }
       db = await new Promise((resolve, reject) => {
         const r = indexedDB.open('alibi-afterhours-v1', 1);
         let abandoned = false;
@@ -250,10 +255,14 @@
         notify(saveError, true);
       };
     } catch (e) {
-      if (foundSave || e.name === 'BlockedError' || e.name === 'VersionError' || db) {
+      if (
+        foundSave ||
+        db ||
+        !(unavailable || e?.name === 'SecurityError' || e?.name === 'NotSupportedError')
+      ) {
         protectedSave = true;
         saveError =
-          'Club save was left untouched; this session is temporary. Export before closing, then reload.';
+          'Club storage could not be checked. Saves are untouched; this session is temporary. Export before closing, then reload.';
         db?.close();
         db = null;
       } else

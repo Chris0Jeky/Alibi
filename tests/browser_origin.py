@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import tempfile
 import time
@@ -2297,12 +2298,12 @@ def scenario_club_read_abort(pw: Any, root: Path) -> None:
         club = page.evaluate("AlibiClub.diagnostics()")
         check(club["storageMode"] == "session", "aborted club read stays in protected temporary session")
         warning = str(club.get("saveError", "")).lower()
-        check("left untouched" in warning, "aborted club read reports the save was left untouched")
+        check(bool(re.search(r"\bsaves?\b[^.]*\buntouched\b", warning)), "aborted club read reports the save was left untouched")
         check("temporary" in warning, "aborted club read reports a temporary session")
         check("export" in warning, "aborted club read asks for export")
         check("reload" in warning, "aborted club read asks for reload")
         body = page_text(page).lower()
-        check("left untouched" in body, "protected temporary warning is exposed in the UI")
+        check(bool(re.search(r"\bsaves?\b[^.]*\buntouched\b", body)), "protected temporary warning is exposed in the UI")
         check("export" in body, "export warning is exposed in the UI")
         check(
             page.evaluate("localStorage.getItem('alibi-afterhours-v1')") is None,
