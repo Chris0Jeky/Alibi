@@ -91,7 +91,7 @@
 .theatre-heading h2 {
   margin: 8px 0 0;
   font:
-    clamp(28px, 3.4vw, 44px)/1.1 Georgia,
+    min(clamp(28px, 3.4vw, 44px), var(--text-h1))/1.1 Georgia,
     serif;
   letter-spacing: -0.035em;
   color: #183b42;

@@ -28,6 +28,7 @@ export function mount({ root, store, save }) {
   const button = (text, action, value = '') =>
     `<button id="case-${action}-${escape(value)}" type="button" data-case-action="${action}" data-value="${escape(value)}">${escape(text)}</button>`;
   const current = () => !signal.aborted && root.isConnected;
+  const focusId = () => root.getRootNode().activeElement?.id;
   function receiptMarkup() {
     if (receipt) return receipt.markup();
     return `<section class="card case-receipt" aria-labelledby="case-receipt-title"><h2 id="case-receipt-title">Local playtest receipt</h2><p>Off until started. Counts stages, modes, hints, reveals and checks; prior help is marked. No answers, citations, notes, saves, devices or timings. Memory only; nothing is sent. First use may download the module.</p><div class="actions">${button('Start local playtest receipt', 'receipt-start')}</div></section>`;
@@ -38,12 +39,12 @@ export function mount({ root, store, save }) {
     for (const el of root.querySelectorAll('button,select,input,textarea'))
       el.disabled = busy || store.mode !== 'local';
   }
-  function draw(focused = root.getRootNode().activeElement?.id) {
+  function draw(focused = focusId()) {
     if (!current()) return;
     const story = store.state.preferences.story;
     if (previousStory !== undefined && previousStory !== story) receipt?.mode(story);
     previousStory = story;
-    root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player select{max-width:100%;min-height:44px}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}.case-player .actions{flex-wrap:wrap}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>Fictional case, separate from Wrenmere Chapter I. Wording and fairness await review. No points.</p><p role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
+    root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>Fictional case, separate from Wrenmere Chapter I. Wording and fairness await review. No points.</p><p role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
     const area = root.querySelector('[data-case-content]');
     if (!definition || !record()) {
       area.innerHTML = `<p>Install to save drafts and accepted answers in your Castle notebook. Export the Notebook before changing devices. Installation needs connection and device storage.</p>${button(record() ? 'Retry opening saved case' : 'Install experimental case', 'install')}`;
@@ -60,7 +61,7 @@ export function mount({ root, store, save }) {
         .map((s) => button(s.title, 'stage', s.id))
         .join(
           '',
-        )}</nav><h2 tabindex="-1" id="case-stage">${escape(step.title)}</h2><p>${escape(projection.prompt)}</p><section aria-label="Case sources">${projection.records.map((r) => `<article class="card" tabindex="-1" id="case-source-${escape(r.id)}"><h3>${escape(r.title)}</h3><p>${escape(r.kind)} · ${escape(r.source)}</p><p>${escape(r.text)}</p></article>`).join('')}</section><form>${projection.claims.map((claim, i) => `<fieldset><legend>${escape(claim.text)}</legend><label for="case-verdict-${i}">Verdict</label><select id="case-verdict-${i}" data-case-verdict="${i}">${verdicts.map((v) => `<option value="${v}" ${c.drafts[stage][i][0] === v ? 'selected' : ''}>${v ? v.replaceAll('-', ' ') : 'Choose a verdict'}</option>`).join('')}</select><p>Smallest sufficient source set</p>${projection.records.map((r, j) => `<label><input type="checkbox" id="case-cite-${i}-${j}" data-case-cite="${i}" value="${escape(r.id)}" ${c.drafts[stage][i][1].includes(r.id) ? 'checked' : ''}> ${escape(r.title)}</label>`).join('')}</fieldset>`).join('')}<div class="actions">${button('Check this stage', 'check')}${button('Next hint', 'hint')}${button('Show worked answer', 'reveal')}</div></form>${projection.hints
+        )}</nav><h2 tabindex="-1" id="case-stage">${escape(step.title)}</h2><p>${escape(projection.prompt)}</p><section aria-label="Case sources">${projection.records.map((r) => `<article class="card" tabindex="-1" id="case-source-${escape(r.id)}"><h3>${escape(r.title)}</h3><p>${escape(r.kind)} · ${escape(r.source)}</p><p>${escape(r.text)}</p></article>`).join('')}</section><form>${projection.claims.map((claim, i) => `<fieldset><legend>${escape(claim.text)}</legend><label for="case-verdict-${i}">Verdict</label><select id="case-verdict-${i}" data-case-verdict="${i}"${message.startsWith('Check') && !c.drafts[stage][i][0] ? ' aria-invalid=true' : ''}>${verdicts.map((v) => `<option value="${v}" ${c.drafts[stage][i][0] === v ? 'selected' : ''}>${v ? v.replaceAll('-', ' ') : 'Choose a verdict'}</option>`).join('')}</select><p>Smallest sufficient source set</p><div role=group aria-label=Sources>${projection.records.map((r, j) => `<label><input type="checkbox" id="case-cite-${i}-${j}" data-case-cite="${i}" value="${escape(r.id)}" ${c.drafts[stage][i][1].includes(r.id) ? 'checked' : ''}> ${escape(r.title)}</label>`).join('')}</div></fieldset>`).join('')}<div class="actions">${button('Check this stage', 'check')}${button('Next hint', 'hint')}${button('Show worked answer', 'reveal')}</div></form>${projection.hints
         .slice(0, c.hints[stage])
         .map(
           (h) =>
@@ -164,7 +165,7 @@ export function mount({ root, store, save }) {
   }
   async function run(operation, focusAfter) {
     if (busy || !current()) return;
-    const focused = root.getRootNode().activeElement?.id;
+    const focused = focusId();
     busy = true;
     message = 'Saving or preparing…';
     status();

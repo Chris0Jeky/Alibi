@@ -85,7 +85,7 @@ body.zen .folio-invitation {
   padding: 40px;
 }
 .quiet-invitation-copy h2 {
-  font-size: clamp(30px, 3vw, 44px);
+  font-size: min(clamp(30px, 3vw, 44px), var(--text-h1));
   margin: 15px 0;
 }
 .quiet-invitation-copy p {
