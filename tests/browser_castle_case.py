@@ -444,6 +444,10 @@ def run():
                     case_click(page, 'check')
                     assert read(page) == committed
                 expect(page.get_by_role('heading', name='Case complete')).to_be_visible()
+                # Revisiting the earlier revealed stage must not claim it is incomplete.
+                case_click(page, 'stage', SOURCE['steps'][0]['id'])
+                assert len(read(page)['state']['caseStudy']['answers']) == 3
+                expect(page.get_by_role('heading', name='Worked answer · does not complete stage')).to_be_visible()
                 case_click(page, 'stage', SOURCE['steps'][1]['id'])
                 accepted = read(page)['state']['caseStudy']
                 for story in [False, True]:

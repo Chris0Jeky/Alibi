@@ -44,7 +44,7 @@ def run():
                     assert not any('/assets/workshop/' in url or '/collections/' in url for url in requests), 'no automatic shelf/data fetch'
                     before = page.evaluate('AlibiDiagnostics.getCounts()')
                     adder.press('Enter')
-                    link = page.get_by_role('link', name='Browse downloads (new tab)', exact=True)
+                    link = page.get_by_role('link', name='Downloads (new tab)', exact=True)
                     with context.expect_page() as opened:
                         link.press('Enter')
                     page.keyboard.press('Escape')

@@ -112,7 +112,7 @@ async function delegatedPicker() {
     released = [];
   const validatedBackup = {
     runs: [{ key: 'synthetic-existing' }, { key: 'synthetic-missing' }],
-    packs: [{ id: 'synthetic-pack' }],
+    packs: [{ id: 'synthetic-pack', puzzles: [{}] }],
   };
   const previousBackup = { runs: [{ key: 'synthetic-previous' }], packs: [] };
   const newerBackup = { runs: [{ key: 'synthetic-newer' }], packs: [] };
@@ -127,6 +127,11 @@ async function delegatedPicker() {
     newerBackup,
     state,
     records: new Map([['synthetic-existing', {}]]),
+    starter: { id: 'starter', puzzles: [] },
+    packs: [{ id: 'starter', puzzles: [] }],
+    all: () => [],
+    packAdvice: 'Export and remove packs to add more.',
+    packWarning: (text) => `<p class="notice pack-limit" role="status">${text}</p>`,
     platform: {
       documents: {
         pickBackup: async (options) => {
@@ -252,7 +257,7 @@ for (const navigated of [false, true]) {
           if (published) {
             assert.match(fixture.dialogs[0].body, /2 saved puzzles/);
             assert.match(fixture.dialogs[0].body, /1 custom packs/);
-            assert.match(fixture.dialogs[0].body, /1 saved puzzle already exists/);
+            assert.match(fixture.dialogs[0].body, /Already saved: 1/);
             assert.deepEqual(
               Array.from(fixture.dialogs[0].actions, (action) => action.action),
               ['restore-merge', 'restore-replace', 'export', 'close-dialog'],
