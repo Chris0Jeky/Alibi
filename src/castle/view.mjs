@@ -50,6 +50,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     mapZoom = 4,
     search = '',
     filter = 'all',
+    routeNotice = '',
     inspectablesVisible = true;
   let active = null,
     answer,
@@ -149,7 +150,10 @@ export async function mount({ root, preferences = null, practice = null }) {
     header();
     if (view === 'case') return;
     $('#castle-main').innerHTML =
-      view === 'room'
+      (routeNotice
+        ? `<p class="page" id="castle-route-notice" role="status">${escape(routeNotice)}</p>`
+        : '') +
+      (view === 'room'
         ? pages().roomPage()
         : view === 'museum'
           ? pages().museumPage()
@@ -157,7 +161,7 @@ export async function mount({ root, preferences = null, practice = null }) {
             ? pages().notebook()
             : view === 'directory'
               ? pages().directory()
-              : pages().mapPage();
+              : pages().mapPage());
     updateStatus();
   }
   function focusPracticeStarter() {
@@ -240,11 +244,11 @@ export async function mount({ root, preferences = null, practice = null }) {
   async function exportSave() {
     await store.pending;
     download(store.export(), 'alibi-castle-save.json');
-    announce('Castle export prepared. Check that your browser saved the file.');
+    announce('Castle export ready. Check your downloads.');
     if (store.mode !== 'local')
       show(
         'Keep this notebook',
-        `<p>Check your browser’s downloads and keep the castle JSON file somewhere safe. Downloading alone does not confirm that it was saved.</p><p>After confirmation, Alibi can update while the exported notebook remains unchanged. The protected device record will still be left untouched.</p>${button('I saved this file', 'acknowledge-export', '', 'class="primary"')}`,
+        `<p>Check Downloads and keep the Castle JSON file safe. Downloading alone does not confirm it was saved.</p><p>After confirmation, Alibi can update. The exported notebook and protected device record remain unchanged.</p>${button('I saved this file', 'acknowledge-export', '', 'class="primary"')}`,
       );
   }
   function reviewRestore(data) {
@@ -273,7 +277,7 @@ export async function mount({ root, preferences = null, practice = null }) {
           : !importedNotes
             ? 'Merged discoveries. The file had no notes to add. A recovery copy is available.'
             : state.notes === beforeNotes
-              ? 'Merged discoveries. The reviewed notebook text was already present or matched this notebook, so it was kept once. A recovery copy is available.'
+              ? 'Merged discoveries. The reviewed notes were already present and kept once. A recovery copy is available.'
               : 'Merged discoveries. Distinct imported notes are labelled and a recovery copy is available.',
       );
     } finally {
@@ -861,13 +865,17 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (dialog.open) dialog.close();
     dialog.replaceChildren();
     const next = rootRoute();
+    routeNotice = '';
     view = ['map', 'museum', 'journal', 'directory', 'room', 'case'].includes(next.view)
       ? next.view
       : 'map';
     if (view === 'room') {
-      const r = W.rooms.find((r) => r.id === next.id);
-      if (!r || !E.roomStatus(state, r).open || r.id === 'museum') view = 'map';
-      else selected = r.id;
+      const r = W.rooms.find((r) => r.id === next.id),
+        status = r && E.roomStatus(state, r);
+      if (!status?.open || r.id === 'museum') {
+        routeNotice = status && !status.open ? `Locked. ${status.reason}` : '';
+        view = 'map';
+      } else selected = r.id;
     }
     // The grounds preselect the thread's next room.
     if (view === 'map') selected = thread(state)[1][0] || selected;
@@ -893,6 +901,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     // mount cannot show a modal.
     if (
       view === 'map' &&
+      !routeNotice &&
       !greeted &&
       root.host.isConnected &&
       state.preferences.story &&

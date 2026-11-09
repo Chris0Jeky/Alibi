@@ -686,6 +686,7 @@ small,
   color: #957333;
 }
 .family-card h3 {
+  overflow-wrap: anywhere;
   font-size: var(--text-h3);
 }
 .family-card p {
@@ -1781,7 +1782,7 @@ input[type='checkbox'] {
 }
 .main-tools {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 7px;
   margin-top: 18px;
   padding-top: 18px;

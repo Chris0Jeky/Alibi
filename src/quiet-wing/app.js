@@ -2060,7 +2060,7 @@
           record: 'https://www.artic.edu/artworks/80607/self-portrait',
           api: 'https://api.artic.edu/api/v1/artworks/80607',
           aic: 80607,
-          rights: 'Verify is_public_domain in the AIC API before download',
+          rights: 'Public Domain · Joseph Winterbotham Collection',
           note: 'A portrait for the club’s art room, with the artist credited as artist rather than a fictional witness.',
         },
         bedroom: {
@@ -2071,7 +2071,7 @@
           record: 'https://www.artic.edu/artworks/28560/the-bedroom',
           api: 'https://api.artic.edu/api/v1/artworks/28560',
           aic: 28560,
-          rights: 'Verify is_public_domain in the AIC API before download',
+          rights: 'Public Domain · Helen Birch Bartlett Memorial Collection',
           note: 'A useful reference for intimate, slightly askew rooms and warm-coloured objects.',
         },
         sunday: {
@@ -2082,7 +2082,7 @@
           record: 'https://www.artic.edu/artworks/27992/a-sunday-on-la-grande-jatte-1884',
           api: 'https://api.artic.edu/api/v1/artworks/27992',
           aic: 27992,
-          rights: 'Verify is_public_domain in the AIC API before download',
+          rights: 'Public Domain · Helen Birch Bartlett Memorial Collection',
           note: 'A public-domain candidate for the slow-looking room and a pointillist palette study.',
         },
       };
