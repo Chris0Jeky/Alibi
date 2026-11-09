@@ -1,6 +1,6 @@
 # Rooms after closing: six original playable rehearsals
 
-Implementation under #460/#466, stacked on foundation PR #480. This is a self-contained experimental anthology, not a new official pack, production save format or deployed Wrenmere chapter. The research remains in #478. All existing live content, identifiers, saves, origins and byte ceilings are untouched.
+Implementation under #460/#466, stacked on foundation PR #480. PR #478 (research), #480 (state/recovery foundation) and #481 (six-room anthology) are merged. This is a self-contained experimental anthology, not a new official pack, production save format or deployed Wrenmere chapter. All existing live content, identifiers, saves, origins and byte ceilings are untouched. Status and historical evidence were reconciled on 9 November 2026; see [the dated handoff](../state/2026-11-09-escape-status-reconciliation.md).
 
 ## Build and play
 
@@ -16,18 +16,18 @@ Open the newly created HTML. The builder refuses an existing output, duplicate r
 
 ## Content and scope
 
-| Room | Reasoning and mechanism | Reachable states / successful-or-no-op edges |
-| --- | --- | --- |
-| Tidekeeper's Workshop | Ordering and fixed-offset calibration meet at a reversible handle/clutch mechanism | 49 / 325 |
-| Printmaker's Cabinet | Ordering, mirrored transfer and registration produce a new proof, then a route ordering | 120 / 733 |
-| Moonseed Conservatory | Reusable prism and overlapping shutter patterns with complete numbered-bed observations | 33 / 185 |
-| Herbarium Lift | Pairwise mass equations, two-bracket constraint and accession chronology | 30 / 161 |
-| Counterweight Loft | Shared balance, a persistent safety latch and later reuse of a single tool | 405 / 4294 |
-| Clockmaker's Rehearsal | Bounded cyclic alignment, reusable spring, tension and routing | 11 / 47 |
+| Room                   | Reasoning and mechanism                                                                 | Reachable states / successful-or-no-op edges |
+| ---------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Tidekeeper's Workshop  | Ordering and fixed-offset calibration meet at a reversible handle/clutch mechanism      | 49 / 325                                     |
+| Printmaker's Cabinet   | Ordering, mirrored transfer and registration produce a new proof, then a route ordering | 120 / 733                                    |
+| Moonseed Conservatory  | Reusable prism and overlapping shutter patterns with complete numbered-bed observations | 33 / 185                                     |
+| Herbarium Lift         | Pairwise mass equations, two-bracket constraint and accession chronology                | 30 / 161                                     |
+| Counterweight Loft     | Shared balance, a persistent safety latch and later reuse of a single tool              | 405 / 4294                                   |
+| Clockmaker's Rehearsal | Bounded cyclic alignment, reusable spring, tension and routing                          | 11 / 47                                      |
 
 All 648 reachable states in these declared models retain a route to completion. The 5745 counted edges include valid no-op actions; they are not a count of human solutions. Independent enumeration in tests reconstructs the transition graph separately and compares counts, projections and effects. Wrong inputs remain no-ops. All actions are reachable. These are finite-model facts, not a proof of human clue comprehension or difficulty.
 
-The first pair implements #466's room sources. Moonseed and Herbarium advance two of #472's three rooms; Rain Collector is still a treatment. Counterweight advances one #473 room; Clockmaker advances one #474 room. The other six of the research's twelve treatments remain unimplemented. Do not close the anthology epics or describe all twelve as shipped.
+The first pair implements #466's room sources. Moonseed and Herbarium advance two of #472's three rooms; Rain Collector is still a treatment. Counterweight advances one #473 room; Clockmaker advances one #474 room. The other six treatments remain unimplemented: Rain Collector, Fogbound Exchange, Mapmaker's Fold, Lost Property Counter, Projection Booth and House of Departures. Do not describe all twelve as shipped.
 
 ## Player and authoring seams
 
@@ -45,7 +45,7 @@ A render epoch makes stale detached controls inert. Wrong attempts retain text a
 
 Several state representations are intentionally abstract: bracket arrangements are grouped instead of independently movable weights; Clockmaker accepts a derived turn count instead of modeling sixty individual ticks; successful deduction inputs become transitions in recovery analysis. This permits proof within existing bounds without claiming a physical simulator. No room has been human-calibrated as Expert or Master. Increasing depth and illustration should follow observed play, not cosmetic difficulty labels.
 
-## Verification
+## Verification and current status
 
 ```sh
 node --test tests/escape-*.test.cjs
@@ -56,8 +56,8 @@ python tests/browser_escape_rooms.py
 
 The last command normally loads the actual generated file offline. It plays all six rooms at 320x780, 1280x900 and 844x390, including wrong inputs, help/reveal, notes, room changes, undo, stale detached events, restart/cancel and fresh-document reset. It checks zero external requests/page errors and hostile authored text. The workflow records exact source head, generated HTML, model/source receipts, screenshots, formatter diagnostics, browser receipt and full verify output.
 
-Local Node verification: 93 passed after recorded failing tests. Local DOM-only Chromium verification: 18 room/viewport cases passed. This uses the explicitly labelled `ESCAPE_DOM_ONLY=1` mode because normal file navigation is policy-blocked locally. It is not file transport, real-origin persistence, physical-device or human acceptance. Current-head CI must supply normal file-mode and full application evidence. Local npm cache lacks a dependency and registry DNS failed; local full build/formatter is not claimed. The workflow never modifies or publishes source.
+The local 93-test result and 18 DOM-only Chromium cases were planning evidence, not final acceptance. PR #481's tested code head `2846aaff0737a3f090e6de349352e57efefdf274` passed its dedicated rehearsal with 93 focused tests and 18 actual offline-file cases, along with controls, Android and full workflows. The full verification run at that then-head reported 844 Node tests. The reviewed head `77744f61` is a documentation-only handoff descendant of the tested code. The PR merged as `53ddeb8f8314d97867d77a949848d6170e10bb94` on 17 October. An independent review comment recorded no correctness, security or data-loss defect; no formal GitHub `APPROVED` review is claimed.
 
 ## Remaining promotion work
 
-No new production route, save, deployment or automatic collection installation is included. #467/#47 own spatial inspector integration; #442 owns a named existing save authority with revision pinning, CAS, old/future saves, lifecycle disposal, backup/import and recovery; #433 owns optional delivery. Those gates cannot be inferred from this memory-only player. #468/#469/#470 retain independent editorial, spoiler/accessibility and physical-device review. Current-head CI, independent review and repository aging precede any merge.
+No escape-room production route, durable escape save, deployment or automatic collection installation is included. The memory-only Castle adapter was implemented under #467 and its focused tests cover all 648 declared states; mounting it in the shipped Castle remains open under #467. The existing Castle case host/save authority was completed under #442 in October and is not an outstanding escape-room adapter task. #47 retains the existing inspector contract. Shared optional-delivery infrastructure has landed through #433 follow-up PRs #805, #906 and #910; #433 remains open for constrained-device measurements and wider coverage, and no escape-room route is included here. The first keyboard/nonvisual parity slice in #470 merged; screen-reader, physical-device, editorial and human difficulty acceptance remain unproven. Track those limits against the existing issues and [HUMAN_TODO.md](../../HUMAN_TODO.md). No production release or human playtest is claimed.
