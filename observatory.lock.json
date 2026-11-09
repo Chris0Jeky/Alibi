@@ -6,7 +6,7 @@
     "observatory/pulseboard.js": {
       "project": "alibi",
       "sdk": "3.3.1",
-      "sha256": "bab031c2059b084df53b593a02147b2acaacfd29b1c3f9543384eae7b6e22f93"
+      "sha256": "ca32aa5b6c9f5a4ff3f7c3aee9248cc1646081bbfcdb4b38dc95574cf109d690"
     }
   }
 }
