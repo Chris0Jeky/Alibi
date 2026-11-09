@@ -53,10 +53,16 @@ function fixture(subject, worker) {
     requests = [];
   const previousAll = { sections: { cabinet, club: {} }, warnings: [] };
   const previousBackup = { runs: [{ key: 'previous' }], packs: [] };
+  const starter = { id: 'starter', puzzles: [] };
   const context = {
     previousAll,
     previousBackup,
     records: new Map([['existing', {}]]),
+    starter,
+    packs: [starter],
+    all: () => starter.puzzles,
+    packAdvice: 'Export and remove packs to add more.',
+    packWarning: (text) => `<p class="notice pack-limit" role="status">${text}</p>`,
     esc: (text) => text,
     dialog: (title, body, actions) => dialogs.push({ title, body, actions }),
     inWorker: (request) => {
@@ -110,7 +116,7 @@ for (const subject of cases) {
       assert.equal(f.api.pendingBackup, cabinet);
       assert.match(f.dialogs[0].body, /2 saved puzzles/);
       assert.match(f.dialogs[0].body, /1 custom packs/);
-      assert.match(f.dialogs[0].body, /1 saved puzzle already exists/);
+      assert.match(f.dialogs[0].body, /Already saved: 1/);
       assert.deepEqual(
         Array.from(f.dialogs[0].actions, (action) => action.action),
         ['restore-merge', 'restore-replace', 'export', 'close-dialog'],

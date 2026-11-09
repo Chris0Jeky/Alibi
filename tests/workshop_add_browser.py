@@ -141,6 +141,32 @@ def run():
                     assert counts['puzzles'] == base['puzzles'] + len(afterlight['puzzles'])
                     checks.append({'width': width, 'case': 'afterlight-added-played-saved'})
 
+                    # A stalled response before headers is aborted; late bytes are discarded.
+                    button, dialog = open_adder(page)
+                    before_header = page.evaluate(ROWS)
+                    page.evaluate("""() => {
+                        const original = window.fetch, timer = window.setTimeout;
+                        window.__headerWait = {original, timer};
+                        window.setTimeout = (fn, ms, ...args) => timer(fn, ms === 10000 ? 10 : ms, ...args);
+                        window.fetch = (url, options) => String(url).includes('/assets/workshop/lattice.')
+                            ? new Promise(resolve => Object.assign(window.__headerWait, {resolve, options}))
+                            : original(url, options);
+                    }""")
+                    add(page, dialog, lattice['title'])
+                    expect(dialog.locator('[role="status"]')).to_contain_text('stalled', timeout=20000)
+                    expect(dialog.get_by_role('button', name=f"Add {lattice['title']}", exact=True)).to_be_enabled()
+                    assert page.evaluate('() => window.__headerWait.options.signal.aborted')
+                    page.evaluate("""() => {
+                        const pending = window.__headerWait;
+                        window.fetch = pending.original; window.setTimeout = pending.timer;
+                        pending.resolve(new Response(new ReadableStream({cancel() { pending.bodyCancelled = true; }})));
+                    }""")
+                    page.wait_for_function('() => window.__headerWait.bodyCancelled === true')
+                    assert page.evaluate(ROWS) == before_header
+                    page.keyboard.press('Escape')
+                    expect(button).to_be_focused()
+                    checks.append({'width': width, 'case': 'header-stall-aborted-late-body-discarded'})
+
                     # Closing or navigating away cancels even a fetch implementation that
                     # ignores abort and supplies its response later. No importer may run.
                     for cancel in ('escape', 'close', 'navigation'):
@@ -432,8 +458,8 @@ def run():
                     context.close()
         finally:
             browser.close()
-    if len(checks) != 32:
-        failures.append({'coverage': len(checks), 'expected': 32})
+    if len(checks) != 34:
+        failures.append({'coverage': len(checks), 'expected': 34})
     receipt = {'sourceHead': os.environ.get('EXPECTED_HEAD', 'local'), 'passed': not failures,
                'checks': checks, 'failures': failures,
                'scope': 'Built origin, service worker and IndexedDB; no physical device or screen reader.'}

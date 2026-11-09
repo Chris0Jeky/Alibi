@@ -1476,8 +1476,14 @@
       )
       .join('')}</ul></section>`;
   }
+  const packAdvice = 'Export and remove packs to add more.';
+  function packWarning(text) {
+    return `<p class="notice pack-limit" role="status">${text}</p>`;
+  }
   function packDesk() {
-    return `<div class="workshop-grid"><section class="panel"><h2>Bring another collection.</h2><p>Import a JSON puzzle pack. The browser checks the format, rules and uniqueness in a background worker before adding anything.</p><div class="drop-zone">${icon('upload')}<p>A data-only pack for any supported puzzle family.</p>${B('Choose a JSON pack', 'import-pack', 'upload')}</div><p class="fine">Maximum 3 MB, 150 puzzles per pack. Imports cannot overwrite an existing puzzle ID. Validation is bounded and aborts safely if a pack is too expensive to check.</p><div class="row actions">${B('Export all starter examples', 'export-template', 'download', 'secondary')}${B('Authoring guide', 'work-tab', 'book', 'ghost', 'data-value="guide"')}</div></section><section class="panel"><h2>On your workbench.</h2><p>Installed custom packs stay local. To share one, export it and give the JSON file to another player.</p><div class="library-summary"><div class="mini-stat"><strong>${C.TYPES.length}</strong><small>Supported engines</small></div><div class="mini-stat"><strong>${packs.length - 1}</strong><small>Custom packs</small></div><div class="mini-stat"><strong>${all().length - starter.puzzles.length}</strong><small>Custom puzzles</small></div></div><div id="pack-list">${
+    const total = all().length,
+      custom = total - starter.puzzles.length;
+    return `<div class="workshop-grid"><section class="panel"><h2>Bring another collection.</h2><p>Import a JSON puzzle pack. The browser checks the format, rules and uniqueness in a background worker before adding anything.</p><div class="drop-zone">${icon('upload')}<p>A data-only pack for any supported puzzle family.</p>${B('Choose a JSON pack', 'import-pack', 'upload')}</div><p class="fine">Maximum 3 MB, 150 puzzles per pack. Imports cannot overwrite an existing puzzle ID. Validation is bounded and aborts safely if a pack is too expensive to check.</p><div class="row actions">${B('Export all starter examples', 'export-template', 'download', 'secondary')}${B('Authoring guide', 'work-tab', 'book', 'ghost', 'data-value="guide"')}</div></section><section class="panel"><h2>On your workbench.</h2><p>Installed custom packs stay local. To share one, export it and give the JSON file to another player.</p><div class="library-summary"><div class="mini-stat"><strong>${C.TYPES.length}</strong><small>Supported engines</small></div><div class="mini-stat"><strong>${packs.length - 1}</strong><small>Custom packs</small></div><div class="mini-stat"><strong>${custom}</strong><small>Custom puzzles</small></div></div><div id="pack-list">${total > 3000 ? packWarning(`${total} total (${custom} custom) exceed the 3,000-puzzle import limit. Packs stay playable; ${packAdvice}`) : ''}${
       packs
         .slice(1)
         .map(
@@ -2647,7 +2653,7 @@
       const conflicts = pendingBackup.runs.filter((r) => records.has(r.key)).length;
       dialog(
         'Restore your progress.',
-        `<p>Backup: <strong>${pendingBackup.runs.length} saved puzzles</strong> and ${pendingBackup.packs.length} custom packs. ${conflicts} saved puzzle${conflicts === 1 ? ' already exists' : 's already exist'} on this device.</p><p><strong>Add missing only</strong> keeps current saves and adds missing records. <strong>Replace device data</strong> replaces all progress and packs with this backup.</p><p class="fine">Both are atomic and keep a pre-restore recovery copy. Export first for an independent backup.</p>`,
+        `<p>Backup: ${pendingBackup.runs.length} saved puzzles, ${pendingBackup.packs.length} custom packs. Already saved: ${conflicts}.</p>${pendingBackup.packs.length ? packWarning(`Restores can exceed 3,000 puzzles. ${packAdvice}`) : ''}<p><strong>Add missing only</strong> keeps current data and adds missing records. <strong>Replace</strong> replaces all progress and packs with this backup.</p><p class="fine">Both are atomic and save a recovery copy; export first.</p>`,
         [
           { label: 'Add missing only', action: 'restore-merge', icon: 'upload' },
           { label: 'Replace device data', action: 'restore-replace', danger: true },

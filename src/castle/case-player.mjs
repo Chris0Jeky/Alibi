@@ -30,7 +30,7 @@ export function mount({ root, store, save }) {
   const current = () => !signal.aborted && root.isConnected;
   function receiptMarkup() {
     if (receipt) return receipt.markup();
-    return `<section class="card case-receipt" aria-labelledby="case-receipt-title"><h2 id="case-receipt-title">Local playtest receipt</h2><p>Off until started. It counts stages, modes, hints, reveals and checks; earlier help is marked prior. No answers, citations, notes, saves, devices or timings. It stays in memory; nothing is sent. First use may download the module.</p><div class="actions">${button('Start local playtest receipt', 'receipt-start')}</div></section>`;
+    return `<section class="card case-receipt" aria-labelledby="case-receipt-title"><h2 id="case-receipt-title">Local playtest receipt</h2><p>Off until started. Counts stages, modes, hints, reveals and checks; prior help is marked. No answers, citations, notes, saves, devices or timings. Memory only; nothing is sent. First use may download the module.</p><div class="actions">${button('Start local playtest receipt', 'receipt-start')}</div></section>`;
   }
   function status() {
     if (!current()) return;
@@ -43,10 +43,10 @@ export function mount({ root, store, save }) {
     const story = store.state.preferences.story;
     if (previousStory !== undefined && previousStory !== story) receipt?.mode(story);
     previousStory = story;
-    root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player select{max-width:100%;min-height:44px}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}.case-player .actions{flex-wrap:wrap}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>This fictional study is separate from Wrenmere Chapter I. Wording and fairness still await editorial review. It adds no points.</p><p role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
+    root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player select{max-width:100%;min-height:44px}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}.case-player .actions{flex-wrap:wrap}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>Fictional case, separate from Wrenmere Chapter I. Wording and fairness await review. No points.</p><p role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
     const area = root.querySelector('[data-case-content]');
     if (!definition || !record()) {
-      area.innerHTML = `<p>Install on request to keep drafts and accepted answers in your Castle notebook. Export it from the Notebook before changing devices. Installation needs a connection and device storage.</p>${button(record() ? 'Retry opening saved case' : 'Install experimental case', 'install')}`;
+      area.innerHTML = `<p>Install to save drafts and accepted answers in your Castle notebook. Export the Notebook before changing devices. Installation needs connection and device storage.</p>${button(record() ? 'Retry opening saved case' : 'Install experimental case', 'install')}`;
     } else {
       const c = record(),
         step = definition.steps[stage];
@@ -55,7 +55,7 @@ export function mount({ root, store, save }) {
         ids
           .map((id) => button(definition.records.find((r) => r.id === id).title, 'source', id))
           .join(' ');
-      area.innerHTML = `<p>${offline ? 'Case ready offline.' : 'Offline files unavailable; reconnect to retain them.'} ${c.answers.length}/3 stages accepted.</p>${button('Share invitation', 'share-open')}${share.text === null ? '' : `<section class="card" aria-labelledby="case-share-title"><h2 id="case-share-title">Share an invitation</h2><p>No progress, notes or answers are included. Copy only if you choose.</p><p id="case-share-text" tabindex="-1" style="white-space:pre-wrap">${escape(share.text)}</p><div class="actions">${button('Copy invitation', 'share-copy')}${button('Cancel', 'share-cancel')}</div></section>`}${receiptMarkup()}<p>${escape(definition.intro[story ? 'storyOn' : 'storyOff'])}</p>${button(story ? 'Turn story off' : 'Turn story on', 'story')}<nav class="actions" aria-label="Case stages">${definition.steps
+      area.innerHTML = `<p>${offline ? 'Case ready offline.' : 'Offline files unavailable; reconnect to retain them.'} ${c.answers.length}/3 stages accepted.</p>${button('Share invitation', 'share-open')}${share.text === null ? '' : `<section class="card" aria-labelledby="case-share-title"><h2 id="case-share-title">Share an invitation</h2><p>No progress, notes or answers are included. Copy if you choose.</p><p id="case-share-text" tabindex="-1" style="white-space:pre-wrap">${escape(share.text)}</p><div class="actions">${button('Copy invitation', 'share-copy')}${button('Cancel', 'share-cancel')}</div></section>`}${receiptMarkup()}<p>${escape(definition.intro[story ? 'storyOn' : 'storyOff'])}</p>${button(story ? 'Turn story off' : 'Turn story on', 'story')}<nav class="actions" aria-label="Case stages">${definition.steps
         .filter((s) => Session.available(definition, completed()).includes(s.id))
         .map((s) => button(s.title, 'stage', s.id))
         .join(
@@ -68,7 +68,7 @@ export function mount({ root, store, save }) {
         )
         .join(
           '',
-        )}${c.revealed[stage] ? `<aside class="card"><h3>Worked answer · does not complete the stage</h3><p>${escape(Session.worked(definition, completed(), step.id, story).text)}</p>${refs(step.workedAnswer.records)}</aside>` : ''}${c.answers.length === 3 ? `<h2>Case complete</h2><p>${escape(definition.ending[story ? 'storyOn' : 'storyOff'])}</p>` : ''}`;
+        )}${c.revealed[stage] ? `<aside class="card"><h3>Worked answer · does not complete stage</h3><p>${escape(Session.worked(definition, completed(), step.id, story).text)}</p>${refs(step.workedAnswer.records)}</aside>` : ''}${c.answers.length === 3 ? `<h2>Case complete</h2><p>${escape(definition.ending[story ? 'storyOn' : 'storyOff'])}</p>` : ''}`;
     }
     if (focused) root.querySelector(`#${CSS.escape(focused)}`)?.focus({ preventScroll: true });
     status();
@@ -111,14 +111,14 @@ export function mount({ root, store, save }) {
     );
     if (!current()) return;
     offline = !!(await cache.match(base)) && !!(await cache.match(sourceURL));
-    if (!offline) throw Error('Case files were not retained. Nothing was installed.');
+    if (!offline) throw Error('Case files not retained. Nothing was installed.');
     definition = source;
     if (install && !record())
       await change((n) => {
         n.caseStudy = freshCase();
       });
     stage = Math.min(record()?.answers.length || 0, 2);
-    message = install ? 'Case installed and saved on this device.' : '';
+    message = install ? 'Case installed and saved locally.' : '';
   }
   async function loadReceiptModule() {
     const spec = config.receipt;
@@ -166,7 +166,7 @@ export function mount({ root, store, save }) {
     if (busy || !current()) return;
     const focused = root.getRootNode().activeElement?.id;
     busy = true;
-    message = 'Saving or preparing the case…';
+    message = 'Saving or preparing…';
     status();
     try {
       await operation();
@@ -221,8 +221,7 @@ export function mount({ root, store, save }) {
             const result = await share.copy((text) => navigator.clipboard.writeText(text));
             if (result === 'copied') message = 'Invitation copied.';
             else if (result === 'blocked')
-              message =
-                'The browser blocked copying. Select the invitation text to copy it yourself.';
+              message = 'Browser blocked copying. Select the invitation text to copy.';
           } else if (action === 'receipt-start') {
             const stageId = definition.steps[stage].id;
             const saved = record();
@@ -263,7 +262,7 @@ export function mount({ root, store, save }) {
               n.preferences.story = !n.preferences.story;
             });
             receipt?.mode(store.state.preferences.story);
-            message = 'Story mode changed. Drafts and progress retained.';
+            message = 'Story changed. Drafts and progress kept.';
           } else if (action === 'check') {
             const step = definition.steps[stage],
               answers = record().drafts[stage];
@@ -284,11 +283,10 @@ export function mount({ root, store, save }) {
               }));
             if (!result.ok) {
               if (receipt?.enabled) receipt.submission(step.id, false, receiptShape());
-              message =
-                'Check your verdicts and smallest sufficient source sets. Your draft is kept.';
+              message = 'Check verdicts and smallest sufficient source sets. Your draft is kept.';
             } else if (stage < record().answers.length) {
               if (receipt?.enabled) receipt.submission(step.id, true, receiptShape());
-              message = 'This stage was already accepted. Progress unchanged.';
+              message = 'Stage already accepted. Progress unchanged.';
             } else {
               await change((n) => {
                 n.caseStudy.answers.push(structuredClone(answers));

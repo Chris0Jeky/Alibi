@@ -205,6 +205,31 @@ test('restore without expected still writes pre-restore recovery', async () => {
   ]);
 });
 
+test('validated legacy backups above the pack-import bound still restore every puzzle', async () => {
+  const puzzle = require('../content/catalog.json').puzzles.find((p) => p.type === 'binary');
+  const packs = Array.from({ length: 21 }, (_, packIndex) => ({
+    schemaVersion: 1,
+    id: `legacy-pack-${String(packIndex).padStart(2, '0')}`,
+    title: `Legacy pack ${packIndex}`,
+    version: 1,
+    puzzles: Array.from({ length: 150 }, (_, puzzleIndex) => ({
+      ...structuredClone(puzzle),
+      id: `legacy-${packIndex}-${puzzleIndex}`,
+    })),
+  }));
+  const backup = setup().validateBackup({ ...validBackup(), runs: [], packs });
+  const { store, disk } = await seededStore({});
+
+  await store.restore(backup);
+
+  assert.equal(disk.packs.size, 21);
+  assert.equal(
+    [...disk.packs.values()].reduce((count, pack) => count + pack.puzzles.length, 0),
+    3150,
+    'a valid existing backup stays restorable above the new-pack admission limit',
+  );
+});
+
 const withoutRev = (runs) => runs.map(({ rev, ...run }) => run);
 
 function unfinishedDraft() {
