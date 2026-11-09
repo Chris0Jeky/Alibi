@@ -16,7 +16,9 @@
     const events = new AbortController();
     let view,
       disposed = false,
-      generation = 0;
+      generation = 0,
+      selectedModel,
+      activeView;
     const tabs = [
       ['rooms', 'Little worlds'],
       ['models', 'Model cabinet'],
@@ -32,8 +34,10 @@
     const steer = (on) =>
       content.querySelectorAll('[data-turn],[data-zoom]').forEach((b) => (b.disabled = !on));
     function stopMedia() {
+      activeView = null;
       view?.dispose();
       view = null;
+      steer(false);
       content.querySelectorAll('audio,video').forEach((m) => {
         m.pause();
         m.removeAttribute('src');
@@ -41,6 +45,10 @@
       });
     }
     function modelPanel(item) {
+      selectedModel = {};
+      const selection = selectedModel,
+        tab = generation;
+      activeView = null;
       view?.dispose();
       view = null;
       steer(false);
@@ -50,14 +58,36 @@
       $('#folio-model-credit').textContent = item.credit;
       $('#folio-model-status').textContent = 'Illustrated view. Open 3D to turn this piece.';
       $('#folio-open-3d').onclick = () => {
+        activeView = {};
+        const opening = activeView;
         view?.dispose();
+        view = null;
         steer(false);
         $('#folio-model-status').textContent = 'Opening 3D…';
-        const opened = (view = new G.QWSceneView(stage, item.model, (text) => {
-          if (!disposed && $('#folio-model-status')) $('#folio-model-status').textContent = text;
-        }));
+        const status = $('#folio-model-status');
+        const opened = new G.QWSceneView(stage, item.model, (text) => {
+          if (
+            !disposed &&
+            generation === tab &&
+            selectedModel === selection &&
+            activeView === opening &&
+            status?.isConnected
+          ) {
+            status.textContent = text;
+            steer(stage.classList.contains('folio-3d'));
+          }
+        });
+        view = opened;
         opened.ready.then(() => {
-          if (view === opened && !disposed && stage.classList.contains('folio-3d')) steer(true);
+          if (
+            view === opened &&
+            !disposed &&
+            generation === tab &&
+            selectedModel === selection &&
+            activeView === opening &&
+            stage.classList.contains('folio-3d')
+          )
+            steer(true);
         });
       };
     }
