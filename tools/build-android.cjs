@@ -30,6 +30,8 @@ const RULE_SOURCES = [
   'src/castle/validation-entry.mjs',
   'src/eclipse-lab/model.mjs',
   'src/eclipse-lab/storage.mjs',
+  'src/timeline-lab/model.mjs',
+  'src/timeline-lab/storage.mjs',
 ];
 const NATIVE_CSP = [
   "default-src 'self'",

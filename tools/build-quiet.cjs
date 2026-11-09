@@ -14,5 +14,10 @@ module.exports = function buildQuiet(root, dist, baseMedia, inlineBase, experien
   quiet.standalone.eclipse = eclipse.standalone;
   quiet.eclipseBytes = eclipse.bytes;
   quiet.eclipseGzipBytes = eclipse.gzipBytes;
+  const timeline = require('./build-timeline.cjs')(root, dist);
+  quiet.config.timeline = timeline.config;
+  quiet.standalone.timeline = timeline.standalone;
+  quiet.timelineBytes = timeline.bytes;
+  quiet.timelineGzipBytes = timeline.gzipBytes;
   return quiet;
 };
