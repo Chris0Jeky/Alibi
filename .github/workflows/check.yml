@@ -213,6 +213,7 @@ jobs:
           python tests/browser_model_assets.py
           python tests/browser_asset_media.py
           python tests/browser_experience.py
+          python tests/browser_castle_quiet_polish.py
       - name: Play the Bellweather expedition and Bridges on mobile
         if: steps.scope.outputs.mode == 'full'
         run: python tests/browser_expedition.py

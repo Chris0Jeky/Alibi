@@ -62,7 +62,7 @@
       };
     }
     function models(items, rooms) {
-      content.innerHTML = `<section class="folio-model-layout"><div class="folio-view"><div class="folio-stage" id="folio-stage"></div><div class="folio-view-caption"><div><h2 id="folio-model-title"></h2><small id="folio-model-credit"></small></div><button id="folio-open-3d">Open 3D</button></div><div class="folio-turn"><button data-turn="-1" aria-label="Turn model left" disabled>← Turn</button><button data-turn="1" aria-label="Turn model right" disabled>Turn →</button><button data-zoom="-0.1" aria-label="Zoom model out" disabled>−</button><button data-zoom="0.1" aria-label="Zoom model in" disabled>+</button></div><p id="folio-model-status" class="micro" role="status"></p></div><div class="folio-pieces">${rooms ? '<p>Three small worlds, composed from the same architectural vocabulary as your realm. Build your own <a href="#/quiet/realm">in the studio ↗</a>.</p>' : '<label>Find a piece <input id="folio-model-search" type="search" placeholder="Tower, tree, roof…"></label>'}<div class="folio-piece-grid">${items.map((a, i) => `<button data-piece="${i}" aria-pressed="${i === 0}"><img src="${esc(a.image)}" alt="" loading="lazy" width="120" height="90"><span>${esc(a.title)}</span></button>`).join('')}</div></div></section>`;
+      content.innerHTML = `<section class="folio-model-layout"><div class="folio-view"><div class="folio-stage" id="folio-stage"></div><div class="folio-view-caption"><div><h2 id="folio-model-title"></h2><small id="folio-model-credit"></small></div><button id="folio-open-3d">Open 3D</button></div><div class="folio-turn"><button data-turn="-1" aria-label="Turn model left" disabled>← Turn</button><button data-turn="1" aria-label="Turn model right" disabled>Turn →</button><button data-zoom="-0.1" aria-label="Zoom model out" disabled>−</button><button data-zoom="0.1" aria-label="Zoom model in" disabled>+</button></div><p id="folio-model-status" class="micro" role="status"></p></div><div class="folio-pieces">${rooms ? '<p>Three small worlds, composed from the same architectural vocabulary as your realm. Build your own <a href="#/quiet/realm">in the studio ↗</a>.</p>' : '<label>Find a piece <input id="folio-model-search" type="search" placeholder="Tower, tree, roof…"></label><p id="folio-search-status" role="status" hidden></p>'}<div class="folio-piece-grid">${items.map((a, i) => `<button data-piece="${i}" aria-pressed="${i === 0}"><img src="${esc(a.image)}" alt="" loading="lazy" width="120" height="90"><span>${esc(a.title)}</span></button>`).join('')}</div></div></section>`;
       modelPanel(items[0]);
       content.querySelectorAll('[data-piece]').forEach(
         (b) =>
@@ -87,6 +87,9 @@
             .forEach(
               (b) => (b.hidden = !items[+b.dataset.piece].title.toLowerCase().includes(query)),
             );
+          const status = $('#folio-search-status');
+          status.hidden = !!content.querySelector('[data-piece]:not([hidden])');
+          status.textContent = status.hidden ? '' : 'No pieces found. Try another search.';
         };
     }
     function companions() {
