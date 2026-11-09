@@ -490,7 +490,7 @@ const BUILD=${JSON.stringify(release)},PREFIX='alibi-shell-',CACHE=PREFIX+BUILD,
 self.addEventListener('install',event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);try{await c.addAll(SHELL.map(url=>new Request(url,{cache:'reload'})));}catch(error){await caches.delete(CACHE);throw error;}})()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{const keys=(await caches.keys()).filter(k=>k.startsWith(PREFIX)),keep=new Set([CACHE,...keys.filter(k=>k!==CACHE).slice(-1)]);await Promise.all(keys.filter(k=>!keep.has(k)).map(k=>caches.delete(k)));await self.clients.claim();})()));
 self.addEventListener('message',event=>{if(event.data?.type==='ACTIVATE')self.skipWaiting();});
-const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alibi-castle-pack-','alibi-case-pack-','alibi-house-pack-','alibi-folio-','alibi-ambience-'];
+const OWNED=['alibi-shell-','alibi-block-motion-','alibi-quiet-wing-pack-','alibi-eclipse-pack-','alibi-castle-pack-','alibi-case-pack-','alibi-house-pack-','alibi-folio-','alibi-ambience-'];
 async function priorRelease(request){const keys=(await caches.keys()).filter(key=>key!==CACHE&&OWNED.some(prefix=>key.startsWith(prefix)));for(const key of keys){const hit=await (await caches.open(key)).match(request);if(hit)return hit;}return null;}
 const ALIAS_ROUTES=${JSON.stringify(Object.keys(PATH_ROUTE_ALIASES))};
 function aliasRoute(pathname){const clean=String(pathname||'').replace(/\\/+$/,'').toLowerCase().replace(/(?:\\/index)?\\.html$/,'');const leaf=clean.charAt(0)==='/'?clean.slice(1):clean;return leaf&&leaf.indexOf('/')<0&&ALIAS_ROUTES.indexOf(leaf)>=0?leaf:null;}
@@ -561,6 +561,8 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
     uncompressedBytes: files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0),
     quietWingBytes: quiet.bytes,
     castleBytes: quiet.castleBytes,
+    eclipseLabBytes: quiet.eclipseBytes,
+    eclipseLabGzipBytes: quiet.eclipseGzipBytes,
     experienceBytes: experience.bytes,
     enhancementBytes: delivery.bytes,
     ambienceBytes: ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0),
@@ -570,6 +572,7 @@ self.addEventListener('fetch',event=>{const r=event.request,u=new URL(r.url);if(
       files(DIST).reduce((n, p) => n + fs.statSync(p).size, 0) -
       quiet.bytes -
       quiet.castleBytes -
+      quiet.eclipseBytes -
       experience.bytes -
       delivery.bytes -
       ambience.reduce((n, a) => n + fs.statSync(path.join(DIST, a.url)).size, 0) -

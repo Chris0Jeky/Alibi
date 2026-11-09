@@ -1,0 +1,1973 @@
+{
+  "schemaVersion": 1,
+  "packId": "alibi-sunrise-studies",
+  "humanPlaytested": false,
+  "noGuessCertificate": false,
+  "selection": {
+    "source": "Seeded offline recipes with farthest-first selection over structure metrics.",
+    "counts": {
+      "binary6x6": 15,
+      "binary8x8": 15,
+      "futoshiki7x7": 12
+    },
+    "humanPlaytested": false,
+    "tierBasis": "Provisional editorial steps reflect board size, visible clue pattern and constraint spread. Solver node counts prove work bounds only; they do not set a human difficulty label.",
+    "proofBudgets": {
+      "binaryNativeNodes": 60000,
+      "futoshikiNativeNodes": 6000,
+      "independentNodes": 500000
+    }
+  },
+  "studies": [
+    {
+      "id": "sunrise-binary-01",
+      "revision": 1,
+      "profile": "binary-6-01",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11099945
+      },
+      "proof": {
+        "id": "sunrise-binary-01",
+        "revision": 1,
+        "definitionSha256": "023c2b4ab1f42b7ef7d8abd666a48d50d8f6970800a867c0c5f9626db57cd4bf",
+        "structuralKey": "binary:6:0,0,1,0,1,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,1,1,0,0,1,1,0,0,1,0,0,1,0,1,0,1",
+        "nativeNodes": 24,
+        "independentNodes": 18,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 14,
+          "rowGivens": [
+            2,
+            4,
+            2,
+            2,
+            2,
+            2
+          ],
+          "colGivens": [
+            2,
+            3,
+            2,
+            3,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 2 has 4 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 2 has 4 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 2 has 4 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-02",
+      "revision": 1,
+      "profile": "binary-6-02",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11115783
+      },
+      "proof": {
+        "id": "sunrise-binary-02",
+        "revision": 1,
+        "definitionSha256": "da17b72f4cfca91dfa4d9cdb16af069e8618e3d8aa75d6e065fcc0470af50bb3",
+        "structuralKey": "binary:6:0,0,1,1,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,0,1,1,1,0,0,1,0,0,1,1,0,1,0",
+        "nativeNodes": 24,
+        "independentNodes": 16,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 14,
+          "rowGivens": [
+            2,
+            2,
+            3,
+            3,
+            2,
+            2
+          ],
+          "colGivens": [
+            3,
+            3,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 3 has 3 printed symbols; column C has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 3 has 3 printed symbols; column C has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 3 has 3 printed symbols; column C has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-03",
+      "revision": 1,
+      "profile": "binary-6-03",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11123702
+      },
+      "proof": {
+        "id": "sunrise-binary-03",
+        "revision": 1,
+        "definitionSha256": "0a804ad6be145db7c80dd384c4da125c5a20fa86823de3e0b1e94d67077b9b8d",
+        "structuralKey": "binary:6:0,0,1,0,1,1,0,1,1,0,0,1,1,0,0,1,1,0,1,0,1,0,1,0,0,1,0,1,0,1,1,1,0,1,0,0",
+        "nativeNodes": 34,
+        "independentNodes": 39,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 14,
+          "rowGivens": [
+            3,
+            2,
+            2,
+            2,
+            3,
+            2
+          ],
+          "colGivens": [
+            3,
+            3,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 1 has 3 printed symbols; column C has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 1 has 3 printed symbols; column C has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 1 has 3 printed symbols; column C has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-04",
+      "revision": 1,
+      "profile": "binary-6-04",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11187054
+      },
+      "proof": {
+        "id": "sunrise-binary-04",
+        "revision": 1,
+        "definitionSha256": "f5ec6ecaccdc74a5f660b5cfd6c84730e421f44cceb6de7f3f342a1a751a64ad",
+        "structuralKey": "binary:6:0,0,1,1,0,1,1,1,0,0,1,0,0,0,1,0,1,1,1,1,0,1,0,0,1,0,1,1,0,0,0,1,0,0,1,1",
+        "nativeNodes": 27,
+        "independentNodes": 43,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 14,
+          "rowGivens": [
+            2,
+            2,
+            3,
+            2,
+            3,
+            2
+          ],
+          "colGivens": [
+            3,
+            2,
+            3,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 3 has 3 printed symbols; column B has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 3 has 3 printed symbols; column B has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 3 has 3 printed symbols; column B has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-05",
+      "revision": 1,
+      "profile": "binary-6-05",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11274163
+      },
+      "proof": {
+        "id": "sunrise-binary-05",
+        "revision": 1,
+        "definitionSha256": "3e4de5f519c478d93636037c90c70f17f9f0f2373d451e93ea5e527c2b612101",
+        "structuralKey": "binary:6:0,0,1,1,0,1,0,1,0,1,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1,1,0,1,0,1,0",
+        "nativeNodes": 23,
+        "independentNodes": 32,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 14,
+          "rowGivens": [
+            3,
+            2,
+            2,
+            3,
+            2,
+            2
+          ],
+          "colGivens": [
+            2,
+            2,
+            2,
+            2,
+            4,
+            2
+          ]
+        }
+      },
+      "opening": "Row 1 has 3 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 1 has 3 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 1 has 3 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-06",
+      "revision": 1,
+      "profile": "binary-6-06",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11092026
+      },
+      "proof": {
+        "id": "sunrise-binary-06",
+        "revision": 1,
+        "definitionSha256": "cd0857f460248e3382f0a66ffc262d86f8c127a0c5f52bfe544ce43c6fe7e6b1",
+        "structuralKey": "binary:6:0,0,1,1,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,1,1,0,0,1,1,0,0,1,0,0,1,0,0,1,1",
+        "nativeNodes": 26,
+        "independentNodes": 44,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            2,
+            2,
+            2,
+            2,
+            3,
+            2
+          ],
+          "colGivens": [
+            2,
+            3,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 5 has 3 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 5 has 3 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 5 has 3 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-07",
+      "revision": 1,
+      "profile": "binary-6-07",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11107864
+      },
+      "proof": {
+        "id": "sunrise-binary-07",
+        "revision": 1,
+        "definitionSha256": "8ce53ace5d3e875027ab68a406a692ec5656f341d635faa42e57f822643e7def",
+        "structuralKey": "binary:6:0,0,1,0,1,1,1,1,0,1,0,0,0,1,1,0,0,1,1,0,1,0,1,0,1,0,0,1,1,0,0,1,0,1,0,1",
+        "nativeNodes": 24,
+        "independentNodes": 30,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            2,
+            3,
+            2,
+            2,
+            2,
+            2
+          ],
+          "colGivens": [
+            3,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 2 has 3 printed symbols; column B has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 2 has 3 printed symbols; column B has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 2 has 3 printed symbols; column B has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-08",
+      "revision": 1,
+      "profile": "binary-6-08",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11139540
+      },
+      "proof": {
+        "id": "sunrise-binary-08",
+        "revision": 1,
+        "definitionSha256": "dab8aba20f9e3702ace95c5cbc6ae15ea9541b2a25ababd3b18bded0a287a145",
+        "structuralKey": "binary:6:0,0,1,0,1,1,1,1,0,1,0,0,0,0,1,1,0,1,1,1,0,0,1,0,1,0,1,0,1,0,0,1,0,1,0,1",
+        "nativeNodes": 34,
+        "independentNodes": 34,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            2,
+            3,
+            2,
+            2,
+            2,
+            2
+          ],
+          "colGivens": [
+            3,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 2 has 3 printed symbols; column B has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 2 has 3 printed symbols; column B has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 2 has 3 printed symbols; column B has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-09",
+      "revision": 1,
+      "profile": "binary-6-09",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11147459
+      },
+      "proof": {
+        "id": "sunrise-binary-09",
+        "revision": 1,
+        "definitionSha256": "224062e6194666b558b0ea7a0d4eb182b33742444ea5c6f7c12dd2e38d11121f",
+        "structuralKey": "binary:6:0,1,0,1,0,1,1,0,1,0,1,0,1,0,0,1,1,0,0,1,1,0,0,1,0,1,0,1,1,0,1,0,1,0,0,1",
+        "nativeNodes": 24,
+        "independentNodes": 35,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            3,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "colGivens": [
+            3,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 1 has 3 printed symbols; column B has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 1 has 3 printed symbols; column B has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 1 has 3 printed symbols; column B has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-10",
+      "revision": 1,
+      "profile": "binary-6-10",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11155378
+      },
+      "proof": {
+        "id": "sunrise-binary-10",
+        "revision": 1,
+        "definitionSha256": "7ac871d609c28ea82b1128f1cacb3a74ce4b96c6c7f3e241a36333b39fe0ef5e",
+        "structuralKey": "binary:6:0,0,1,0,1,1,1,1,0,1,0,0,0,0,1,1,0,1,0,1,0,0,1,1,1,0,1,1,0,0,1,1,0,0,1,0",
+        "nativeNodes": 24,
+        "independentNodes": 37,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            2,
+            2,
+            2,
+            3,
+            2,
+            2
+          ],
+          "colGivens": [
+            2,
+            2,
+            2,
+            3,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 4 has 3 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 4 has 3 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 4 has 3 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-11",
+      "revision": 1,
+      "profile": "binary-6-11",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11171216
+      },
+      "proof": {
+        "id": "sunrise-binary-11",
+        "revision": 1,
+        "definitionSha256": "58b12d1e4759b1cecde827e6658fda3601621fa9435d72f458e153921f557769",
+        "structuralKey": "binary:6:0,0,1,1,0,1,1,1,0,0,1,0,1,0,1,1,0,0,0,1,0,1,0,1,0,1,0,0,1,1,1,0,1,0,1,0",
+        "nativeNodes": 39,
+        "independentNodes": 42,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            3,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "colGivens": [
+            2,
+            2,
+            3,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 1 has 3 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 1 has 3 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 1 has 3 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-12",
+      "revision": 1,
+      "profile": "binary-6-12",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11179135
+      },
+      "proof": {
+        "id": "sunrise-binary-12",
+        "revision": 1,
+        "definitionSha256": "bd128f3096bed186b00fa6dc2ef80c4f37d842e5ffdbafc67eabff436145858c",
+        "structuralKey": "binary:6:0,0,1,0,1,1,1,1,0,1,0,0,0,1,1,0,1,0,0,0,1,1,0,1,1,0,0,1,0,1,1,1,0,0,1,0",
+        "nativeNodes": 34,
+        "independentNodes": 100,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            2,
+            2,
+            2,
+            2,
+            3,
+            2
+          ],
+          "colGivens": [
+            2,
+            3,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 5 has 3 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 5 has 3 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 5 has 3 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-13",
+      "revision": 1,
+      "profile": "binary-6-13",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11202892
+      },
+      "proof": {
+        "id": "sunrise-binary-13",
+        "revision": 1,
+        "definitionSha256": "ead407d20d0f75c44f0a3b164c227ae4cc38a257acbbb54199cfb1f53c3d988e",
+        "structuralKey": "binary:6:0,0,1,1,0,1,1,1,0,1,0,0,0,1,1,0,1,0,1,0,0,1,0,1,0,0,1,0,1,1,1,1,0,0,1,0",
+        "nativeNodes": 53,
+        "independentNodes": 58,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            3,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "colGivens": [
+            2,
+            2,
+            3,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 1 has 3 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 1 has 3 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 1 has 3 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-14",
+      "revision": 1,
+      "profile": "binary-6-14",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11210811
+      },
+      "proof": {
+        "id": "sunrise-binary-14",
+        "revision": 1,
+        "definitionSha256": "a7f531a11af60f49e210ccac90824ca111833a9d6348cf5828cf3b89d6ad1e3f",
+        "structuralKey": "binary:6:0,0,1,0,1,1,1,1,0,1,0,0,0,1,0,1,1,0,1,0,1,0,0,1,1,0,1,1,0,0,0,1,0,0,1,1",
+        "nativeNodes": 25,
+        "independentNodes": 27,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 13,
+          "rowGivens": [
+            2,
+            3,
+            2,
+            2,
+            2,
+            2
+          ],
+          "colGivens": [
+            2,
+            3,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 2 has 3 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 2 has 3 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 2 has 3 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-15",
+      "revision": 1,
+      "profile": "binary-6-15",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 11495895
+      },
+      "proof": {
+        "id": "sunrise-binary-15",
+        "revision": 1,
+        "definitionSha256": "29e10c793e487a5bea15ba5fcc7d6ea394b79ae0950a84b83a9fd5e6885eaaa2",
+        "structuralKey": "binary:6:0,0,1,1,0,1,0,1,1,0,0,1,1,1,0,0,1,0,1,0,1,1,0,0,0,1,0,0,1,1,1,0,0,1,1,0",
+        "nativeNodes": 25,
+        "independentNodes": 24,
+        "semanticSolutions": 1,
+        "replayActions": 36,
+        "metrics": {
+          "size": 6,
+          "givens": 12,
+          "rowGivens": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "colGivens": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 1 has 2 printed symbols; column A has 2. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 1 has 2 printed symbols; column A has 2. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 1 has 2 printed symbols; column A has 2. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-16",
+      "revision": 1,
+      "profile": "binary-8-01",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21369191
+      },
+      "proof": {
+        "id": "sunrise-binary-16",
+        "revision": 1,
+        "definitionSha256": "190abe0a1b479b9c1f02852648e4bb6e498b43dd40efff48be5cf067401dde13",
+        "structuralKey": "binary:8:0,0,1,0,1,1,0,1,1,0,1,0,1,0,1,0,1,1,0,1,0,1,0,0,0,0,1,1,0,0,1,1,1,1,0,0,1,1,0,0,0,0,1,0,1,0,1,1,1,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1",
+        "nativeNodes": 1038,
+        "independentNodes": 3764,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 19,
+          "rowGivens": [
+            1,
+            1,
+            4,
+            1,
+            4,
+            2,
+            4,
+            2
+          ],
+          "colGivens": [
+            2,
+            1,
+            4,
+            2,
+            2,
+            3,
+            2,
+            3
+          ]
+        }
+      },
+      "opening": "Row 3 has 4 printed symbols; column B has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 3 has 4 printed symbols; column B has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 3 has 4 printed symbols; column B has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-17",
+      "revision": 1,
+      "profile": "binary-8-02",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21092026
+      },
+      "proof": {
+        "id": "sunrise-binary-17",
+        "revision": 1,
+        "definitionSha256": "b7dc92daec0815745297f1939152e4e026c1029a7c506db1d58f174c926dd6e3",
+        "structuralKey": "binary:8:0,0,1,1,0,0,1,1,1,1,0,0,1,1,0,0,1,0,0,1,1,0,1,0,0,0,1,1,0,1,0,1,1,1,0,0,1,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,0,1,0,1,0,1,1,0,1,0,1,0",
+        "nativeNodes": 267,
+        "independentNodes": 870,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 17,
+          "rowGivens": [
+            2,
+            3,
+            4,
+            1,
+            1,
+            1,
+            3,
+            2
+          ],
+          "colGivens": [
+            3,
+            3,
+            1,
+            2,
+            1,
+            3,
+            1,
+            3
+          ]
+        }
+      },
+      "opening": "Row 3 has 4 printed symbols; column C has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 3 has 4 printed symbols; column C has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 3 has 4 printed symbols; column C has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-18",
+      "revision": 1,
+      "profile": "binary-8-03",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21139540
+      },
+      "proof": {
+        "id": "sunrise-binary-18",
+        "revision": 1,
+        "definitionSha256": "6ae4e91bb0ae1a2ccff3592763430ec89f39d02e3c661179f7c454b7a3b76ea6",
+        "structuralKey": "binary:8:0,0,1,1,0,1,1,0,1,0,0,1,1,0,0,1,0,1,0,0,1,0,1,1,1,0,1,1,0,1,0,0,0,1,1,0,1,0,0,1,1,1,0,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1,1,0,0,1,1,0",
+        "nativeNodes": 316,
+        "independentNodes": 1009,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 17,
+          "rowGivens": [
+            2,
+            1,
+            3,
+            4,
+            1,
+            2,
+            3,
+            1
+          ],
+          "colGivens": [
+            3,
+            1,
+            4,
+            2,
+            1,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 4 has 4 printed symbols; column B has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 4 has 4 printed symbols; column B has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 4 has 4 printed symbols; column B has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-19",
+      "revision": 1,
+      "profile": "binary-8-04",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21282082
+      },
+      "proof": {
+        "id": "sunrise-binary-19",
+        "revision": 1,
+        "definitionSha256": "89d36c3d2783c1bf06b589ce630cb0f1b9b7af5a92f8653c243a43384e37310c",
+        "structuralKey": "binary:8:0,0,1,1,0,0,1,1,0,1,1,0,1,1,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,1,0,1,0,0,1,1,0,1,1,0,1,1,0,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,0,1",
+        "nativeNodes": 212,
+        "independentNodes": 1259,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 17,
+          "rowGivens": [
+            2,
+            2,
+            3,
+            1,
+            2,
+            1,
+            3,
+            3
+          ],
+          "colGivens": [
+            2,
+            2,
+            1,
+            3,
+            4,
+            1,
+            3,
+            1
+          ]
+        }
+      },
+      "opening": "Row 3 has 3 printed symbols; column C has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 3 has 3 printed symbols; column C has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 3 has 3 printed symbols; column C has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-20",
+      "revision": 1,
+      "profile": "binary-8-05",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21266244
+      },
+      "proof": {
+        "id": "sunrise-binary-20",
+        "revision": 1,
+        "definitionSha256": "18f94f12848fd29431da2b3b657ecc301f58b846318d157e4a2368c536235ca8",
+        "structuralKey": "binary:8:0,0,1,0,1,0,1,1,1,0,1,0,1,1,0,0,0,1,0,1,0,1,0,1,1,0,1,1,0,0,1,0,0,1,0,0,1,0,1,1,1,1,0,1,0,1,0,0,0,0,1,1,0,0,1,1,1,1,0,0,1,1,0,0",
+        "nativeNodes": 231,
+        "independentNodes": 2873,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 16,
+          "rowGivens": [
+            2,
+            1,
+            2,
+            2,
+            1,
+            2,
+            4,
+            2
+          ],
+          "colGivens": [
+            2,
+            2,
+            2,
+            1,
+            1,
+            4,
+            1,
+            3
+          ]
+        }
+      },
+      "opening": "Row 7 has 4 printed symbols; column D has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 7 has 4 printed symbols; column D has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 7 has 4 printed symbols; column D has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-21",
+      "revision": 1,
+      "profile": "binary-8-06",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21290001
+      },
+      "proof": {
+        "id": "sunrise-binary-21",
+        "revision": 1,
+        "definitionSha256": "2da75951bb732c4f44ee9df0e342d80145fb3f2295cac0baad78d924c2613c0b",
+        "structuralKey": "binary:8:0,0,1,1,0,0,1,1,0,0,1,1,0,1,1,0,1,1,0,0,1,1,0,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,0,1,1,1,1,0,0,1,0,0,1,0,1,1,0,1,1,0,0",
+        "nativeNodes": 2994,
+        "independentNodes": 14283,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 16,
+          "rowGivens": [
+            2,
+            2,
+            1,
+            3,
+            1,
+            2,
+            3,
+            2
+          ],
+          "colGivens": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            2,
+            3,
+            2
+          ]
+        }
+      },
+      "opening": "Row 4 has 3 printed symbols; column A has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 4 has 3 printed symbols; column A has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 4 has 3 printed symbols; column A has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-22",
+      "revision": 1,
+      "profile": "binary-8-07",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21321677
+      },
+      "proof": {
+        "id": "sunrise-binary-22",
+        "revision": 1,
+        "definitionSha256": "ac43dc16f61a57564622d140a5e43693dacdce80529550f7f8b8c554db3cf76d",
+        "structuralKey": "binary:8:0,0,1,0,1,1,0,1,1,0,0,1,0,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,0,0,0,0,1,1,0,0,1,1,1,1,0,0,1,1,0,0,1,0,1,1,0,0,1,0,0,1,0,0,1,0,1,1",
+        "nativeNodes": 175,
+        "independentNodes": 2043,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 16,
+          "rowGivens": [
+            3,
+            1,
+            2,
+            1,
+            1,
+            4,
+            1,
+            3
+          ],
+          "colGivens": [
+            3,
+            1,
+            1,
+            2,
+            1,
+            3,
+            1,
+            4
+          ]
+        }
+      },
+      "opening": "Row 6 has 4 printed symbols; column B has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 6 has 4 printed symbols; column B has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 6 has 4 printed symbols; column B has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-23",
+      "revision": 1,
+      "profile": "binary-8-08",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21099945
+      },
+      "proof": {
+        "id": "sunrise-binary-23",
+        "revision": 1,
+        "definitionSha256": "2a0c142de4363f34bd84712c902dd249c0590b1cfd435d3428b396b9ca505eb0",
+        "structuralKey": "binary:8:0,0,1,1,0,1,1,0,1,0,0,1,1,0,0,1,1,1,0,0,1,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,0,0,1,1,0,1,1,0,1,1,0,0,0,1,0,0,1,1,0,1,1,0,1,1,0,0,1,0",
+        "nativeNodes": 219,
+        "independentNodes": 1247,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 15,
+          "rowGivens": [
+            1,
+            3,
+            1,
+            1,
+            2,
+            2,
+            2,
+            3
+          ],
+          "colGivens": [
+            3,
+            1,
+            3,
+            2,
+            1,
+            1,
+            2,
+            2
+          ]
+        }
+      },
+      "opening": "Row 2 has 3 printed symbols; column B has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 2 has 3 printed symbols; column B has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 2 has 3 printed symbols; column B has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-24",
+      "revision": 1,
+      "profile": "binary-8-09",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21187054
+      },
+      "proof": {
+        "id": "sunrise-binary-24",
+        "revision": 1,
+        "definitionSha256": "1ff321c87549237b9586be5d5f149aab34ebbcd7f01f72520d4045c632d54b1d",
+        "structuralKey": "binary:8:0,0,1,0,1,0,1,1,0,1,0,0,1,1,0,1,1,0,1,1,0,1,0,0,1,0,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,1,0,1,0,0,1,1,1,0,1,0,0,1,0,0,1,0,1,0,1,1,0",
+        "nativeNodes": 261,
+        "independentNodes": 405,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 15,
+          "rowGivens": [
+            2,
+            4,
+            2,
+            2,
+            1,
+            1,
+            2,
+            1
+          ],
+          "colGivens": [
+            2,
+            2,
+            1,
+            3,
+            2,
+            2,
+            1,
+            2
+          ]
+        }
+      },
+      "opening": "Row 2 has 4 printed symbols; column C has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 2 has 4 printed symbols; column C has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 2 has 4 printed symbols; column C has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-25",
+      "revision": 1,
+      "profile": "binary-8-10",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21226649
+      },
+      "proof": {
+        "id": "sunrise-binary-25",
+        "revision": 1,
+        "definitionSha256": "94b20be61484662bd75e377df6a94417f50bb1edeaa94bebc7afa2dc3ce0015f",
+        "structuralKey": "binary:8:0,0,1,0,1,1,0,1,0,1,0,1,0,0,1,1,1,0,1,1,0,1,0,0,1,1,0,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,1,0,0,1,0,0,1,1,0,1,1,0,1,1,0,0,1,0",
+        "nativeNodes": 168,
+        "independentNodes": 2031,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 15,
+          "rowGivens": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            1,
+            2
+          ],
+          "colGivens": [
+            2,
+            2,
+            2,
+            3,
+            1,
+            2,
+            1,
+            2
+          ]
+        }
+      },
+      "opening": "Row 1 has 2 printed symbols; column E has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 1 has 2 printed symbols; column E has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 1 has 2 printed symbols; column E has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-26",
+      "revision": 1,
+      "profile": "binary-8-11",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21242487
+      },
+      "proof": {
+        "id": "sunrise-binary-26",
+        "revision": 1,
+        "definitionSha256": "761d96bf2c81f9c7e4c78ff2ca5688bcf05b929f363fc1a6ffbdf712f6707670",
+        "structuralKey": "binary:8:0,0,1,0,1,1,0,1,1,1,0,0,1,0,1,0,0,0,1,1,0,0,1,1,1,1,0,1,0,1,0,0,1,0,1,0,1,1,0,0,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,1,1,1,0,1,0,0,1,0",
+        "nativeNodes": 378,
+        "independentNodes": 1081,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 15,
+          "rowGivens": [
+            1,
+            3,
+            1,
+            2,
+            1,
+            3,
+            1,
+            3
+          ],
+          "colGivens": [
+            1,
+            2,
+            2,
+            2,
+            2,
+            3,
+            1,
+            2
+          ]
+        }
+      },
+      "opening": "Row 2 has 3 printed symbols; column A has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 2 has 3 printed symbols; column A has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 2 has 3 printed symbols; column A has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-27",
+      "revision": 1,
+      "profile": "binary-8-12",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21210811
+      },
+      "proof": {
+        "id": "sunrise-binary-27",
+        "revision": 1,
+        "definitionSha256": "84a30d4c313065e68b2b981050cffa698b4cd55d36f994012b08c8a9fbca2f29",
+        "structuralKey": "binary:8:0,0,1,1,0,1,1,0,1,0,1,0,0,1,0,1,1,1,0,0,1,0,0,1,0,1,0,1,0,1,1,0,1,0,1,0,1,0,0,1,1,1,0,1,0,1,0,0,0,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0",
+        "nativeNodes": 726,
+        "independentNodes": 3116,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 14,
+          "rowGivens": [
+            1,
+            2,
+            1,
+            2,
+            3,
+            1,
+            2,
+            2
+          ],
+          "colGivens": [
+            2,
+            4,
+            2,
+            1,
+            1,
+            1,
+            2,
+            1
+          ]
+        }
+      },
+      "opening": "Row 5 has 3 printed symbols; column D has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 5 has 3 printed symbols; column D has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 5 has 3 printed symbols; column D has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-28",
+      "revision": 1,
+      "profile": "binary-8-13",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21274163
+      },
+      "proof": {
+        "id": "sunrise-binary-28",
+        "revision": 1,
+        "definitionSha256": "18f19bf9eb87dbdee05f2e912d21e196f0a329f0186335d66cf3a9d5fee58649",
+        "structuralKey": "binary:8:0,0,1,1,0,1,0,1,1,1,0,0,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,0,1,1,0,0,1,1,0,1,0,0,1,1,0,0,1",
+        "nativeNodes": 873,
+        "independentNodes": 1962,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 14,
+          "rowGivens": [
+            2,
+            2,
+            1,
+            2,
+            2,
+            1,
+            2,
+            2
+          ],
+          "colGivens": [
+            1,
+            3,
+            2,
+            1,
+            2,
+            2,
+            1,
+            2
+          ]
+        }
+      },
+      "opening": "Row 1 has 2 printed symbols; column A has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 1 has 2 printed symbols; column A has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 1 has 2 printed symbols; column A has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-29",
+      "revision": 1,
+      "profile": "binary-8-14",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21337515
+      },
+      "proof": {
+        "id": "sunrise-binary-29",
+        "revision": 1,
+        "definitionSha256": "2ab47d33dc6937b04c241ccec23a64aa96b450de9cb0bd887e2c8e159ebab69f",
+        "structuralKey": "binary:8:0,0,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0,0,1,0,1,1,0,1,1,0,0,1,0,0,1,0,0,1,0,1,1,1,1,0,1,0,1,0,0,1,0,1,0,1,1,0,0",
+        "nativeNodes": 1302,
+        "independentNodes": 7058,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 14,
+          "rowGivens": [
+            1,
+            1,
+            1,
+            2,
+            3,
+            1,
+            1,
+            4
+          ],
+          "colGivens": [
+            2,
+            1,
+            2,
+            1,
+            1,
+            3,
+            1,
+            3
+          ]
+        }
+      },
+      "opening": "Row 8 has 4 printed symbols; column B has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 8 has 4 printed symbols; column B has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 8 has 4 printed symbols; column B has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-binary-30",
+      "revision": 1,
+      "profile": "binary-8-15",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 21361272
+      },
+      "proof": {
+        "id": "sunrise-binary-30",
+        "revision": 1,
+        "definitionSha256": "2039c8c8166721e9b9f8082c4a16e42dbf8f7dd417a8d54cce224ebaae877864",
+        "structuralKey": "binary:8:0,0,1,0,1,1,0,1,1,0,1,0,0,1,1,0,1,1,0,1,0,0,1,0,0,1,0,0,1,1,0,1,0,0,1,1,0,0,1,1,1,1,0,1,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,1,1,0,0,1",
+        "nativeNodes": 200,
+        "independentNodes": 1783,
+        "semanticSolutions": 1,
+        "replayActions": 64,
+        "metrics": {
+          "size": 8,
+          "givens": 14,
+          "rowGivens": [
+            1,
+            1,
+            3,
+            2,
+            2,
+            1,
+            2,
+            2
+          ],
+          "colGivens": [
+            1,
+            1,
+            3,
+            3,
+            1,
+            1,
+            3,
+            1
+          ]
+        }
+      },
+      "opening": "Row 3 has 3 printed symbols; column A has 1. Compare their remaining sun and moon quotas with the no-three rule before extending either line.",
+      "structuralDistinction": "Row 3 has 3 printed symbols; column A has 1. The asymmetry between a more-clued row and a lightly marked crossing column shapes this board's opening.",
+      "intendedReasoningPath": [
+        "Row 3 has 3 printed symbols; column A has 1. Start with equal line totals and no three identical neighbors, checking both axes at every shared cell.",
+        "Compare the balanced line patterns allowed by each row with the crossing column marks, then carry each exclusion into its perpendicular line.",
+        "Before accepting a completed line, check that it differs from every other row or column on that axis; local legality is not enough."
+      ],
+      "temptingMistake": "A row pattern can satisfy its own balance and triple rules while making the crossing column impossible or duplicating another complete line."
+    },
+    {
+      "id": "sunrise-futoshiki-01",
+      "revision": 1,
+      "profile": "futoshiki-7-01",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31646356
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-01",
+        "revision": 1,
+        "definitionSha256": "870e69381225407e9bb6627f852a784bd1b39385bc99e22ab238e4ff1cd0d84f",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,2,3,5,4,6,1,0,3,0,6,5,2,4,1,4,5,1,6,0,2,3,6,4,0,1,5,3,2,1,2,4,0,3,6,5,5,6,3,2,1,0,4",
+        "nativeNodes": 5981,
+        "independentNodes": 6838,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 19,
+          "vertical": 13
+        }
+      },
+      "opening": "Begin where E2 < F2 meets E1 > E2; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 19 horizontal and 13 vertical inequalities; E2 < F2 and E1 > E2 meet at E2.",
+      "intendedReasoningPath": [
+        "Start at the crossing E2 < F2 and E1 > E2. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-02",
+      "revision": 1,
+      "profile": "futoshiki-7-02",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31678032
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-02",
+        "revision": 1,
+        "definitionSha256": "1603aac7dae4c89224c02466d5261e08780b35d78399389bff6aa23187139f72",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,1,4,6,2,5,0,3,3,5,4,6,0,1,2,2,0,3,5,1,6,4,6,2,0,1,3,4,5,5,3,1,4,6,2,0,4,6,5,0,2,3,1",
+        "nativeNodes": 5889,
+        "independentNodes": 6394,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 13,
+          "vertical": 16
+        }
+      },
+      "opening": "Begin where A1 < B1 meets A1 < A2; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 13 horizontal and 16 vertical inequalities; A1 < B1 and A1 < A2 meet at A1.",
+      "intendedReasoningPath": [
+        "Start at the crossing A1 < B1 and A1 < A2. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-03",
+      "revision": 1,
+      "profile": "futoshiki-7-03",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31622599
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-03",
+        "revision": 1,
+        "definitionSha256": "dc2cd4640eaae0b17dc0b843ffa4aedc75de33dbdd631555acab8031d01416ec",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,1,4,5,6,0,3,2,2,5,3,0,1,6,4,3,6,0,5,2,4,1,5,3,1,4,6,2,0,4,0,6,2,3,1,5,6,2,4,1,5,0,3",
+        "nativeNodes": 5990,
+        "independentNodes": 6473,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 18,
+          "vertical": 10
+        }
+      },
+      "opening": "Begin where E2 > F2 meets F2 > F3; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 18 horizontal and 10 vertical inequalities; E2 > F2 and F2 > F3 meet at F2.",
+      "intendedReasoningPath": [
+        "Start at the crossing E2 > F2 and F2 > F3. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-04",
+      "revision": 1,
+      "profile": "futoshiki-7-04",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31464219
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-04",
+        "revision": 1,
+        "definitionSha256": "a07030c6dcaf7e848a9671194860d10f4491e2a1002fef3a5ff659bb8fb23c5f",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,2,3,4,6,5,0,1,4,2,5,0,1,6,3,3,6,0,4,2,1,5,6,5,3,1,0,4,2,5,0,1,2,6,3,4,1,4,6,5,3,2,0",
+        "nativeNodes": 5952,
+        "independentNodes": 6730,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 9,
+          "vertical": 18
+        }
+      },
+      "opening": "Begin where C1 > D1 meets C1 < C2; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 9 horizontal and 18 vertical inequalities; C1 > D1 and C1 < C2 meet at C1.",
+      "intendedReasoningPath": [
+        "Start at the crossing C1 > D1 and C1 < C2. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-05",
+      "revision": 1,
+      "profile": "futoshiki-7-05",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31107864
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-05",
+        "revision": 1,
+        "definitionSha256": "8f6e7a3e59a046a3ee11fcb3a1c1b91f146004b613448362186808bccb69b77d",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,3,4,5,1,6,0,2,5,3,6,0,2,1,4,2,0,1,4,3,6,5,6,2,3,5,0,4,1,1,6,4,2,5,3,0,4,5,0,6,1,2,3",
+        "nativeNodes": 4908,
+        "independentNodes": 5168,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 12,
+          "vertical": 13
+        }
+      },
+      "opening": "Begin where B2 > C2 meets C1 < C2; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 12 horizontal and 13 vertical inequalities; B2 > C2 and C1 < C2 meet at C2.",
+      "intendedReasoningPath": [
+        "Start at the crossing B2 > C2 and C1 < C2. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-06",
+      "revision": 1,
+      "profile": "futoshiki-7-06",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31495895
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-06",
+        "revision": 1,
+        "definitionSha256": "df72f240aa4dede6789b63a1f3622f1b279d30c5270d85329e57f5af326be760",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,2,6,1,5,3,4,0,5,0,6,4,2,1,3,3,4,5,6,1,0,2,6,2,0,1,5,3,4,1,3,4,2,0,6,5,4,5,3,0,6,2,1",
+        "nativeNodes": 5937,
+        "independentNodes": 6735,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 14,
+          "vertical": 11
+        }
+      },
+      "opening": "Begin where A3 < B3 meets A2 < A3; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 14 horizontal and 11 vertical inequalities; A3 < B3 and A2 < A3 meet at A3.",
+      "intendedReasoningPath": [
+        "Start at the crossing A3 < B3 and A2 < A3. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-07",
+      "revision": 1,
+      "profile": "futoshiki-7-07",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31583004
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-07",
+        "revision": 1,
+        "definitionSha256": "bd78c3832bb1661359c0ac5b963810e8ea4c3362e51df292db8562c50639aee0",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,2,4,6,0,5,3,1,4,0,3,6,2,1,5,5,3,4,1,6,0,2,1,6,5,2,3,4,0,6,5,0,4,1,2,3,3,2,1,5,0,6,4",
+        "nativeNodes": 5970,
+        "independentNodes": 6147,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 11,
+          "vertical": 14
+        }
+      },
+      "opening": "Begin where E1 < F1 meets F1 > F2; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 11 horizontal and 14 vertical inequalities; E1 < F1 and F1 > F2 meet at F1.",
+      "intendedReasoningPath": [
+        "Start at the crossing E1 < F1 and F1 > F2. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-08",
+      "revision": 1,
+      "profile": "futoshiki-7-08",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31424624
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-08",
+        "revision": 1,
+        "definitionSha256": "90dceabe4da51aa704ec43a1237084e4c8a0d3aa9894d5a067e92baf9ff00db5",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,1,4,6,2,5,3,0,6,5,4,1,2,0,3,5,2,1,0,3,6,4,2,6,3,4,0,1,5,4,3,0,5,6,2,1,3,0,5,6,1,4,2",
+        "nativeNodes": 5868,
+        "independentNodes": 6474,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 14,
+          "vertical": 9
+        }
+      },
+      "opening": "Begin where B2 < C2 meets B1 > B2; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 14 horizontal and 9 vertical inequalities; B2 < C2 and B1 > B2 meet at B2.",
+      "intendedReasoningPath": [
+        "Start at the crossing B2 < C2 and B1 > B2. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-09",
+      "revision": 1,
+      "profile": "futoshiki-7-09",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31202892
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-09",
+        "revision": 1,
+        "definitionSha256": "9df3512cdcb77cfb4bc2f24c65178d21b6a4c5c163d58c679dcc8545871bda1a",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,1,5,6,4,0,2,3,6,4,5,2,3,0,1,3,2,4,0,6,1,5,2,0,1,6,5,3,4,4,3,0,5,1,6,2,5,6,3,1,2,4,0",
+        "nativeNodes": 5772,
+        "independentNodes": 6412,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 9,
+          "vertical": 11
+        }
+      },
+      "opening": "Begin where D1 > E1 meets E1 < E2; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 9 horizontal and 11 vertical inequalities; D1 > E1 and E1 < E2 meet at E1.",
+      "intendedReasoningPath": [
+        "Start at the crossing D1 > E1 and E1 < E2. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-10",
+      "revision": 1,
+      "profile": "futoshiki-7-10",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31606761
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-10",
+        "revision": 1,
+        "definitionSha256": "d784aa4cf0e8926100f6681fe22294946bbf01115d8bf929c4cff82a2c4b5f7a",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,3,4,6,1,5,2,0,5,2,1,6,3,0,4,4,6,5,2,0,1,3,6,0,4,5,1,3,2,2,5,3,0,6,4,1,1,3,0,4,2,6,5",
+        "nativeNodes": 5845,
+        "independentNodes": 6402,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 10,
+          "vertical": 10
+        }
+      },
+      "opening": "Begin where E2 < F2 meets F2 < F3; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 10 horizontal and 10 vertical inequalities; E2 < F2 and F2 < F3 meet at F2.",
+      "intendedReasoningPath": [
+        "Start at the crossing E2 < F2 and F2 < F3. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-11",
+      "revision": 1,
+      "profile": "futoshiki-7-11",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31345434
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-11",
+        "revision": 1,
+        "definitionSha256": "7346f1de6e04b7c2b36efdfaf3fbfe791fe881bbdd4136230a556f7659e4e23d",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,2,5,4,1,6,0,3,5,3,6,0,2,1,4,6,0,1,4,3,2,5,3,4,5,2,1,6,0,4,2,0,6,5,3,1,1,6,3,5,0,4,2",
+        "nativeNodes": 3548,
+        "independentNodes": 4167,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 8,
+          "vertical": 11
+        }
+      },
+      "opening": "Begin where A1 < B1 meets A1 > A2; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 8 horizontal and 11 vertical inequalities; A1 < B1 and A1 > A2 meet at A1.",
+      "intendedReasoningPath": [
+        "Start at the crossing A1 < B1 and A1 > A2. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    },
+    {
+      "id": "sunrise-futoshiki-12",
+      "revision": 1,
+      "profile": "futoshiki-7-12",
+      "humanPlaytested": false,
+      "provenance": {
+        "method": "Seeded offline candidate, selected for structural variety and supplied with coordinate-specific intended notes",
+        "recipe": "tools/curation/night-recipes.cjs",
+        "seed": 31099945
+      },
+      "proof": {
+        "id": "sunrise-futoshiki-12",
+        "revision": 1,
+        "definitionSha256": "b0bba47283051574a2e92c933069d79ab15f500b9f42b1f61bd20a8f54738478",
+        "structuralKey": "futoshiki:7:0,1,2,3,4,5,6,1,0,3,2,5,6,4,2,4,6,1,0,3,5,3,6,5,4,1,2,0,4,3,0,5,6,1,2,6,5,1,0,2,4,3,5,2,4,6,3,0,1",
+        "nativeNodes": 4813,
+        "independentNodes": 5417,
+        "semanticSolutions": 1,
+        "replayActions": 49,
+        "metrics": {
+          "size": 7,
+          "givens": 6,
+          "horizontal": 9,
+          "vertical": 9
+        }
+      },
+      "opening": "Begin where A2 > B2 meets B2 > B3; keep the shared rank inside both comparison bounds while respecting the row and column sets.",
+      "structuralDistinction": "This 7×7 Latin square has 9 horizontal and 9 vertical inequalities; A2 > B2 and B2 > B3 meet at B2.",
+      "intendedReasoningPath": [
+        "Start at the crossing A2 > B2 and B2 > B3. Translate adjacent comparisons into ranges, then carry those bounds through their connected chains.",
+        "Remove ranks already used in the same row and column, and revisit each incident comparison whenever a neighboring value is placed.",
+        "Use the perpendicular bounds together before settling a rank; a value available in one line can still violate an inequality or its crossing line."
+      ],
+      "temptingMistake": "Checking a rank against its row and column alone overlooks the comparison at the crossing and can leave a locally plausible but impossible value."
+    }
+  ]
+}

@@ -1,0 +1,385 @@
+:host {
+  display: block;
+  color: #292820;
+  background: #f4efdf;
+  font:
+    16px/1.5 system-ui,
+    sans-serif;
+  --paper: #fffaf0;
+  --ink: #292820;
+  --gold: #8b682e;
+  --line: #c9b994;
+  --accent: #493d26;
+}
+* {
+  box-sizing: border-box;
+}
+main {
+  max-width: 1200px;
+  margin: auto;
+  padding: 28px 18px 72px;
+}
+main:focus {
+  outline: none;
+}
+header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 24px;
+  margin-bottom: 22px;
+}
+.back {
+  float: right;
+}
+.eyebrow {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+h1,
+h2,
+h3 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 0 0 12px;
+}
+h1 {
+  font-size: clamp(38px, 6vw, 62px);
+}
+h2 {
+  font-size: clamp(28px, 4vw, 38px);
+}
+h3 {
+  font-size: 25px;
+}
+p {
+  margin: 0 0 15px;
+}
+a {
+  color: var(--accent);
+  text-underline-offset: 4px;
+}
+button,
+.filebutton,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+button,
+.filebutton {
+  min-height: 44px;
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--paper);
+  cursor: pointer;
+}
+button:hover,
+.filebutton:hover {
+  border-color: var(--gold);
+}
+button[aria-pressed='true'] {
+  background: #51452e;
+  color: #fff;
+  border-color: #51452e;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+.filebutton:focus-within {
+  outline: 3px solid #b87820;
+  outline-offset: 2px;
+}
+.intro {
+  max-width: 46rem;
+  font-size: 18px;
+}
+.status,
+.notice {
+  padding: 12px 14px;
+  background: #e9e1c9;
+  border-left: 4px solid var(--gold);
+  margin: 15px 0;
+}
+.section-head {
+  max-width: 640px;
+  margin: 35px 0 24px;
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.card,
+.clue-panel,
+.feedback,
+.backup {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 22px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+}
+.card-number {
+  display: flex;
+  justify-content: space-between;
+  color: var(--gold);
+  font:
+    16px Georgia,
+    serif;
+  margin-bottom: 30px;
+}
+.card ul,
+.clue-panel ul {
+  padding-left: 20px;
+}
+.card li,
+.clue-panel li {
+  margin-bottom: 5px;
+}
+.note,
+.small {
+  font-size: 13px;
+}
+.level-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+.level-list a {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  text-decoration: none;
+}
+.play-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 28px 0;
+  flex-wrap: wrap;
+}
+.level-nav,
+.actions,
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.level-nav a {
+  padding: 10px;
+}
+.play-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 350px);
+  gap: 30px;
+}
+.board-wrap {
+  width: min(100%, 480px);
+  margin: 18px 0;
+}
+.board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  gap: 2px;
+  aspect-ratio: 1;
+  isolation: isolate;
+}
+.cell {
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  font-size: clamp(22px, 5vw, 34px);
+  border: 1px solid #a99165;
+  border-radius: 2px;
+  background: #fbf6e7;
+}
+.cell.fixed {
+  background: #e2d8bd;
+  font-weight: bold;
+}
+.cell.highlight {
+  outline: 3px dashed #a65b16;
+  outline-offset: -5px;
+  z-index: 1;
+}
+.empty {
+  color: #b7a78a;
+}
+.overlays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.edge,
+.window-mark {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #5c4827;
+  border: 1px solid #fff4d7;
+  border-radius: 50%;
+  font: bold 11px system-ui;
+  min-width: 19px;
+  height: 19px;
+  line-height: 1;
+}
+.window-mark {
+  background: #6e4728;
+  font-size: 9px;
+  min-width: 22px;
+}
+.clue-panel {
+  align-self: start;
+}
+.clues {
+  display: grid;
+  gap: 5px;
+  max-height: 390px;
+  overflow: auto;
+}
+.clues button {
+  text-align: left;
+}
+.message {
+  min-height: 2em;
+  font-weight: 600;
+  margin: 15px 0;
+}
+.feedback,
+.backup {
+  margin-top: 30px;
+  max-width: 780px;
+}
+.feedback fieldset {
+  border: 0;
+  padding: 0;
+  margin: 15px 0;
+}
+.rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.rating label {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.feedback > label {
+  display: block;
+  margin: 15px 0;
+}
+select,
+textarea {
+  display: block;
+  width: 100%;
+  max-width: 550px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 5px;
+}
+textarea {
+  resize: vertical;
+}
+.filebutton input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.filebutton {
+  display: inline-flex;
+  align-items: center;
+}
+.backup h2 {
+  font-size: 28px;
+}
+:host([data-theme='night']) {
+  background: #1f2527;
+  color: #f6efdf;
+  --paper: #293234;
+  --ink: #f6efdf;
+  --gold: #e2be7a;
+  --line: #788078;
+  --accent: #f2d29a;
+}
+:host([data-theme='night']) .cell {
+  background: #344244;
+  color: #fff;
+}
+:host([data-theme='night']) .cell.fixed {
+  background: #4e544c;
+}
+:host([data-theme='night']) .status,
+:host([data-theme='night']) .notice {
+  background: #394541;
+}
+:host([data-contrast='true']) {
+  --line: currentColor;
+  --gold: currentColor;
+}
+:host([data-large='true']) {
+  font-size: 19px;
+}
+:host([data-motion='false']) * {
+  animation: none !important;
+  transition: none !important;
+}
+@media (max-width: 700px) {
+  main {
+    padding: 20px 12px 60px;
+  }
+  .cards,
+  .play-grid {
+    grid-template-columns: 1fr;
+  }
+  .play-grid {
+    gap: 22px;
+  }
+  .card,
+  .clue-panel,
+  .feedback,
+  .backup {
+    padding: 17px;
+  }
+  .card-number {
+    margin-bottom: 15px;
+  }
+  .board-wrap {
+    max-width: 440px;
+  }
+  .back {
+    float: none;
+    display: block;
+    margin-bottom: 20px;
+  }
+}

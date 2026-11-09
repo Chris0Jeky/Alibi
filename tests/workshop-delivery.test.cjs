@@ -39,6 +39,7 @@ test('optional bytes are counted once in delivery and never hidden from totals',
   const separate = [
     'quietWingBytes',
     'castleBytes',
+    'eclipseLabBytes',
     'experienceBytes',
     'enhancementBytes',
     'ambienceBytes',

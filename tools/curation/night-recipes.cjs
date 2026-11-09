@@ -23,8 +23,12 @@ function random(seed) {
     return seed / 4294967296;
   };
 }
-function candidate(type, seed) {
+function candidate(type, seed, options = {}) {
   if (!families.includes(type)) throw Error(`Unsupported family: ${type}`);
+  if (!options || typeof options !== 'object' || Array.isArray(options))
+    throw Error('Invalid candidate options');
+  if (type !== 'binary' && Object.hasOwn(options, 'size'))
+    throw Error(`Size selection is only available for binary candidates`);
   const rnd = random(seed);
   const pick = (values) => values[Math.floor(rnd() * values.length)];
   const shuffle = (values) => {
@@ -35,7 +39,10 @@ function candidate(type, seed) {
     }
     return out;
   };
-  const size = type === 'bridges' ? 9 : type === 'binary' ? 8 : type === 'trail' ? 6 : 7;
+  const size =
+    type === 'bridges' ? 9 : type === 'binary' ? (options.size ?? 8) : type === 'trail' ? 6 : 7;
+  if (type === 'binary' && ![6, 8].includes(size))
+    throw Error('Binary candidate size must be 6 or 8');
   const p = {
     id: `night-${type}-candidate`,
     revision: 1,
@@ -240,12 +247,14 @@ function candidate(type, seed) {
     if (!visit()) return null;
     p.solution = chosen.flat();
     p.givens = p.solution.slice();
+    const minimumLineGivens = size === 6 ? 2 : 1;
     for (const i of shuffle(cells)) {
       const row = Math.floor(i / size);
       const col = i % size;
       if (
-        p.givens.slice(row * size, (row + 1) * size).filter((v) => v >= 0).length <= 1 ||
-        p.givens.filter((v, j) => j % size === col && v >= 0).length <= 1
+        p.givens.slice(row * size, (row + 1) * size).filter((v) => v >= 0).length <=
+          minimumLineGivens ||
+        p.givens.filter((v, j) => j % size === col && v >= 0).length <= minimumLineGivens
       )
         continue;
       const before = p.givens[i];

@@ -32,7 +32,8 @@
     "extra/vault-lightup.json",
     "extra/vault-futoshiki.json",
     "extra/interlock-gardens.json",
-    "extra/interlock-routes.json"
+    "extra/interlock-routes.json",
+    "extra/sunrise-studies.json"
   ],
   "deferred": [
     "extra/vault-binary.json",
@@ -43,6 +44,7 @@
     "extra/interlock-routes.json",
     "extra/interlock-gardens.json",
     "extra/expert-families.json",
-    "extra/master-grandmaster-studies.json"
+    "extra/master-grandmaster-studies.json",
+    "extra/sunrise-studies.json"
   ]
 }

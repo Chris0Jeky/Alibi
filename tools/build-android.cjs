@@ -28,6 +28,8 @@ const RULE_SOURCES = [
   'src/quiet-wing/engine.js',
   'src/quiet-wing/storage.js',
   'src/castle/validation-entry.mjs',
+  'src/eclipse-lab/model.mjs',
+  'src/eclipse-lab/storage.mjs',
 ];
 const NATIVE_CSP = [
   "default-src 'self'",

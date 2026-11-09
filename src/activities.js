@@ -1,9 +1,8 @@
 /* Optional activities own their UI lifecycle. The root owns routing and service-worker updates. */
 (function (G) {
   'use strict';
-  let loaded,
-    castleLoaded,
-    active = null,
+  const loads = {};
+  let active = null,
     activeKind = null,
     activeHost = null,
     epoch = 0,
@@ -25,24 +24,19 @@
       }
     } else await script(c.script);
   }
-  async function load() {
-    if (G.AlibiQuietWing) return;
-    if (!loaded)
-      loaded = loadSource(config()).catch((error) => {
-        loaded = null;
+  const activityFor = (kind) =>
+    G[{ quiet: 'AlibiQuietWing', castle: 'AlibiCastle', eclipse: 'AlibiEclipse' }[kind]];
+  async function loadActivity(kind) {
+    if (activityFor(kind)) return;
+    if (!loads[kind])
+      loads[kind] = loadSource(kind === 'quiet' ? config() : config()?.[kind]).catch((error) => {
+        delete loads[kind];
         throw error;
       });
-    await loaded;
+    await loads[kind];
   }
-  async function loadCastle() {
-    if (G.AlibiCastle) return;
-    if (!castleLoaded)
-      castleLoaded = loadSource(config()?.castle).catch((error) => {
-        castleLoaded = null;
-        throw error;
-      });
-    await castleLoaded;
-  }
+  const load = () => loadActivity('quiet');
+  const loadCastle = () => loadActivity('castle');
   function script(url) {
     return new Promise((resolve, reject) => {
       const tag = document.createElement('script');
@@ -103,7 +97,8 @@
   }
   function enter(host, options = {}) {
     if (options.preferences) preferences = copyPreferences(options.preferences);
-    const kind = G.location?.hash?.startsWith('#/quiet/castle') ? 'castle' : 'quiet';
+    const kind =
+      /^#\/quiet\/(castle|eclipse)(?:\/|$|\?)/.exec(G.location?.hash || '')?.[1] || 'quiet';
     if (kind === 'castle' && Object.prototype.hasOwnProperty.call(options, 'practice'))
       practice = options.practice || null;
     const token = ++epoch;
@@ -118,11 +113,10 @@
           return;
         }
         await disposeActive();
-        if (kind === 'castle') await loadCastle();
-        else await load();
+        await loadActivity(kind);
         const c = config();
         const css =
-          kind === 'castle'
+          kind !== 'quiet'
             ? ''
             : (c.cssSource ??
               (await fetch(c.css, { signal: AbortSignal.timeout(15000) }).then((r) => {
@@ -131,7 +125,7 @@
               })));
         if (token !== epoch || !host.isConnected) return;
         const root = host.shadowRoot || host.attachShadow({ mode: 'open' });
-        const activity = kind === 'castle' ? G.AlibiCastle : G.AlibiQuietWing;
+        const activity = activityFor(kind);
         const handle = await activity.mount({
           root,
           css,
@@ -147,7 +141,7 @@
         active = handle;
         activeKind = kind;
         activeHost = host;
-        if (kind === 'castle') G.AlibiCastle.cachePack();
+        if (kind !== 'quiet') activity.cachePack();
         else if (!caching)
           caching = cachePack().finally(() => {
             caching = null;
@@ -171,6 +165,7 @@
     }
     if (active) await active.flush();
     if (activeKind !== 'castle') await G.AlibiCastle?.flush();
+    if (activeKind !== 'eclipse') await G.AlibiEclipse?.flush();
     if (activeKind !== 'quiet' && G.QWRetainedDirty)
       throw Error('Return to Quiet Wing and export its unsaved session before updating.');
     if (G.QWApp && G.QWStore.info().mode === 'session')
@@ -203,7 +198,10 @@
     diagnostics: () => ({
       loaded: !!G.AlibiQuietWing,
       active: !!active,
-      offline: activeKind === 'castle' ? (G.AlibiCastle?.offline() ?? false) : offline,
+      offline:
+        activeKind && activeKind !== 'quiet'
+          ? (activityFor(activeKind)?.offline() ?? false)
+          : offline,
       kind: activeKind,
     }),
   };
