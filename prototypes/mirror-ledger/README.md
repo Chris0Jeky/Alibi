@@ -1,6 +1,16 @@
 # Mirror Ledger: standalone experiment
 
-Two 4×4 boards use the existing Sun & Moon balance, no-triples and distinct-line rules. Numbered same/opposite clues connect cells across the two boards. Both boards are visible together on a wide screen and stack on small screens; a link button outlines the endpoints, and link numbers and screen-reader labels identify them without colour. It is an independent memory-only prototype: serve the repository root with `python3 -m http.server 8798` and visit `/prototypes/mirror-ledger/`. Undo keeps the last 40 changed states. Reload resets progress. There is no telemetry, rating, persistence, app registration, or offline installation.
+Two 4×4 boards use the existing Sun & Moon balance, no-triples and distinct-line rules. Numbered same/opposite clues connect cells across the two boards. Both boards are visible together on a wide screen and stack on small screens; a link button outlines the endpoints, and link numbers and screen-reader labels identify them without colour. It is an independent memory-only prototype. To play the source, serve the repository root with `python3 -m http.server 8798` and visit `/prototypes/mirror-ledger/`. Undo keeps the last 40 changed states. Reload resets progress. There is no telemetry, rating, persistence, app registration, or offline installation.
+
+## Downloadable local preview
+
+With Node 22+ and the repository dependencies installed (`npm ci`), run:
+
+```sh
+node tools/build-mirror-preview.cjs
+```
+
+Open `test-results/mirror-ledger/mirror-ledger.html` directly in a browser; it needs no server or network. The separate `build-receipt.json` records source and output hashes. The dedicated Mirror Ledger workflow builds the same file and includes it in the `mirror-ledger-browser-evidence` CI artifact; download the artifact, extract it, and open `mirror-ledger.html`. This is a standalone session, not the installed app; closing or reloading it clears progress. Browser tests exercise both the source over local HTTP and this file at 320px and desktop widths. A workflow must actually pass before its browser checks can be claimed.
 
 ## Design choices and limits
 
