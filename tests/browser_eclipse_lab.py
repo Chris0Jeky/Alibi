@@ -34,6 +34,8 @@ def run():
           page.get_by_role('heading', name='Eclipse Lab', exact=True).wait_for(timeout=30000)
           assert page.locator('.card').count() == 4
           assert page.evaluate("AlibiActivities.diagnostics().kind === 'eclipse'")
+          page.locator('.skip-link').focus(); page.keyboard.press('Enter')
+          assert page.evaluate("document.activeElement.shadowRoot?.activeElement?.matches('main')"), 'lobby skip link reaches its content'
           assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'overflow {width}'
           page.screenshot(path=str(out / f'lobby-{width}.png'), full_page=True)
           for mode in ('constellation', 'eclipse', 'harbour', 'switchback'):
@@ -53,6 +55,8 @@ def run():
               hint_button = page.get_by_role('button',name='Hint',exact=True); hint_button.focus(); page.keyboard.press('Enter')
               assert page.get_by_role('button',name='Hint',exact=True).evaluate('(e) => e === e.getRootNode().activeElement')
               page.locator('[data-cell="2"]').focus()
+              page.locator('.skip-link').focus(); page.keyboard.press('Enter')
+              assert page.locator('[data-cell="2"]').evaluate('(e) => e === e.getRootNode().activeElement'), 'skip link returns to the selected cell'
               page.get_by_role('button', name='Preview linked group').click()
               assert page.locator('.cell.highlight').count() == 2
               page.get_by_role('button', name='Fill linked group').click()

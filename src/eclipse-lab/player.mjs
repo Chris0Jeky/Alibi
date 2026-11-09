@@ -494,7 +494,7 @@ export function mount({ root, css, preferences, store, offline }) {
     },
     setPreferences,
     focusDestination() {
-      const target = root.querySelector('main');
+      const target = root.querySelector(`[data-cell="${selected}"]`) || root.querySelector('main');
       target?.focus();
       return !!target;
     },
