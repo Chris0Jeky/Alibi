@@ -563,12 +563,12 @@
       };
     }
     async restore(backup, expected) {
-      if (backup?.damaged?.packRows !== undefined)
-        throw Error('This backup contains raw damaged pack rows. Keep it for manual recovery.');
       if (!this.db)
         throw Error(
           'Backup restoration requires IndexedDB. Open the hosted app in a normal browser, then restore.',
         );
+      if (backup?.damaged?.packRows !== undefined)
+        throw Error('This backup contains raw damaged pack rows. Keep it for manual recovery.');
       return new Promise((resolve, reject) => {
         const tx = this.db.transaction(STORES, 'readwrite'),
           runs = tx.objectStore('runs'),
