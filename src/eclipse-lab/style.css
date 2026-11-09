@@ -7,7 +7,7 @@
     sans-serif;
   --paper: #fffaf0;
   --ink: #292820;
-  --gold: #8b682e;
+  --gold: #7a5a24;
   --line: #c9b994;
   --accent: #493d26;
 }
@@ -74,7 +74,7 @@ button,
 .filebutton {
   min-height: 44px;
   padding: 9px 13px;
-  border: 1px solid var(--line);
+  border: 1px solid #8f7f5c;
   border-radius: 5px;
   background: var(--paper);
   cursor: pointer;
@@ -199,6 +199,36 @@ summary:focus-visible,
   width: min(100%, 480px);
   margin: 18px 0;
 }
+.play-grid.mirror {
+  grid-template-columns: 1fr;
+}
+.mirror-boards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  max-width: 900px;
+  margin: 18px 0;
+}
+.mirror-boards .board-wrap {
+  width: 100%;
+  margin: 0;
+}
+.mirror-boards .cell {
+  position: relative;
+  min-width: 44px;
+  padding-bottom: 18px;
+}
+.link-numbers {
+  position: absolute;
+  bottom: 3px;
+  inset-inline: 2px;
+  font: bold 12px/1 system-ui;
+}
+@media (max-width: 599px) {
+  .mirror-boards {
+    grid-template-columns: 1fr;
+  }
+}
 .board {
   position: relative;
   display: grid;
@@ -226,7 +256,7 @@ summary:focus-visible,
   z-index: 1;
 }
 .empty {
-  color: #b7a78a;
+  color: #857654;
 }
 .overlays {
   position: absolute;

@@ -32,17 +32,39 @@ def run():
           page = context.new_page(); errors=[]; page.on('pageerror', lambda e: errors.append(str(e)))
           page.goto(url + '#/quiet/eclipse', wait_until='domcontentloaded')
           page.get_by_role('heading', name='Eclipse Lab', exact=True).wait_for(timeout=30000)
-          assert page.locator('.card').count() == 4
+          assert page.locator('.card').count() == 5
           assert page.evaluate("AlibiActivities.diagnostics().kind === 'eclipse'")
           page.locator('.skip-link').focus(); page.keyboard.press('Enter')
           assert page.evaluate("document.activeElement.shadowRoot?.activeElement?.matches('main')"), 'lobby skip link reaches its content'
           assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'overflow {width}'
           page.screenshot(path=str(out / f'lobby-{width}.png'), full_page=True)
-          for mode in ('constellation', 'eclipse', 'harbour', 'switchback'):
+          for mode in ('constellation', 'eclipse', 'harbour', 'switchback', 'mirror'):
             p = next(p for p in PUZZLES if p['mode'] == mode and p['level'] == 1)
             page.evaluate("id => location.hash = '#/quiet/eclipse/' + id", p['id'])
             page.get_by_role('heading', name=p['title'], exact=True).wait_for()
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'board overflow {width} {mode}'
+            if mode == 'mirror':
+              assert page.locator('.board').count() == 2
+              assert page.locator('.cell').count() == 32
+              assert min(page.locator('.cell').evaluate_all('(els) => els.map(e => Math.min(e.getBoundingClientRect().width, e.getBoundingClientRect().height))')) >= 44
+              a, b = page.locator('.board').evaluate_all('(els) => els.map(e => ({x: e.getBoundingClientRect().x, y: e.getBoundingClientRect().y}))')
+              assert (a['y'] == b['y'] and a['x'] < b['x']) if width >= 600 else (a['x'] == b['x'] and a['y'] < b['y'])
+              for j, link in enumerate(p['links']):
+                for endpoint in (link['a'], link['b']):
+                  cell = page.locator(f'[data-cell="{endpoint}"]')
+                  assert f'link {j + 1} {link["relation"]}' in cell.get_attribute('aria-label')
+                  assert str(j + 1) in cell.locator('.link-numbers').inner_text()
+                page.get_by_role('button', name=f'Link {j + 1}:').click()
+                assert page.locator('.cell.highlight').count() == 2
+                assert all('highlight' in page.locator(f'[data-cell="{i}"]').get_attribute('class') for i in (link['a'], link['b']))
+              page.locator('[data-cell="0"]').focus(); page.keyboard.press('b')
+              assert page.locator('[data-cell="16"]').evaluate('(e) => e === e.getRootNode().activeElement')
+              page.keyboard.press('ArrowUp')
+              assert page.locator('[data-cell="16"]').evaluate('(e) => e === e.getRootNode().activeElement')
+              page.keyboard.press('ArrowDown')
+              assert page.locator('[data-cell="20"]').evaluate('(e) => e === e.getRootNode().activeElement')
+              page.get_by_role('button', name='Hint', exact=True).click()
+              assert 'Try ' in page.locator('.message').inner_text()
             if mode == 'constellation':
               page.locator('.skip-link').focus(); page.keyboard.press('Enter')
               assert page.locator('[data-cell="0"]').evaluate('(e) => e === e.getRootNode().activeElement'), 'skip link enters optional puzzle'
@@ -73,6 +95,16 @@ def run():
               page.locator(f'[data-cell="{i}"][aria-label*="{"Sun" if p["solution"][i] else "Moon"}"]').wait_for()
             page.get_by_role('button',name='Check',exact=True).click()
             assert 'Solved!' in page.locator('.message').inner_text(), mode
+            if mode == 'mirror':
+              page.get_by_role('button', name='Undo', exact=True).click()
+              page.get_by_text('Move undone.', exact=True).wait_for()
+              page.get_by_role('button', name='Redo', exact=True).click()
+              page.get_by_text('Move restored.', exact=True).wait_for()
+              page.reload(); page.get_by_role('heading', name=p['title'], exact=True).wait_for()
+              page.get_by_role('button', name='Check', exact=True).click()
+              assert 'Solved!' in page.locator('.message').inner_text()
+              page.evaluate('scrollTo(0, 0)')
+              page.screenshot(path=str(out / f'mirror-{width}.png'), full_page=True)
             if mode == 'constellation':
               page.get_by_role('button',name='Undo',exact=True).click()
               page.get_by_role('button',name='Redo',exact=True).click(); page.get_by_text('Move restored.', exact=True).wait_for()
@@ -87,11 +119,11 @@ def run():
           share = page.get_by_role('link',name='Share feedback on GitHub')
           parsed = urlparse(share.get_attribute('href')); query=parse_qs(parsed.query)
           assert parsed.netloc == 'github.com' and parsed.path == '/Chris0Jeky/Alibi/issues/new'
-          body=query['body'][0]; assert 'switchback-01' in body and 'just-right' in body and 'A lovely small challenge.' in body
+          body=query['body'][0]; assert 'mirror-01' in body and 'just-right' in body and 'A lovely small challenge.' in body
           assert 'cells' not in body and 'recovery' not in body
           with page.expect_download() as download: page.get_by_role('button',name='Export lab backup',exact=True).click()
           backup=json.loads(pathlib.Path(download.value.path()).read_text()); assert any(r['rating']==4 and r['feedback']=='A lovely small challenge.' for r in backup['save']['runs'].values())
-          page.reload(); page.get_by_role('heading',name='Switchback 1',exact=True).wait_for(timeout=30000); assert page.locator('[data-feedback]').input_value()=='A lovely small challenge.'
+          page.reload(); page.get_by_role('heading',name='Mirror 1',exact=True).wait_for(timeout=30000); assert page.locator('[data-feedback]').input_value()=='A lovely small challenge.'
           page.on('dialog', lambda d: d.accept())
           page.locator('[data-file]').set_input_files({'name':'bad.json','mimeType':'application/json','buffer':b'{bad'})
           assert page.locator('[data-feedback]').input_value()=='A lovely small challenge.'
@@ -107,7 +139,7 @@ def run():
           assert any(r['feedback']=='Changed later' for r in recovered['save']['runs'].values())
           page.evaluate("location.hash = '#/quiet/eclipse'")
           page.get_by_role('link',name='Constellation 1, 4 by 4, solved',exact=True).wait_for()
-          assert page.locator('.level-list a.completed').count() == 4
+          assert page.locator('.level-list a.completed').count() == 5
           page.evaluate("location.hash = '#/quiet/eclipse/eclipse-05'")
           page.get_by_role('heading',name='Eclipse 5',exact=True).wait_for()
           assert page.locator('.cell').count() == 36
@@ -121,16 +153,20 @@ def run():
           assert page.locator('[data-cell="1"]').evaluate('(e) => e === e.getRootNode().activeElement')
           assert page.evaluate('AlibiActivities.diagnostics().kind') == 'eclipse'
           assert page.evaluate('AlibiActivities.diagnostics().offline')
+          page.evaluate("location.hash = '#/quiet/eclipse/mirror-01'")
+          page.get_by_role('heading', name='Mirror 1', exact=True).wait_for()
+          page.get_by_role('button', name='Check', exact=True).click()
+          assert 'Solved!' in page.locator('.message').inner_text()
           context.set_offline(False)
           assert not errors, errors
           context.close()
         protected = browser.new_context(viewport={'width': 390, 'height': 900}, accept_downloads=True)
         protected.add_init_script("localStorage.setItem('alibi.eclipse.v1', '{future-version}')")
-        page = protected.new_page(); page.goto(url + '#/quiet/eclipse/constellation-01')
-        page.get_by_role('heading', name='Constellation 1', exact=True).wait_for(timeout=30000)
+        page = protected.new_page(); page.goto(url + '#/quiet/eclipse/mirror-01')
+        page.get_by_role('heading', name='Mirror 1', exact=True).wait_for(timeout=30000)
         assert 'preserved' in page.locator('.status').inner_text()
-        page.locator('[data-cell="2"]').click()
-        page.locator('[data-cell="2"][aria-label*="Sun"]').wait_for()
+        page.locator('[data-cell="0"]').click()
+        page.locator('[data-cell="0"][aria-label*="Sun"]').wait_for()
         assert page.evaluate("localStorage.getItem('alibi.eclipse.v1')") == '{future-version}'
         with page.expect_download() as download: page.get_by_role('button',name='Export lab backup',exact=True).click()
         data = json.loads(pathlib.Path(download.value.path()).read_text())

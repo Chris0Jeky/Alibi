@@ -1,5 +1,7 @@
 # Mirror Ledger: standalone experiment
 
+Play the persistent in-app version in [Eclipse Lab](../../docs/ECLIPSE-LAB.md) at `#/quiet/eclipse/mirror-01`; this standalone workflow remains available.
+
 Two 4×4 boards use the existing Sun & Moon balance, no-triples and distinct-line rules. Numbered same/opposite clues connect cells across the two boards. Both boards are visible together on a wide screen and stack on small screens; a link button outlines the endpoints, and link numbers and screen-reader labels identify them without colour. It is an independent memory-only prototype. To play the source, serve the repository root with `python3 -m http.server 8798` and visit `/prototypes/mirror-ledger/`. Undo keeps the last 40 changed states. Reload resets progress. There is no telemetry, rating, persistence, app registration, or offline installation.
 
 ## Downloadable local preview
