@@ -89,7 +89,7 @@ test('cleanup emits excerpt only on failure and retains original exit even if lo
           '-c',
           `
 set -euo pipefail
-OUT="$1"; ROOT="$2"; SAMPLE="$3"; EMU_PID=999999
+OUT="$1"; ROOT="$2"; SAMPLE="$3"; EMU_PID=999999; TRACE_ATTEMPTED=0
 ${cleanup}
 trap cleanup EXIT
 kill() { return 0; }

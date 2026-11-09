@@ -74,6 +74,20 @@ elif name == 'adb':
     elif args == ['shell', 'svc', 'wifi', 'disable'] and os.environ.get('STUB_WIFI_FAIL'):
         sys.exit(31)
     elif args == ['shell', 'settings', 'get', 'global', 'airplane_mode_on']: print('1')
+    elif args[:3] == ['shell', 'perfetto', '-c']:
+        (root / 'trace-config').write_text(sys.stdin.read())
+        if os.environ.get('STUB_TRACE_START_HANG'): time.sleep(3)
+        if os.environ.get('STUB_TRACE_START_FAIL'): sys.exit(42)
+        (root / 'trace-started').touch()
+    elif args[:3] == ['shell', 'perfetto', '--attach=alibi-native']:
+        if os.environ.get('STUB_TRACE_STOP_HANG'): time.sleep(3)
+        if os.environ.get('STUB_TRACE_STOP_FAIL') or not (root / 'trace-started').exists(): sys.exit(43)
+        (root / 'trace-stopped').touch()
+    elif args[:2] == ['pull', '/data/misc/perfetto-traces/alibi-native.pftrace']:
+        if os.environ.get('STUB_TRACE_PULL_HANG'): time.sleep(3)
+        if os.environ.get('STUB_TRACE_PULL_FAIL') or not (root / 'trace-started').exists(): sys.exit(44)
+        Path(args[2]).write_bytes(b'fake trace')
+    elif args == ['shell', 'cat', '/proc/uptime']: print('123.45 100.00')
     elif args == ['logcat', '-d']: print('stub logcat retained')
 elif name == 'gradlew':
     assert '-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=' + 'a' * 64 in args
@@ -94,6 +108,10 @@ class SmokeRunnerTests(unittest.TestCase):
         project = root / 'project'
         (project / 'tools').mkdir(parents=True)
         (project / 'android').mkdir()
+        if overrides.get('STUB_TRACE_SETUP_FAIL') or overrides.get('STUB_TRACE_SEED_STALE'):
+            stale = project / 'test-results/native/draw-trace.stale'
+            stale.mkdir(parents=True)
+            (stale / 'draw-trace.pftrace').write_bytes(b'old trace')
         shutil.copyfile(ROOT / 'tools/run-android-smoke.sh', project / 'tools/run-android-smoke.sh')
         sdk = root / 'sdk'
         bin_dir = root / 'bin'
@@ -113,7 +131,16 @@ class SmokeRunnerTests(unittest.TestCase):
                            'seq() { if [[ -n "${STUB_SHORT_BOOT:-}" && "$*" == "1 90" ]]; '
                            'then printf "1\\n2\\n3\\n"; else command seq "$@"; fi; }\n'
                            'sleep() { if [[ -n "${STUB_SHORT_BOOT:-}" ]]; then :; '
-                           'else command sleep "$@"; fi; }\n')
+                           'else command sleep "$@"; fi; }\n'
+                           'mktemp() { if [[ -n "${STUB_TRACE_SETUP_FAIL:-}" && "$*" == *"draw-trace."* ]]; '
+                           'then if [[ "$STUB_TRACE_SETUP_FAIL" == notdir ]]; then '
+                           'local bad="${2%XXXXXX}bad"; : > "$bad"; printf "%s\\n" "$bad"; '
+                           'else return 1; fi; else command mktemp "$@"; fi; }\n'
+                           'timeout() { if [[ -n "${STUB_TRACE_SETUP_FAIL:-}" && "$*" == *"mktemp -d"*"draw-trace."* ]]; '
+                           'then mktemp "${@:5}"; '
+                           'elif [[ -n "${STUB_FAST_TIMEOUT:-}" && ( "$*" == *"adb shell perfetto"* || "$*" == *"adb pull"* ) ]]; '
+                           'then command timeout --signal=TERM --kill-after=0.2s 0.2s "${@:4}"; '
+                           'else command timeout "$@"; fi; }\n')
         runner_temp = root / 'runner-temp'
         runner_temp.mkdir()
         inherited = [root / name for name in ('user-prefs', 'emulator-prefs', 'legacy-prefs')]
@@ -188,6 +215,71 @@ class SmokeRunnerTests(unittest.TestCase):
         self.assertFalse((root / 'recorded').exists())
         self.assertEqual((project / 'test-results/native/logcat.txt').read_text(), 'stub logcat retained\n')
         self.assert_stopped(root)
+
+    def test_unavailable_trace_setup_preserves_smoke_result_and_does_not_claim_stale_output(self):
+        for setup in ('mktemp', 'notdir'):
+            for status in ('0', '23'):
+                with self.subTest(setup=setup, status=status):
+                    root, project, _, _, result, _, calls = self.run_smoke(
+                        STUB_TRACE_SETUP_FAIL=setup, STUB_GRADLE_EXIT=status)
+                    self.assertEqual(result.returncode, int(status), result.stderr)
+                    self.assertEqual((root / 'recorded').exists(), status == '0')
+                    self.assertIn('native trace output=unavailable', result.stdout)
+                    self.assertFalse(any(c['args'][:2] == ['shell', 'perfetto'] for c in calls))
+                    self.assertEqual((project / 'test-results/native/draw-trace.stale/draw-trace.pftrace').read_bytes(), b'old trace')
+                    self.assertNotIn('native trace output=draw-trace.stale', result.stdout)
+                    self.assert_stopped(root)
+
+    def test_fresh_trace_identity_excludes_existing_stale_capture(self):
+        root, project, _, _, result, _, _ = self.run_smoke(STUB_TRACE_SEED_STALE='1')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        trace_line = next(line for line in result.stdout.splitlines() if line.startswith('native trace output='))
+        trace_name = trace_line.split('=', 1)[1]
+        self.assertNotEqual(trace_name, 'draw-trace.stale')
+        out = project / 'test-results/native'
+        self.assertEqual((out / trace_name / 'draw-trace.pftrace').read_bytes(), b'fake trace')
+        self.assertEqual((out / 'draw-trace.stale/draw-trace.pftrace').read_bytes(), b'old trace')
+        self.assert_stopped(root)
+
+    def test_trace_spans_instrumentation_and_is_retained_on_failure(self):
+        root, project, _, _, result, _, calls = self.run_smoke(STUB_GRADLE_EXIT='23')
+        self.assertEqual(result.returncode, 23, result.stderr)
+        self.assertTrue(any(c['args'][:3] == ['shell', 'perfetto', '-c'] for c in calls), 'trace starts')
+        start = next(i for i, c in enumerate(calls) if c['args'][:3] == ['shell', 'perfetto', '-c'])
+        gradle = next(i for i, c in enumerate(calls) if c['name'] == 'gradlew')
+        stop = next(i for i, c in enumerate(calls) if c['args'][:3] == ['shell', 'perfetto', '--attach=alibi-native'])
+        self.assertLess(start, gradle)
+        self.assertLess(gradle, stop)
+        self.assertTrue((root / 'trace-started').exists())
+        self.assertTrue((root / 'trace-stopped').exists())
+        out = next((project / 'test-results/native').glob('draw-trace.*'))
+        self.assertEqual((out / 'draw-trace.pftrace').read_bytes(), b'fake trace')
+        self.assertIn('pull=ok', (out / 'draw-trace-status.txt').read_text())
+
+    def test_trace_failure_does_not_mask_smoke_result(self):
+        for failure in ('STUB_TRACE_START_FAIL', 'STUB_TRACE_STOP_FAIL', 'STUB_TRACE_PULL_FAIL'):
+            for status in ('0', '23'):
+                with self.subTest(failure=failure, status=status):
+                    root, project, _, _, result, _, _ = self.run_smoke(**{failure: '1', 'STUB_GRADLE_EXIT': status})
+                    self.assertEqual(result.returncode, int(status), result.stderr)
+                    self.assertEqual((root / 'recorded').exists(), status == '0')
+                    trace_status = next((project / 'test-results/native').glob('draw-trace.*/draw-trace-status.txt'))
+                    self.assertTrue(trace_status.exists(), 'diagnostic status is retained')
+                    self.assertIn('failed', trace_status.read_text())
+                    if failure == 'STUB_TRACE_STOP_FAIL':
+                        self.assertEqual((trace_status.parent / 'draw-trace.pftrace').read_bytes(), b'fake trace')
+                    self.assert_stopped(root)
+
+    def test_hung_trace_commands_are_bounded_and_preserve_instrumentation_failure(self):
+        for failure in ('STUB_TRACE_START_HANG', 'STUB_TRACE_STOP_HANG', 'STUB_TRACE_PULL_HANG'):
+            with self.subTest(failure=failure):
+                root, project, _, _, result, elapsed, _ = self.run_smoke(
+                    **{failure: '1', 'STUB_FAST_TIMEOUT': '1', 'STUB_GRADLE_EXIT': '23'})
+                self.assertEqual(result.returncode, 23, result.stderr)
+                self.assertLess(elapsed, 5)
+                trace_status = next((project / 'test-results/native').glob('draw-trace.*/draw-trace-status.txt'))
+                self.assertIn('failed', trace_status.read_text())
+                self.assert_stopped(root)
 
     def test_phone_appears_after_boot_before_any_network_command(self):
         root, _, _, _, result, _, calls = self.run_smoke(STUB_SHORT_BOOT='1', STUB_PHONE_DELAY='2')
