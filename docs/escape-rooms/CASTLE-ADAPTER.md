@@ -35,10 +35,11 @@ public authored-object format.
 
 ## Authority and boundaries
 
-- Lifecycle and saves: the existing `CastleStore` (#442) remains the only Castle save authority.
-  This adapter writes nothing, so it cannot clear unknown saves or overwrite a concurrent edit.
-  Durable escape progress must be added under #442 with revision pinning, CAS, import and
-  offline tests.
+- Lifecycle and saves: the existing `CastleStore` from the completed #442 case-host work remains
+  the only Castle save authority. This memory-only adapter writes nothing, so it cannot clear
+  unknown saves or overwrite a concurrent edit. Escape-specific mounting and recovery acceptance
+  remain with open #467 and must use the existing CastleStore and its current revision-pinned,
+  compare-and-swap and import safeguards. Do not add a competing store or reopen #442.
 - Source revision: room `id` and `revision`, with the existing SHA-256 source receipt from
   `escape-authoring.cjs` for authoring evidence.
 - Bundles: `src/castle/entry.mjs` does not import the adapter. The Castle script measured 99,515
@@ -50,5 +51,6 @@ public authored-object format.
 ## Remaining for #467
 
 Mount the host behind a Castle route once #433 delivers room data. Then route `escape-object` and
-`escape-act` clicks through `view.mjs`'s dispatcher and `show()`/`close()`, and add a browser test
-for focus return and rapid route changes in a real document.
+`escape-act` clicks through `view.mjs`'s dispatcher and `show()`/`close()`, add a browser test for
+focus return and rapid route changes in a real document, and complete escape-specific recovery
+acceptance under #467 using the existing CastleStore authority.
