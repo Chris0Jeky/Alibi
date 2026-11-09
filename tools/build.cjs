@@ -155,7 +155,9 @@ function build() {
       `globalThis.ALIBI_CHALLENGE_DATA=${JSON.stringify(require('./challenge-catalogue.cjs').validation(require('./challenge-catalogue.cjs').load(ROOT)))};`,
       read(path.join(SRC, 'challenges.js')),
       castleValidation,
-      `globalThis.ALIBI_CATALOG={puzzles:${JSON.stringify(catalog.puzzles.map((p) => p.id))}.map(id=>({id}))};`,
+      // Validated IDs cannot contain spaces. Keep all collision identities while avoiding
+      // one pair of quotes per ID in the precached validation worker.
+      `globalThis.ALIBI_CATALOG={puzzles:${JSON.stringify(catalog.puzzles.map((p) => p.id).join(' '))}.split(' ').map(id=>({id}))};`,
       read(path.join(SRC, 'validator-worker.js')),
     ].join('\n'),
     worker = require('esbuild').transformSync(workerSource, {

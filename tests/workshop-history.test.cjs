@@ -362,6 +362,25 @@ test('reverification preserves history; generation keeps the replaced draft on U
   assert.equal(h.state().redo, 1);
 });
 
+test('generation at the fifty-step limit retains the newest fifty exact undo snapshots', async () => {
+  const h = fixture(),
+    snapshots = [];
+  for (let i = 1; i <= 50; i++) {
+    h.name('Room ' + i);
+    h.blur();
+    snapshots.push(h.state().draft);
+  }
+  const pending = h.generate();
+  h.workers[0].resolve(C.createSceneDraft({ seed: 8 }));
+  await pending;
+  assert.equal(h.state().undo, 50);
+  for (let i = 49; i >= 0; i--) {
+    await h.action('undo-draft');
+    assert.deepEqual(h.state().draft, snapshots[i]);
+  }
+  assert.equal(h.state().undo, 0);
+});
+
 test('Redo invalidates a pending unique result and preserves the edited draft', async () => {
   const h = fixture();
   await h.action('remove-draft-clue', { index: String(initial.clues.length - 1) });

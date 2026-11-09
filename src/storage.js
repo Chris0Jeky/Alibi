@@ -26,6 +26,7 @@
     aborted = () => Error('Storage transaction aborted.'),
     badDraft = (v) => {
       try {
+        if (Object.hasOwn(v, 'rev') && (!Number.isSafeInteger(v.rev) || v.rev < 0)) return true;
         root.AlibiCore.validateSceneDraft(v?.puzzle);
       } catch {
         return true;
@@ -78,6 +79,19 @@
   function snapshotValues(requests) {
     return requests.map((r, i) => (i < 2 ? r.result.map((x) => x.value) : r.result?.value));
   }
+  function jsonSafe(value, depth = 0, seen = new Set(), budget = { count: 0 }) {
+    if (++budget.count > 100000) return false;
+    if (value === null || typeof value === 'string' || typeof value === 'boolean') return true;
+    if (typeof value === 'number') return Number.isFinite(value);
+    if (depth > 64 || typeof value !== 'object' || seen.has(value)) return false;
+    seen.add(value);
+    if (Array.isArray(value))
+      return Array.from(value).every((v) => jsonSafe(v, depth + 1, seen, budget));
+    return (
+      Object.prototype.toString.call(value) === '[object Object]' &&
+      Object.values(value).every((v) => jsonSafe(v, depth + 1, seen, budget))
+    );
+  }
   class ConflictError extends Error {
     constructor() {
       super('This puzzle changed in another tab. Reload its latest save or export this session.');
@@ -96,6 +110,7 @@
       this.legacyProblem = null;
       // Identifies this tab's draft writes for the workshop compare-and-swap.
       this.tab = Math.random().toString(36).slice(2);
+      this.draftQueue = Promise.resolve();
     }
     legacyRunEntries() {
       // Only local mode reads settings and packs from these keys itself; elsewhere every entry is unmigrated data.
@@ -223,24 +238,34 @@
           const tx = this.db.transaction(store, 'readonly'),
             r = tx.objectStore(store).getAll();
           this.watch(tx, reject);
-          r.onsuccess = () => resolve(r.result.map((x) => x.value));
+          r.onsuccess = () =>
+            resolve(
+              r.result.map((x) => (store === 'packs' && x.key !== x.value?.id ? null : x.value)),
+            );
           r.onerror = () => reject(r.error);
         });
       if (this.mode === 'local') {
         const out = [],
           damaged = [],
+          rawPacks = [],
           prefix = PREFIX + store + '.';
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
           if (key && key.startsWith(prefix)) {
             try {
-              out.push(JSON.parse(localStorage.getItem(key)));
+              const raw = localStorage.getItem(key),
+                value = JSON.parse(raw);
+              if (store === 'packs' && value?.id !== key.slice(prefix.length)) {
+                rawPacks.push({ storage: 'localStorage', key, value: raw });
+                out.push(null);
+              } else out.push(value);
             } catch {
               damaged.push(key.slice(prefix.length));
             }
           }
         }
         this.damaged[store] = out.damaged = damaged;
+        if (store === 'packs') this.rawLocalPacks = rawPacks;
         return out;
       }
       return Object.values(this.memory[store]);
@@ -283,18 +308,17 @@
     async addPack(input, official) {
       if (this.fatal) throw Error(this.problem || 'Saved data is unavailable.');
       if (!this.db && this.mode === 'local')
-        throw Error('Adding packs requires IndexedDB. Existing local data is unchanged.');
+        throw Error('Adding packs requires IndexedDB; local data is unchanged.');
       const C = root.AlibiCore,
         pack = C.validatePack(input, false),
         incoming = new Set(pack.puzzles.map((p) => p.id));
       let count = 0;
       const reserve = (existing) => {
-        if (existing.id === pack.id) throw Error('A pack with that ID is already installed.');
+        if (existing.id === pack.id) throw Error('That pack ID is already installed.');
         if (existing.puzzles.some((p) => incoming.has(p.id)))
-          throw Error('A puzzle ID in this pack is already in your collection. Use a distinct ID.');
+          throw Error('A puzzle ID is already installed. Choose a new ID.');
         count += existing.puzzles.length;
-        if (count + pack.puzzles.length > 3000)
-          throw Error('This prototype is limited to 3,000 local puzzles.');
+        if (count + pack.puzzles.length > 3000) throw Error('The limit is 3,000 local puzzles.');
       };
       const check = (row) => {
         let existing;
@@ -310,9 +334,7 @@
       };
       const checkRun = (puzzle, row) => {
         if (row !== undefined && !C.equal(row?.value?.puzzle, puzzle))
-          throw Error(
-            'A saved puzzle already uses this ID and revision. Use a new ID or revision.',
-          );
+          throw Error('A saved puzzle already uses this ID and revision. Change one.');
       };
       reserve(official);
       if (!this.db) {
@@ -363,10 +385,10 @@
       // player confirmed: another tab may have replaced it under the same ID since this tab loaded it.
       if (this.fatal) throw Error(this.problem || 'Saved data is unavailable.');
       if (!this.db && this.mode === 'local')
-        throw Error('Removing packs requires IndexedDB. Existing local data is unchanged.');
+        throw Error('Removing packs requires IndexedDB; local data is unchanged.');
       const C = root.AlibiCore,
         changed = () =>
-          Object.assign(Error('This pack changed in another tab. Reload before removing it.'), {
+          Object.assign(Error('This pack changed in another tab. Reload before continuing.'), {
             name: 'ConflictError',
           }),
         same = (stored) => {
@@ -402,11 +424,16 @@
     async saveDraft(value, expectedRevision) {
       // Write over the revision this tab loaded or last confirmed, or over this tab's own later
       // write (edits save before earlier saves confirm). Never over another tab's draft.
-      const key = 'workshop-draft',
+      const snapshot = root.AlibiCore.clone(value),
+        key = 'workshop-draft',
         write = (old) => {
+          if (old !== undefined && badDraft(old))
+            throw Error(
+              'The saved draft is damaged. Export browser data before resetting anything.',
+            );
           if (draftRevision(old) !== expectedRevision && old?.tab !== this.tab)
             throw new ConflictError();
-          return { ...value, rev: nextRevision(draftRevision(old)), tab: this.tab };
+          return { ...snapshot, rev: nextRevision(draftRevision(old)), tab: this.tab };
         };
       if (this.db)
         return new Promise((resolve, reject) => {
@@ -428,8 +455,12 @@
           tx.oncomplete = () => resolve(next);
           tx.onabort = () => reject(bad || tx.error || aborted());
         });
-      // Fallback storage has no cross-tab transaction; compare, then write (damaged reads as 0).
-      return this.put('meta', key, write(await this.get('meta', key).catch(() => {})));
+      // Serialize this tab's fallback saves; localStorage has no cross-tab transaction.
+      const pending = this.draftQueue.then(async () =>
+        this.put('meta', key, write(await this.get('meta', key))),
+      );
+      this.draftQueue = pending.catch(() => {});
+      return pending;
     }
     async saveRun(record, expectedRevision) {
       // Validate the input and its increment before cloning or writing an unsafe revision.
@@ -483,12 +514,28 @@
             const tx = this.db.transaction(STORES, 'readonly'),
               requests = snapshotRequests(tx);
             this.watch(tx, reject);
-            tx.oncomplete = () => resolve(snapshotValues(requests));
+            tx.oncomplete = () => {
+              const values = snapshotValues(requests),
+                rows = requests[1].result.filter((row) => row.key !== row.value?.id);
+              values[1] = requests[1].result
+                .filter((row) => row.key === row.value?.id)
+                .map((row) => row.value);
+              values.push(rows);
+              resolve(values);
+            };
           })
         : null;
       const runs = snapshot ? snapshot[0] : await this.getAll('runs'),
-        packs = snapshot ? snapshot[1] : await this.getAll('packs'),
+        packs = snapshot ? snapshot[1] : (await this.getAll('packs')).filter((p) => p !== null),
         metaDamaged = [];
+      const packRows = snapshot?.[5] || this.rawLocalPacks || [];
+      if (
+        packRows.length &&
+        (packRows.length > 100 ||
+          !jsonSafe(packRows) ||
+          JSON.stringify(packRows).length > 16 * 1024 * 1024)
+      )
+        throw Error('Damaged pack records cannot be exported safely. Keep the browser data.');
       let settings = {},
         preferences = {},
         workshopDraft;
@@ -511,6 +558,7 @@
           runs: [...(this.damaged.runs || [])],
           packs: [...(this.damaged.packs || [])],
           meta: [...metaDamaged],
+          ...(packRows.length ? { packRows } : {}),
         },
       };
     }
@@ -519,6 +567,8 @@
         throw Error(
           'Backup restoration requires IndexedDB. Open the hosted app in a normal browser, then restore.',
         );
+      if (backup?.damaged?.packRows !== undefined)
+        throw Error('This backup contains raw damaged pack rows. Keep it for manual recovery.');
       return new Promise((resolve, reject) => {
         const tx = this.db.transaction(STORES, 'readwrite'),
           runs = tx.objectStore('runs'),
@@ -534,6 +584,8 @@
         const go = () => {
           if (++n < 6) return;
           try {
+            if (requests[1].result.some((row) => row.key !== row.value?.id))
+              throw Error('Stored damaged pack rows need manual recovery before restoring.');
             const [cR, cP, settings, preferences, cD] = snapshotValues(requests),
               cS = settings || {},
               cF = preferences || {};
@@ -559,6 +611,13 @@
             )
               throw Error('Unsupported backup format. Nothing was changed.');
             const cDbad = cD !== undefined && badDraft(cD);
+            const restoredDraft =
+              backup.workshopDraft !== undefined && (cD === undefined || cDbad)
+                ? {
+                    puzzle: backup.workshopDraft.puzzle,
+                    rev: nextRevision(cD != null && Object.hasOwn(cD, 'rev') ? cD.rev : 0),
+                  }
+                : null;
             const draftConflict =
               backup.workshopDraft !== undefined &&
               cD !== undefined &&
@@ -618,8 +677,7 @@
             for (const p of backup.packs) packs.put({ key: p.id, value: p });
             meta.put({ key: 'settings', value: backup.settings || {} });
             meta.put({ key: 'preferences', value: backup.preferences || {} });
-            if (backup.workshopDraft !== undefined && (cD === undefined || cDbad))
-              meta.put({ key: 'workshop-draft', value: backup.workshopDraft });
+            if (restoredDraft) meta.put({ key: 'workshop-draft', value: restoredDraft });
           } catch (e) {
             bad = e;
             tx.abort();

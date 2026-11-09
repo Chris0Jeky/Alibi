@@ -20,14 +20,14 @@ const slice = (from, to) => {
 };
 const source = [
   slice('  function getRun(p) {', '  function saveLabel()'),
-  slice('  function enqueueSave()', '  const channel ='),
+  slice('  function enqueueSave()', "  channel?.addEventListener('message', async (e) => {"),
   slice('  function concluding(', '  function accusation('),
   slice('  function locked()', '  function sceneMenu('),
   slice('  function checkBoard()', '  async function showHint()'),
   slice('  function revealConfirm()', '  async function reviewRecord()'),
   slice('  async function reviewRecord()', '  function applyReveal()'),
   slice('  function applyReveal()', '  function undo('),
-  slice("  channel?.addEventListener('message'", '  function difficulty('),
+  slice("  channel?.addEventListener('message', async (e) => {", '  function difficulty('),
   slice('  async function cabinetBackup()', '  async function exportBackup()'),
   slice('  function undo(', '  // The next unsolved chapter'),
   slice('  function nextPuzzle()', '  function startLesson('),

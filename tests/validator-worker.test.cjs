@@ -254,3 +254,17 @@ for (const type of ['cabinet-backup', 'combined-backup']) {
     }
   });
 }
+for (const type of ['cabinet-backup', 'combined-backup']) {
+  test(`${type} refuses raw damaged pack rows before any restore`, () => {
+    const { context, results } = loadWorker();
+    const cabinet = cabinetBackup({
+      damaged: { packRows: [{ key: 'wrong', value: { id: 'actual' } }] },
+    });
+    const result = send(context, results, {
+      type,
+      text: JSON.stringify(type === 'cabinet-backup' ? cabinet : combinedBackup({ cabinet })),
+    });
+    assert.equal(result.ok, false);
+    assert.match(result.error, /damaged|manual|raw/i);
+  });
+}

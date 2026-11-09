@@ -490,3 +490,29 @@ test('a backup lists only stored packs in IndexedDB mode, so a stale tab cannot 
   assert.deepEqual(await run('indexeddb'), ['kept']);
   assert.deepEqual(await run('session'), ['kept', 'removed-elsewhere']);
 });
+
+test('IndexedDB backup keeps the current stored definition when a stale tab has an older same-ID pack', async () => {
+  const context = {
+    store: {
+      mode: 'indexeddb',
+      async export() {
+        return { runs: [], packs: [{ id: 'shared', title: 'Replacement' }] };
+      },
+    },
+    enqueueSave: async () => {},
+    queue: Promise.resolve(),
+    C: { clone: structuredClone },
+    records: new Map(),
+    acked: new Map(),
+    packs: [{ id: 'starter' }, { id: 'shared', title: 'Old' }],
+    settings: {},
+    prefs: {},
+    cfg: { version: 'test' },
+  };
+  vm.runInNewContext(
+    `let draftSave, draftStale = null; ${appFunction('cabinetBackup')} globalThis.api = {backup: cabinetBackup};`,
+    context,
+  );
+  const { data } = await context.api.backup();
+  assert.equal(data.packs[0].title, 'Replacement');
+});

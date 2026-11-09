@@ -155,6 +155,7 @@ jobs:
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8797/ > /dev/null && break; sleep 1; done
           python tests/browser_origin.py
           python tests/browser_workshop_ownership.py
+          ALIBI_URL=http://127.0.0.1:8797/ python tests/browser_pack_followups.py
           python tests/browser_backup_ownership.py
           python tests/browser_print_sheet.py
           python tests/browser_completion_hooks.py

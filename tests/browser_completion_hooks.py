@@ -172,7 +172,7 @@ def main():
                     assert completed["firstCompletedAt"] == completed["completedAt"], name
                     assert page.evaluate("completionHookAttempts") == {"journey": 1, "theatre": 1}, name
                     assert page.locator("dialog[open]").count() == 1, name
-                    assert "Every constraint is satisfied" in page.locator("dialog[open]").inner_text(), name
+                    assert "All constraints fit" in page.locator("dialog[open]").inner_text(), name
                     assert not page.evaluate("AlibiDiagnostics.getStatus().saveError"), name
                     stored = read_saved_run(page, key)
                     assert stored["completedAt"] == completed["completedAt"], name

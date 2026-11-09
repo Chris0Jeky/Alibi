@@ -176,7 +176,16 @@ function tab(database, official = { id: 'official', puzzles: [{ id: 'official-pi
   const store = new context.AlibiStorage.Store();
   store.db = database;
   store.mode = 'indexeddb';
-  Object.assign(context, { store, starter: clone(official), render() {}, toast() {} });
+  Object.assign(context, {
+    store,
+    starter: clone(official),
+    channel: null,
+    packReady: false,
+    packSync: false,
+    packDirty: false,
+    render() {},
+    toast() {},
+  });
   const api = vm.runInContext(
     '(function () { const C = AlibiCore; let packs = [starter];' +
       'function all() { return packs.flatMap(p => p.puzzles); }' +

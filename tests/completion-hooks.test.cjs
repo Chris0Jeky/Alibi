@@ -135,7 +135,7 @@ async function complete({
   assert.equal(journeys[1].seconds, 42);
   assert.equal(dialogs.length, 1);
   assert.equal(dialogs[0][0], 'That satisfying “aha”.');
-  assert.match(dialogs[0][1], /Every constraint is satisfied/);
+  assert.match(dialogs[0][1], /All constraints fit/);
   await context.queue;
   assert.equal(context.pendingSaves, 0, 'the queue drains after saving');
   assert.equal(context.saveError, null);

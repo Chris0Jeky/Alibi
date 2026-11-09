@@ -112,7 +112,7 @@ def run_hint_journeys(browser, base, width, standard, expert, check):
             expect(dialog.locator('.deduction-title')).to_have_text('A forced waterline')
             expect(dialog.locator('.hint-box')).to_contain_text('other tanks')
             expect(dialog.locator('.hint-box')).to_contain_text('Fill its bottom row')
-            expect(dialog).to_contain_text('only the public clues')
+            expect(dialog).to_contain_text('Uses public clues only')
             guidance = page.evaluate('aquariumHint')
             assert (guidance['tank'], guidance['level']) == (tank, level)
             assert 'value' not in guidance

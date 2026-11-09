@@ -46,6 +46,7 @@ ORIGIN_SCENARIOS = (
     "backup_restore",
     "cross_tab",
     "workshop_draft_cross_tab",
+    "workshop_draft_restore_fence",
     "keyboard",
     "offline",
     "shared_paths",
@@ -736,6 +737,32 @@ def scenario_workshop_draft_cross_tab(pw: Any, root: Path) -> None:
             context.close()
         except Exception:
             pass
+
+
+def scenario_workshop_draft_restore_fence(pw: Any, root: Path) -> None:
+    context = launch_profile(pw, root / "workshop-draft-restore-fence")
+    try:
+        scene = next(p for p in json.loads((ROOT / "content/catalog.json").read_text(encoding="utf-8"))["puzzles"] if p["type"] == "scene")
+        first = new_page(context, "restore-first")
+        second = new_page(context, "restore-stale")
+        second.add_init_script("delete globalThis.BroadcastChannel;")
+        boot(first)
+        boot(second)
+        result = first.evaluate("""async puzzle => {
+          const store = await new AlibiStorage.Store().init();
+          await store.restore({format:'alibi-backup',schemaVersion:1,runs:[],packs:[],settings:{},preferences:{},workshopDraft:{puzzle}});
+          return await store.get('meta','workshop-draft');
+        }""", scene)
+        check(result['rev'] > 0, 'restoring a draft to an empty shelf assigns a nonzero revision')
+        attempt = second.evaluate("""async puzzle => {
+          const store = await new AlibiStorage.Store().init();
+          try { await store.saveDraft({puzzle: {...puzzle, title:'Stale edit'}}, 0); return 'written'; }
+          catch (e) { return e.name; }
+        }""", scene)
+        check(attempt == 'ConflictError', 'a revision-zero stale tab without broadcasts cannot overwrite a restored draft')
+        check(read_idb(first, 'meta', 'workshop-draft') == result, 'restored draft remains unchanged after the refused write')
+    finally:
+        context.close()
 
 
 def page_text(page: Page) -> str:
@@ -2630,6 +2657,7 @@ def run() -> int:
                 scenario_backup_restore,
                 scenario_cross_tab,
                 scenario_workshop_draft_cross_tab,
+                scenario_workshop_draft_restore_fence,
                 scenario_keyboard,
                 scenario_offline,
                 scenario_shared_paths,

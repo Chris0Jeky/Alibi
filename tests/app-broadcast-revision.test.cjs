@@ -19,7 +19,7 @@ assert.ok(enqueueStart > 0 && enqueueEnd > enqueueStart, 'actual enqueueSave sou
 const enqueueSrc = appSrc.slice(enqueueStart, enqueueEnd);
 assert.match(enqueueSrc, /store\.saveRun/, 'extracted enqueueSave performs the CAS save');
 
-const channelStart = appSrc.indexOf('const channel =');
+const channelStart = appSrc.indexOf("channel?.addEventListener('message', async (e) => {");
 const channelEnd = appSrc.indexOf('function difficulty', channelStart);
 assert.ok(channelStart > 0 && channelEnd > channelStart, 'actual broadcast handler is present');
 const channelSrc = appSrc.slice(channelStart, channelEnd);
@@ -120,6 +120,7 @@ function makeWorld({ localRows, activeKey = null, storedRows = {}, holdGet = fal
     'let records = new Map();\n' +
     'let revs = new Map();\n' +
     'let acked = new Map();\n' +
+    "const channel = new BroadcastChannel('alibi-saves');\n" +
     'for (const [k, v] of __seed.records) records.set(k, JSON.parse(JSON.stringify(v)));\n' +
     'for (const [k, v] of __seed.revs) revs.set(k, v);\n' +
     'if (__seed.activeKey) current = records.get(__seed.activeKey) || null;\n' +

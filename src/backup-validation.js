@@ -59,6 +59,8 @@
       return r;
     }
     function validateBackup(data) {
+      if (data?.damaged?.packRows !== undefined)
+        throw Error('This backup contains raw damaged pack rows. Keep it for manual recovery.');
       if (
         !data ||
         data.format !== 'alibi-backup' ||
