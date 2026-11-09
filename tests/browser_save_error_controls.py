@@ -32,7 +32,14 @@ def conflict(page):
 
 
 def center(locator):
+    # A save-error render can replace board cells; wait for the current one to be laid out.
+    locator.wait_for(state='visible')
     box = locator.bounding_box()
+    if box is None:
+        locator.page.wait_for_timeout(100)
+        locator.wait_for(state='visible')
+        box = locator.bounding_box()
+    assert box is not None, 'board cell has no layout box'
     return box['x'] + box['width'] / 2, box['y'] + box['height'] / 2
 
 
