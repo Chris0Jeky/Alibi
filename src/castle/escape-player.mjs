@@ -118,6 +118,9 @@ export function mount({ root, store, show, close }) {
     if (result.ok) drafts.delete(handle);
     say(result.ok && view().won ? 'Room complete. Nothing was saved.' : result.message);
     draw({ do: 'escape-act', value: handle });
+    // A rejected answer keeps its draft; return the keyboard to the field to correct it.
+    if (!result.ok && input)
+      $(`[data-escape-answer="${CSS.escape(handle)}"]`)?.focus({ preventScroll: true });
   }
   function click(event) {
     const target = event.target.closest?.('[data-do]');
