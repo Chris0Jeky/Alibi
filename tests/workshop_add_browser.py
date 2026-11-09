@@ -88,6 +88,7 @@ def run():
                     # Load a second actual app before either collection is installed.
                     # Its in-memory catalogue deliberately remains stale throughout play.
                     stale = context.new_page()
+                    stale.add_init_script("Object.defineProperty(globalThis, 'BroadcastChannel', {value: undefined})")
                     stale.set_default_timeout(20000)
                     stale.on('pageerror', lambda error: errors.append(str(error)))
                     stale.goto(URL + '/#/workshop')
@@ -352,8 +353,8 @@ def run():
                     page.goto(URL + '/#/workshop')
                     page.wait_for_function('()=>AlibiDiagnostics.getStatus().pendingSaves===0')
                     before = page.evaluate(ROWS)
-                    # Saved-run broadcasts legitimately update the other tab's
-                    # record count. Only its pack catalogue must remain stale.
+                    # This tab misses broadcasts; the advisory shelf status must still
+                    # read committed storage without changing its stale catalogue.
                     status_dialog = open_current_adder(stale)
                     expect(status_dialog.locator('[data-pack-status="lattice"]')).to_contain_text('Pack ID present')
                     status_dialog.get_by_role('button', name='Close', exact=True).click()
