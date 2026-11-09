@@ -1,5 +1,20 @@
 [
   {
+    "version": "0.16.0",
+    "date": "2026-11-09",
+    "title": "More Sun & Moon, a new Lab, and sturdier saves",
+    "tag": "v0.16.0",
+    "receipt": "docs/RELEASE-0.16.0.md",
+    "changes": [
+      "Sunrise Studies and Interlock add new Sun & Moon, Futoshiki, Lantern and route boards, bringing the collection to 612 puzzles.",
+      "Try the Eclipse Lab, an experimental corner of linked Sun & Moon levels with rules, undo, redo and hints; send your impressions only if you choose to.",
+      "Castle rooms now explain which rule a rejected answer breaks.",
+      "The Workshop keeps drafts safe across tabs, lets you remove an added pack without losing progress, and recovers from a failed import.",
+      "Phones offer a first-puzzle starter, and you can practise a technique without leaving your game.",
+      "Restores are checked, damaged data is kept for recovery, and large collections start faster."
+    ]
+  },
+  {
     "version": "0.15.2",
     "date": "2026-10-14",
     "title": "Paintings for your desk and games",

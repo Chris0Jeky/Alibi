@@ -1113,4 +1113,348 @@ export const PUZZLES = [
       1, 0, 0, 0, 1,
     ],
   },
+  {
+    id: 'mirror-01',
+    revision: 1,
+    mode: 'mirror',
+    size: 4,
+    title: 'Mirror 1',
+    lesson:
+      'Balance each board separately. Follow matching link numbers across boards; = means same and ≠ means opposite.',
+    level: 1,
+    givens: [
+      -1, -1, -1, -1, -1, -1, -1, 0, 0, -1, 0, 1, 1, -1, -1, -1, -1, -1, 1, 0, -1, -1, -1, 1, -1,
+      -1, -1, -1, -1, 0, 1, -1,
+    ],
+    links: [
+      {
+        a: 6,
+        b: 27,
+        relation: 'opposite',
+      },
+      {
+        a: 14,
+        b: 17,
+        relation: 'opposite',
+      },
+      {
+        a: 10,
+        b: 21,
+        relation: 'same',
+      },
+      {
+        a: 15,
+        b: 27,
+        relation: 'same',
+      },
+    ],
+    windows: [],
+    rowTargets: [2, 2, 2, 2],
+    colTargets: [2, 2, 2, 2],
+    solution: [
+      0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1,
+      1,
+    ],
+  },
+  {
+    id: 'mirror-02',
+    revision: 1,
+    mode: 'mirror',
+    size: 4,
+    title: 'Mirror 2',
+    lesson:
+      'Balance each board separately. Follow matching link numbers across boards; = means same and ≠ means opposite.',
+    level: 2,
+    givens: [
+      -1, 1, -1, -1, -1, -1, -1, 0, -1, -1, 0, 1, -1, -1, -1, 1, -1, -1, -1, 1, -1, 0, -1, 1, 0, -1,
+      -1, 0, -1, -1, -1, -1,
+    ],
+    links: [
+      {
+        a: 7,
+        b: 17,
+        relation: 'same',
+      },
+      {
+        a: 2,
+        b: 29,
+        relation: 'opposite',
+      },
+      {
+        a: 13,
+        b: 22,
+        relation: 'opposite',
+      },
+      {
+        a: 9,
+        b: 29,
+        relation: 'same',
+      },
+    ],
+    windows: [],
+    rowTargets: [2, 2, 2, 2],
+    colTargets: [2, 2, 2, 2],
+    solution: [
+      1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0,
+      0,
+    ],
+  },
+  {
+    id: 'mirror-03',
+    revision: 1,
+    mode: 'mirror',
+    size: 4,
+    title: 'Mirror 3',
+    lesson:
+      'Balance each board separately. Follow matching link numbers across boards; = means same and ≠ means opposite.',
+    level: 3,
+    givens: [
+      -1, 1, -1, 0, -1, -1, -1, 0, 1, -1, -1, -1, 0, -1, -1, -1, -1, -1, 1, -1, -1, 1, 0, -1, -1,
+      -1, 1, -1, -1, 1, -1, -1,
+    ],
+    links: [
+      {
+        a: 7,
+        b: 16,
+        relation: 'opposite',
+      },
+      {
+        a: 0,
+        b: 23,
+        relation: 'same',
+      },
+      {
+        a: 14,
+        b: 25,
+        relation: 'opposite',
+      },
+      {
+        a: 4,
+        b: 21,
+        relation: 'same',
+      },
+    ],
+    windows: [],
+    rowTargets: [2, 2, 2, 2],
+    colTargets: [2, 2, 2, 2],
+    solution: [
+      0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0,
+      1,
+    ],
+  },
+  {
+    id: 'mirror-04',
+    revision: 1,
+    mode: 'mirror',
+    size: 4,
+    title: 'Mirror 4',
+    lesson:
+      'Balance each board separately. Follow matching link numbers across boards; = means same and ≠ means opposite.',
+    level: 4,
+    givens: [
+      -1, -1, 0, 1, -1, -1, 0, -1, -1, -1, -1, -1, 1, -1, 1, -1, 1, 0, -1, -1, -1, -1, -1, -1, -1,
+      -1, 1, -1, -1, 1, 0, -1,
+    ],
+    links: [
+      {
+        a: 15,
+        b: 23,
+        relation: 'same',
+      },
+      {
+        a: 7,
+        b: 23,
+        relation: 'opposite',
+      },
+      {
+        a: 6,
+        b: 21,
+        relation: 'same',
+      },
+      {
+        a: 5,
+        b: 22,
+        relation: 'same',
+      },
+    ],
+    windows: [],
+    rowTargets: [2, 2, 2, 2],
+    colTargets: [2, 2, 2, 2],
+    solution: [
+      1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0,
+      1,
+    ],
+  },
+  {
+    id: 'mirror-05',
+    revision: 1,
+    mode: 'mirror',
+    size: 4,
+    title: 'Mirror 5',
+    lesson:
+      'Balance each board separately. Follow matching link numbers across boards; = means same and ≠ means opposite.',
+    level: 5,
+    givens: [
+      1, -1, -1, -1, -1, -1, 0, 1, -1, -1, 1, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1,
+      1, 0, -1, -1, 0, 0, -1,
+    ],
+    links: [
+      {
+        a: 2,
+        b: 23,
+        relation: 'same',
+      },
+      {
+        a: 5,
+        b: 20,
+        relation: 'same',
+      },
+      {
+        a: 8,
+        b: 24,
+        relation: 'opposite',
+      },
+      {
+        a: 1,
+        b: 19,
+        relation: 'opposite',
+      },
+    ],
+    windows: [],
+    rowTargets: [2, 2, 2, 2],
+    colTargets: [2, 2, 2, 2],
+    solution: [
+      1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0,
+      1,
+    ],
+  },
+  {
+    id: 'mirror-06',
+    revision: 1,
+    mode: 'mirror',
+    size: 4,
+    title: 'Mirror 6',
+    lesson:
+      'Balance each board separately. Follow matching link numbers across boards; = means same and ≠ means opposite.',
+    level: 6,
+    givens: [
+      -1, 0, -1, -1, -1, -1, -1, 0, 1, 0, 0, -1, -1, -1, -1, -1, 1, 0, -1, 1, -1, -1, -1, 0, -1, 1,
+      -1, -1, -1, -1, -1, -1,
+    ],
+    links: [
+      {
+        a: 7,
+        b: 26,
+        relation: 'same',
+      },
+      {
+        a: 4,
+        b: 26,
+        relation: 'opposite',
+      },
+      {
+        a: 0,
+        b: 28,
+        relation: 'same',
+      },
+      {
+        a: 3,
+        b: 24,
+        relation: 'opposite',
+      },
+    ],
+    windows: [],
+    rowTargets: [2, 2, 2, 2],
+    colTargets: [2, 2, 2, 2],
+    solution: [
+      0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1,
+      0,
+    ],
+  },
+  {
+    id: 'mirror-07',
+    revision: 1,
+    mode: 'mirror',
+    size: 4,
+    title: 'Mirror 7',
+    lesson:
+      'Balance each board separately. Follow matching link numbers across boards; = means same and ≠ means opposite.',
+    level: 7,
+    givens: [
+      0, -1, -1, 0, -1, 0, -1, -1, -1, -1, 0, -1, -1, -1, -1, 1, -1, -1, 1, 0, -1, -1, 0, -1, -1, 1,
+      -1, -1, 0, -1, -1, -1,
+    ],
+    links: [
+      {
+        a: 9,
+        b: 23,
+        relation: 'same',
+      },
+      {
+        a: 8,
+        b: 29,
+        relation: 'opposite',
+      },
+      {
+        a: 2,
+        b: 17,
+        relation: 'same',
+      },
+      {
+        a: 6,
+        b: 17,
+        relation: 'same',
+      },
+    ],
+    windows: [],
+    rowTargets: [2, 2, 2, 2],
+    colTargets: [2, 2, 2, 2],
+    solution: [
+      0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1,
+      1,
+    ],
+  },
+  {
+    id: 'mirror-08',
+    revision: 1,
+    mode: 'mirror',
+    size: 4,
+    title: 'Mirror 8',
+    lesson:
+      'Balance each board separately. Follow matching link numbers across boards; = means same and ≠ means opposite.',
+    level: 8,
+    givens: [
+      0, -1, -1, -1, -1, -1, 0, -1, -1, -1, 0, -1, -1, 0, -1, 0, -1, -1, -1, -1, 1, 0, 1, -1, -1, 1,
+      -1, -1, -1, -1, -1, 1,
+    ],
+    links: [
+      {
+        a: 0,
+        b: 19,
+        relation: 'opposite',
+      },
+      {
+        a: 12,
+        b: 28,
+        relation: 'same',
+      },
+      {
+        a: 1,
+        b: 23,
+        relation: 'opposite',
+      },
+      {
+        a: 5,
+        b: 17,
+        relation: 'same',
+      },
+    ],
+    windows: [],
+    rowTargets: [2, 2, 2, 2],
+    colTargets: [2, 2, 2, 2],
+    solution: [
+      0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0,
+      1,
+    ],
+  },
 ];

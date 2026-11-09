@@ -15,7 +15,7 @@ Alibi is a static, device-local puzzle cabinet: thirteen logic families, illustr
 [Roadmap](ROADMAP.md) ·
 [Author a puzzle](docs/AUTHORING.md)
 
-Source package **0.15.2**. Check the [release record](docs/RELEASE-0.15.2.md) and [project state](docs/STATE.md) for source/build evidence, publication status, and same-origin save/update receipts. Commits after a publication receipt are not automatically deployed. The Sites address is the retiring fallback; see [Status](#status-and-roadmap). A Capacitor Android preview exists in the tree. There is no Play Store release and no completed physical-device acceptance.
+Source package **0.16.0**. Check the [release record](docs/RELEASE-0.16.0.md) and [project state](docs/STATE.md) for source/build evidence, publication status, and same-origin save/update receipts. Commits after a publication receipt are not automatically deployed. The Sites address is the retiring fallback; see [Status](#status-and-roadmap). A Capacitor Android preview exists in the tree. There is no Play Store release and no completed physical-device acceptance.
 
 ![The last light at Bellweather](src/artwork/bellweather.webp)
 
@@ -196,7 +196,7 @@ The main CI workflow is [Verify puzzle cabinet](.github/workflows/check.yml) (No
 
 ## Status and roadmap
 
-**Shipped in source at 0.15.2.** Thirteen families, 570 registry puzzles, five casebooks, the Games Room, Quiet Wing, the workshop, offline install of the core, the beta/feedback client, optional Desk and Games Room paintings, and navigation/family pictograms. Source/build, Cloudflare publication, public-file, and same-origin save/update receipts are tracked in the [0.15.2 release record](docs/RELEASE-0.15.2.md) and [project state](docs/STATE.md).
+**Shipped in source at 0.16.0.** Thirteen families, 612 registry puzzles, five casebooks, the Games Room, Quiet Wing, the workshop, offline install of the core, the beta/feedback client, optional Desk and Games Room paintings, and navigation/family pictograms, and the experimental Eclipse Lab. Source/build, Cloudflare publication and hosted receipts are tracked in the [0.16.0 release record](docs/RELEASE-0.16.0.md) and [project state](docs/STATE.md).
 
 **Sites.** Owner decision 2026-09-27: retire `https://alibi-puzzle-club.jeky-tck.chatgpt.site/` with one deployment that shows a moved notice and an export path. That deployment is still open ([HUMAN_TODO.md](HUMAN_TODO.md) q-9). On 12 October 2026 that origin returned HTTP 200 and its platform identity reported `appVersion` 0.12.0. Current `src/boot.js` shows “Alibi has moved” only when the page is opened on that Sites host, so the notice is not in the 0.12.0 shell. Nothing redirects, and nothing deletes the saves that live there.
 
@@ -233,7 +233,7 @@ The source is [PolyForm Strict License 1.0.0](LICENSE.md). You may read it and u
 - [Theatrical edition](docs/THEATRICAL-EDITION.md)
 - [Asset library](docs/ASSET-LIBRARY.md) and [asset delivery](docs/ASSET-DELIVERY.md)
 - [Deployment](docs/DEPLOYMENT.md) and [Android / Capacitor](docs/ANDROID.md)
-- [0.15.2 release record](docs/RELEASE-0.15.2.md)
+- [0.16.0 release record](docs/RELEASE-0.16.0.md)
 - [Player QA](docs/PLAYER-QA.md)
 - [Security](SECURITY.md) and [privacy notes](docs/SECURITY-AND-PRIVACY.md)
 - [Licence](LICENSE.md) and [notice](NOTICE.md)

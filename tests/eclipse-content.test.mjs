@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { PUZZLES } from '../src/eclipse-lab/puzzles.mjs';
 import { validatePuzzle, check, solve } from '../src/eclipse-lab/model.mjs';
 import { canonicalGrid } from '../tools/curation/eclipse-candidates.mjs';
@@ -98,16 +99,24 @@ function oracle(p) {
   dfs([], 0);
   return { count, first };
 }
-test('all 32 authored levels are independently unique', () => {
-  assert.equal(PUZZLES.length, 32);
-  assert.equal(new Set(PUZZLES.map((p) => p.id)).size, 32);
+test('all 40 authored levels validate and the original 32 remain byte-identical', () => {
+  assert.equal(PUZZLES.length, 40);
+  assert.equal(new Set(PUZZLES.map((p) => p.id)).size, 40);
+  assert.equal(
+    createHash('sha256')
+      .update(JSON.stringify(PUZZLES.filter((p) => p.mode !== 'mirror')))
+      .digest('hex'),
+    '38a2bcbe803c3c05a3fec63ae199dc6ac5d9cb258609a710e1b8520398824b16',
+  );
   for (const p of PUZZLES) {
     validatePuzzle(p);
     assert.ok(check(p, p.solution).complete, p.id);
-    const x = oracle(p),
-      y = solve(p);
-    assert.equal(x.count, 1, p.id);
-    assert.deepEqual(x.first, p.solution, p.id);
+    if (p.mode !== 'mirror') {
+      const x = oracle(p);
+      assert.equal(x.count, 1, p.id);
+      assert.deepEqual(x.first, p.solution, p.id);
+    }
+    const y = solve(p);
     assert.equal(y.exhausted, false, p.id);
     assert.deepEqual(y.solutions, [p.solution], p.id);
   }
