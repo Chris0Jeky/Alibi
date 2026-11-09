@@ -74,6 +74,7 @@ with sync_playwright() as p:
 
     # Undo can scroll the page: record that geometry, then ensure both native pointer targets are hittable.
     before_scroll = geometry(page)
+    moves_before_drag = before_scroll['moves']
     print('PAINT_GEOMETRY_BEFORE_SCROLL', json.dumps(before_scroll), flush=True)
     try:
         page.locator('.paint-cell[data-cell="0"]').scroll_into_view_if_needed()
@@ -92,7 +93,7 @@ with sync_playwright() as p:
         page.screenshot(path=str(SHOTS / 'paint-render-desktop.png'), full_page=True)
         page.evaluate('document.dispatchEvent(new PointerEvent("pointercancel", {bubbles: true}))')
         page.mouse.up()
-        assert page.evaluate('AlibiDiagnostics.getCurrent().moves') == 1
+        assert page.evaluate('AlibiDiagnostics.getCurrent().moves') == moves_before_drag + 1, 'drag adds one move; Undo retains the lifetime move count'
         page.locator('[data-action="undo"]').first.click()
         assert page.evaluate('AlibiDiagnostics.getCurrent().state.cells.slice(0, 2).every(x => x === -1)'), 'drag is one undo step'
     except Exception:
