@@ -101,6 +101,7 @@ export function mount({ root, css, preferences, store, offline }) {
     return `<section class="backup"><h2>Your desk notebook</h2><p>Export a Timeline Desk backup to keep your progress and saved feedback elsewhere. The regular Cabinet combined backup does not include it.</p><div class="actions"><button data-action="export">Export desk backup</button><label class="filebutton">Review desk backup<input type="file" data-file accept="application/json,.json"></label><button data-action="recovery">Download recovery copy</button></div>${preview ? `<div class="notice"><p>Backup contains ${preview.count} level runs. Restoring replaces the current desk shelf and keeps a recovery copy.</p><button data-action="restore">Confirm restore</button><button data-action="cancel-restore">Cancel</button></div>` : ''}</section>`;
   }
   const solved = (puzzle, marks) => check(puzzle, marks).complete;
+  const win = () => `Solved. ${p.payoff}`;
   function lobby() {
     const runs = store.snapshot().runs;
     const level = (x) => {
@@ -140,7 +141,7 @@ export function mount({ root, css, preferences, store, offline }) {
   function play() {
     const ix = PUZZLES.findIndex((x) => x.id === p.id),
       done = solved(p, run.marks);
-    return `<section class="play"><a href="#/quiet/timeline">← All levels</a><div class="play-heading"><div><span class="eyebrow">Level ${p.level} · ${p.events.length} events · ${p.slots} hours</span><h2>${esc(p.title)}</h2><p>${esc(p.story)}</p></div><nav class="level-nav" aria-label="Levels">${ix > 0 ? `<a href="#/quiet/timeline/${PUZZLES[ix - 1].id}">← Previous</a>` : ''}${ix < PUZZLES.length - 1 ? `<a href="#/quiet/timeline/${PUZZLES[ix + 1].id}">Next →</a>` : ''}</nav></div><div class="play-grid"><div><p class="rule">${p.distinct ? 'No two events share an hour.' : 'Two events may share an hour.'}</p>${grid()}<p class="small">Tap an hour to cycle: open, ruled out, placed. Arrow keys move; X rules out, P places, Backspace clears.</p><div class="actions"><button data-action="undo" ${!run.undo.length ? 'disabled' : ''}>Undo</button><button data-action="redo" ${!run.redo.length ? 'disabled' : ''}>Redo</button><button data-action="restart">Restart</button><button data-action="check">Check</button><button data-action="hint">Hint</button></div><p class="message" role="status" aria-live="polite">${esc(message)}</p>${done ? `<p class="payoff"><strong>Solved.</strong> ${esc(p.payoff)}</p>${ix < PUZZLES.length - 1 ? `<a class="next" href="#/quiet/timeline/${PUZZLES[ix + 1].id}">Next case →</a>` : ''}` : ''}</div><aside class="clue-panel"><h3>Clues</h3><p class="small">${esc(p.lesson)}</p><ol class="clues">${clues()
+    return `<section class="play"><a href="#/quiet/timeline">← All levels</a><div class="play-heading"><div><span class="eyebrow">Level ${p.level} · ${p.events.length} events · ${p.slots} hours</span><h2>${esc(p.title)}</h2><p>${esc(p.story)}</p></div><nav class="level-nav" aria-label="Levels">${ix > 0 ? `<a href="#/quiet/timeline/${PUZZLES[ix - 1].id}">← Previous</a>` : ''}${ix < PUZZLES.length - 1 ? `<a href="#/quiet/timeline/${PUZZLES[ix + 1].id}">Next →</a>` : ''}</nav></div><div class="play-grid"><div><p class="rule">${p.distinct ? 'No two events share an hour.' : 'Two events may share an hour.'}</p>${grid()}<p class="small">Tap an hour to cycle: open, ruled out, placed. Arrow keys move; X rules out, P places, Backspace clears.</p><div class="actions"><button data-action="undo" ${!run.undo.length ? 'disabled' : ''}>Undo</button><button data-action="redo" ${!run.redo.length ? 'disabled' : ''}>Redo</button><button data-action="restart">Restart</button><button data-action="check">Check</button><button data-action="hint">Hint</button></div><p class="message" role="status" aria-live="polite">${esc(message)}</p>${done ? `${message === win() ? '' : `<p class="payoff">${esc(win())}</p>`}${ix < PUZZLES.length - 1 ? `<a class="next" href="#/quiet/timeline/${PUZZLES[ix + 1].id}">Next case →</a>` : ''}` : ''}</div><aside class="clue-panel"><h3>Clues</h3><p class="small">${esc(p.lesson)}</p><ol class="clues">${clues()
       .map(
         (c, i) =>
           `<li><button data-clue="${i}" aria-pressed="${lens === i}">${esc(c.text)}</button></li>`,
@@ -207,7 +208,7 @@ export function mount({ root, css, preferences, store, offline }) {
     const next = { ...run, marks, undo: [...run.undo, run.marks].slice(-40), redo: [] };
     if (await save(next)) {
       flagged = [];
-      message = solved(p, marks) ? p.payoff : note;
+      message = solved(p, marks) ? win() : note;
     }
     render();
   }
@@ -297,7 +298,7 @@ export function mount({ root, css, preferences, store, offline }) {
       const result = check(p, run.marks);
       flagged = [];
       lens = -1;
-      if (result.complete) message = p.payoff;
+      if (result.complete) message = win();
       else if (result.issues.length) {
         message = result.issues[0].text;
         flagged = result.issues[0].events.map((ev) => ev * p.slots + result.placed[ev]);
