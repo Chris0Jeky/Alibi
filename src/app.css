@@ -3687,16 +3687,7 @@ html[data-reduced='true'] *:after {
     max-width: 540px;
     margin: 9px auto 0;
   }
-  /* After a solve, the next step follows the board instead of sitting below the tools. */
-  .board-column {
-    display: flex;
-    flex-direction: column;
-  }
-  .board-card {
-    order: -2;
-  }
   .play-end {
-    order: -1;
     margin-top: 12px;
     padding: 18px;
   }
