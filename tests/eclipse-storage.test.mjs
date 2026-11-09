@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { PUZZLES } from '../src/eclipse-lab/puzzles.mjs';
 import {
   createStore,
   freshRun,
@@ -49,6 +50,33 @@ const edited = () => {
   run.cells[1] = 1;
   return run;
 };
+
+test('Mirror saves both boards and history at id@revision without clearing unknown bytes', async () => {
+  const p = PUZZLES.find((p) => p.mode === 'mirror');
+  const run = freshRun(p);
+  run.undo = [[...run.cells]];
+  run.cells[0] = 1;
+  run.cells[16] = 0;
+  const storage = memory(),
+    lock = locks(),
+    store = make(storage, lock);
+  assert.equal(await store.saveRun(edited()), true);
+  assert.equal(await store.saveRun(run), true);
+  const reopened = make(storage, lock);
+  assert.deepEqual(reopened.getRun(p), run);
+  assert.deepEqual(parseBackup(reopened.exportData()).runs['mirror-01@1'], run);
+  assert.ok(reopened.snapshot().runs['test-sky@1']);
+  const truncated = { ...run, cells: run.cells.slice(0, 16) };
+  await assert.rejects(reopened.saveRun(truncated));
+  for (const raw of ['{future-version}', '{"schema":99}']) {
+    const protectedStorage = memory();
+    protectedStorage.setItem(KEY, raw);
+    const protectedStore = make(protectedStorage);
+    assert.equal(await protectedStore.saveRun(run), false);
+    assert.equal(protectedStorage.getItem(KEY), raw);
+    assert.equal(JSON.parse(protectedStore.exportData()).recovery.raw, raw);
+  }
+});
 
 test('a committed board, history and explicit feedback survive reopening', async () => {
   const storage = memory(),
