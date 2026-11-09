@@ -24,7 +24,7 @@ const empty = () => ({ kind: 'alibi-eclipse-save', schema: 1, revision: 0, runs:
 function board(puzzle, cells) {
   return (
     Array.isArray(cells) &&
-    cells.length === puzzle.size ** 2 &&
+    cells.length === puzzle.givens.length &&
     Array.from(cells).every(
       (value, i) =>
         Number.isInteger(value) &&

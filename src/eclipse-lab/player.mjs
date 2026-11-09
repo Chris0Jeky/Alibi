@@ -78,7 +78,7 @@ export function mount({ root, css, preferences, store, offline }) {
     return `<p class="status" role="status">${esc(s.message || 'Progress is saved on this device.')} ${offlineReady ? 'Available offline.' : ''}</p>`;
   };
   const shell = (content) =>
-    `<style>${css}</style><main tabindex="-1"><header><a class="back" href="#/quiet">← Quiet Wing</a><span class="eyebrow">A room for trying things</span><h1>Eclipse Lab</h1><p class="intro">Four little experiments in suns, moons and the space between.</p></header>${status()}${content}${backupPanel()}</main>`;
+    `<style>${css}</style><main tabindex="-1"><header><a class="back" href="#/quiet">← Quiet Wing</a><span class="eyebrow">A room for trying things</span><h1>Eclipse Lab</h1><p class="intro">Five little experiments in suns, moons and the space between.</p></header>${status()}${content}${backupPanel()}</main>`;
   function backupPanel() {
     return `<section class="backup"><h2>Your lab notebook</h2><p>Export a Lab backup to keep your progress and saved feedback elsewhere. The regular Cabinet combined backup does not include it.</p><div class="actions"><button data-action="export">Export lab backup</button><label class="filebutton">Review lab backup<input type="file" data-file accept="application/json,.json"></label><button data-action="recovery">Download recovery copy</button></div>${preview ? `<div class="notice"><p>Backup contains ${preview.count} experiment runs. Restoring replaces the current lab shelf and keeps a recovery copy.</p><button data-action="restore">Confirm restore</button><button data-action="cancel-restore">Cancel</button></div>` : ''}</section>`;
   }
@@ -87,9 +87,9 @@ export function mount({ root, css, preferences, store, offline }) {
     const level = (x) => {
       const saved = runs[idOf(x)];
       const done = !!saved && check(saved.puzzle, saved.cells).complete;
-      return `<a href="#/quiet/eclipse/${x.id}" class="${done ? 'completed' : ''}" aria-label="${esc(x.title)}, ${x.size} by ${x.size}${done ? ', solved' : ''}">${x.level}${done ? ' ✓' : ''}</a>`;
+      return `<a href="#/quiet/eclipse/${x.id}" class="${done ? 'completed' : ''}" aria-label="${esc(x.title)}, ${x.mode === 'mirror' ? 'two boards, ' : ''}${x.size} by ${x.size}${done ? ', solved' : ''}">${x.level}${done ? ' ✓' : ''}</a>`;
     };
-    return `<section class="lobby"><div class="section-head"><span class="eyebrow">The experiments</span><h2>Choose a table</h2><p>Each collection has eight provisional levels. Start small, then try a larger sky.</p></div><div class="cards">${Object.entries(
+    return `<section class="lobby"><div class="section-head"><span class="eyebrow">The experiments</span><h2>Choose a table</h2><p>Each collection has eight provisional levels. Try a larger sky, or connect two boards in Mirror Ledger.</p></div><div class="cards">${Object.entries(
       MODES,
     )
       .map(
@@ -105,28 +105,34 @@ export function mount({ root, css, preferences, store, offline }) {
   function clues() {
     const n = p.size,
       out = [];
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < p.givens.length / n; i++) {
       const cells = Array.from({ length: n }, (_, j) => i * n + j);
       out.push({
         cells,
-        text: `Row ${i + 1}: ${p.rowTargets[i]} suns${p.mode === 'switchback' ? `, ${p.rowChanges[i]} changes` : ''}`,
+        text: `${p.mode === 'mirror' ? `Board ${i < n ? 'A' : 'B'}, ` : ''}Row ${(i % n) + 1}: ${p.rowTargets[i % n]} suns${p.mode === 'switchback' ? `, ${p.rowChanges[i]} changes` : ''}`,
       });
     }
-    for (let i = 0; i < n; i++) {
-      const cells = Array.from({ length: n }, (_, j) => j * n + i);
+    for (let i = 0; i < p.givens.length / n; i++) {
+      const cells = Array.from(
+        { length: n },
+        (_, j) => Math.floor(i / n) * n * n + j * n + (i % n),
+      );
       out.push({
         cells,
-        text: `Column ${i + 1}: ${p.colTargets[i]} suns${p.mode === 'switchback' ? `, ${p.colChanges[i]} changes` : ''}`,
+        text: `${p.mode === 'mirror' ? `Board ${i < n ? 'A' : 'B'}, ` : ''}Column ${(i % n) + 1}: ${p.colTargets[i % n]} suns${p.mode === 'switchback' ? `, ${p.colChanges[i]} changes` : ''}`,
       });
     }
-    for (const l of p.links)
-      out.push({ cells: [l.a, l.b], text: `${address(l.a)} and ${address(l.b)}: ${l.relation}` });
+    for (const [i, l] of p.links.entries())
+      out.push({
+        cells: [l.a, l.b],
+        text: `${p.mode === 'mirror' ? `Link ${i + 1}: ` : ''}${address(l.a)} and ${address(l.b)}: ${l.relation}`,
+      });
     for (const w of p.windows)
       out.push({ cells: w.cells, text: `Window at ${address(w.cells[0])}: ${w.suns} suns` });
     return out;
   }
   function address(i) {
-    return `row ${Math.floor(i / p.size) + 1}, column ${(i % p.size) + 1}`;
+    return `${p.mode === 'mirror' ? `Board ${i < 16 ? 'A' : 'B'}, ` : ''}row ${(Math.floor(i / p.size) % p.size) + 1}, column ${(i % p.size) + 1}`;
   }
   function overlays() {
     const n = p.size;
@@ -151,7 +157,28 @@ export function mount({ root, css, preferences, store, offline }) {
     );
   }
   function board() {
-    return `<div class="board-wrap"><div class="board" role="group" aria-label="${esc(p.title)} board" style="--n:${p.size}">${run.cells.map((v, i) => `<button class="cell ${p.givens[i] !== -1 ? 'fixed' : ''} ${highlight.includes(i) ? 'highlight' : ''}" data-cell="${i}" tabindex="${i === selected ? 0 : -1}" aria-label="Row ${Math.floor(i / p.size) + 1}, column ${(i % p.size) + 1}, ${valueName(v)}${p.givens[i] !== -1 ? ', fixed' : ''}">${v === 1 ? '☀' : v === 0 ? '☾' : '<span class="empty">·</span>'}</button>`).join('')}<div class="overlays">${overlays()}</div></div></div>`;
+    const mirror = p.mode === 'mirror',
+      N = p.size * p.size;
+    const boards = Array.from({ length: mirror ? 2 : 1 }, (_, b) => {
+      const name = `Board ${b ? 'B' : 'A'}`;
+      const cells = run.cells
+        .slice(b * N, (b + 1) * N)
+        .map((v, j) => {
+          const i = b * N + j;
+          const links = mirror
+            ? p.links.flatMap((l, k) =>
+                l.a === i || l.b === i ? [{ number: k + 1, relation: l.relation }] : [],
+              )
+            : [];
+          const label = mirror
+            ? address(i)
+            : `Row ${Math.floor(i / p.size) + 1}, column ${(i % p.size) + 1}`;
+          return `<button class="cell ${p.givens[i] !== -1 ? 'fixed' : ''} ${highlight.includes(i) ? 'highlight' : ''}" data-cell="${i}" tabindex="${i === selected ? 0 : -1}" aria-label="${label}, ${valueName(v)}${p.givens[i] !== -1 ? ', fixed' : ''}${links.map((l) => `, link ${l.number} ${l.relation}`).join('')}">${v === 1 ? '☀' : v === 0 ? '☾' : '<span class="empty">·</span>'}${links.length ? `<span class="link-numbers" aria-hidden="true">${links.map((l) => `${l.number}${l.relation === 'same' ? '=' : '≠'}`).join(' ')}</span>` : ''}</button>`;
+        })
+        .join('');
+      return `<div class="board-wrap">${mirror ? `<h3>${name}</h3>` : ''}<div class="board" role="group" aria-label="${mirror ? name : `${esc(p.title)} board`}" style="--n:${p.size}">${cells}${mirror ? '' : `<div class="overlays">${overlays()}</div>`}</div></div>`;
+    }).join('');
+    return mirror ? `<div class="mirror-boards">${boards}</div>` : boards;
   }
   function feedback() {
     const d = draftFor();
@@ -166,7 +193,7 @@ export function mount({ root, css, preferences, store, offline }) {
     const m = MODES[p.mode],
       list = PUZZLES.filter((x) => x.mode === p.mode),
       ix = list.findIndex((x) => x.id === p.id);
-    return `<section class="play"><a href="#/quiet/eclipse">← All experiments</a><div class="play-heading"><div><span class="eyebrow">${esc(m.title)} · ${p.size} × ${p.size}</span><h2>${esc(p.title)}</h2><p>${esc(p.lesson)}</p></div><nav class="level-nav" aria-label="Levels">${ix > 0 ? `<a href="#/quiet/eclipse/${list[ix - 1].id}">← Previous</a>` : ''}${ix < list.length - 1 ? `<a href="#/quiet/eclipse/${list[ix + 1].id}">Next →</a>` : ''}</nav></div><div class="play-grid"><div><div class="toolbar" role="group" aria-label="Choose a symbol">${[
+    return `<section class="play"><a href="#/quiet/eclipse">← All experiments</a><div class="play-heading"><div><span class="eyebrow">${esc(m.title)} · ${p.size} × ${p.size}</span><h2>${esc(p.title)}</h2><p>${esc(p.lesson)}</p></div><nav class="level-nav" aria-label="Levels">${ix > 0 ? `<a href="#/quiet/eclipse/${list[ix - 1].id}">← Previous</a>` : ''}${ix < list.length - 1 ? `<a href="#/quiet/eclipse/${list[ix + 1].id}">Next →</a>` : ''}</nav></div><div class="play-grid ${p.mode === 'mirror' ? 'mirror' : ''}"><div><div class="toolbar" role="group" aria-label="Choose a symbol">${[
       [1, '☀ Sun'],
       [0, '☾ Moon'],
       [-1, 'Clear'],
@@ -174,7 +201,7 @@ export function mount({ root, css, preferences, store, offline }) {
       .map(([v, t]) => `<button data-brush="${v}" aria-pressed="${brush === v}">${t}</button>`)
       .join(
         '',
-      )}</div>${board()}<p class="small">Choose a symbol, then select a cell. Arrow keys move; S, M and Backspace mark. Enter or Space cycles.</p><div class="actions"><button data-action="preview-linked">Preview linked group</button><button data-action="linked">Fill linked group</button><button data-action="undo" ${!run.undo.length ? 'disabled' : ''}>Undo</button><button data-action="redo" ${!run.redo.length ? 'disabled' : ''}>Redo</button><button data-action="restart">Restart</button></div><div class="actions"><button data-action="check">Check</button><button data-action="hint">Hint</button></div><p class="message" role="status" aria-live="polite">${esc(message)}</p></div><aside class="clue-panel"><h3>Rules &amp; clue lens</h3><ul>${m.rules.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${['harbour', 'switchback'].includes(p.mode) ? '<p><strong>Triples and repeated lines are allowed.</strong></p>' : ''}<p>Choose a clue to outline its cells.</p><div class="clues">${clues()
+      )}</div>${board()}<p class="small">Choose a symbol, then select a cell. Arrow keys move; S, M and Backspace mark. Enter or Space cycles.${p.mode === 'mirror' ? ' B switches boards at the same position; link numbers show = same or ≠ opposite.' : ''}</p><div class="actions"><button data-action="preview-linked">Preview linked group</button><button data-action="linked">Fill linked group</button><button data-action="undo" ${!run.undo.length ? 'disabled' : ''}>Undo</button><button data-action="redo" ${!run.redo.length ? 'disabled' : ''}>Redo</button><button data-action="restart">Restart</button></div><div class="actions"><button data-action="check">Check</button><button data-action="hint">Hint</button></div><p class="message" role="status" aria-live="polite">${esc(message)}</p></div><aside class="clue-panel"><h3>Rules &amp; clue lens</h3><ul>${m.rules.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${['harbour', 'switchback'].includes(p.mode) ? '<p><strong>Triples and repeated lines are allowed.</strong></p>' : ''}<p>Choose a clue to outline its cells.</p><div class="clues">${clues()
       .map((c, i) => `<button data-clue="${i}">${esc(c.text)}</button>`)
       .join('')}</div></aside></div>${feedback()}</section>`;
   }
@@ -484,8 +511,9 @@ export function mount({ root, css, preferences, store, offline }) {
     let next = i;
     if (e.key === 'ArrowLeft' && i % n > 0) next--;
     else if (e.key === 'ArrowRight' && i % n < n - 1) next++;
-    else if (e.key === 'ArrowUp' && i >= n) next -= n;
-    else if (e.key === 'ArrowDown' && i < n * (n - 1)) next += n;
+    else if (e.key === 'ArrowUp' && i % (n * n) >= n) next -= n;
+    else if (e.key === 'ArrowDown' && i % (n * n) < n * (n - 1)) next += n;
+    else if (p.mode === 'mirror' && e.key.toLowerCase() === 'b') next = (i + 16) % 32;
     else if (e.key.toLowerCase() === 's') {
       e.preventDefault();
       mark(i, 1);
