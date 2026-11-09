@@ -1,0 +1,125 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #292b31;
+  background: #eeeae1;
+  line-height: 1.5;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 960px;
+  margin: auto;
+  padding: clamp(16px, 4vw, 40px);
+}
+header,
+section {
+  margin-bottom: 1.5rem;
+}
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+h1 {
+  font-family: Georgia, serif;
+  font-size: 2.5rem;
+  margin-bottom: 0.4rem;
+}
+h2 {
+  font-size: 1.1rem;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #725a31;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.toolbar,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.toolbar span {
+  font-size: 0.85rem;
+}
+.boards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.ledger {
+  min-width: 0;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  max-width: 360px;
+  border: 2px solid #4d4f56;
+}
+.cell {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid #777;
+  background: #fffdf7;
+  color: #292b31;
+  font-size: clamp(1.3rem, 4vw, 2.3rem);
+  cursor: pointer;
+}
+.cell.fixed {
+  background: #e5dbbd;
+  font-weight: bold;
+}
+.cell.highlight {
+  outline: 4px solid #8f481e;
+  outline-offset: -4px;
+}
+.cell small {
+  position: absolute;
+  right: 3px;
+  top: 1px;
+  font: 700 0.65rem system-ui;
+  color: #693b19;
+}
+.links {
+  display: grid;
+  gap: 0.4rem;
+}
+.links button {
+  text-align: left;
+}
+button,
+select {
+  font: inherit;
+}
+button:not(.cell),
+select {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #655c49;
+  background: #fffdf7;
+  border-radius: 4px;
+}
+button:focus-visible,
+select:focus-visible {
+  outline: 3px solid #005ca8;
+  outline-offset: 2px;
+}
+.message {
+  min-height: 2em;
+  font-weight: 600;
+}
+@media (max-width: 600px) {
+  .boards {
+    grid-template-columns: 1fr;
+  }
+  .grid {
+    max-width: 100%;
+  }
+}
