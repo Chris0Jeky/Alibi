@@ -10,7 +10,7 @@ These entries describe the versions when they arrived. The original 0.2 source b
 
 2026-11-09
 
-- Sunrise Studies adds new Sun & Moon, Futoshiki, Lantern and route boards, bringing the collection to 612 puzzles.
+- Sunrise Studies and Interlock add new Sun & Moon, Futoshiki, Lantern and route boards, bringing the collection to 612 puzzles.
 - Try the Eclipse Lab, an experimental corner of linked Sun & Moon levels with rules, undo, redo and hints; send your impressions only if you choose to.
 - Castle rooms now explain which rule a rejected answer breaks.
 - The Workshop keeps drafts safe across tabs, lets you remove an added pack without losing progress, and recovers from a failed import.

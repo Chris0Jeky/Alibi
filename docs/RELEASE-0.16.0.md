@@ -4,7 +4,7 @@
 
 This release publishes the merged work since 0.15.2 (v0.15.2 tag to the
 release-preparation merge): Sunrise Studies and Interlock packs (612 puzzles
-across 33 trusted packs; 209 deferred), the experimental Eclipse Lab, Castle
+across 33 trusted packs, 209 of them deferred), the experimental Eclipse Lab, Castle
 answer feedback, Workshop draft/pack safety, the phone first-puzzle starter,
 in-game technique practice, and save/restore integrity and startup work.
 
