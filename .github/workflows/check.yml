@@ -145,6 +145,9 @@ jobs:
       - name: Play all After Hours games and reversible assistance
         if: steps.scope.outputs.mode == 'full'
         run: python tests/browser_club.py
+      - name: Verify Club storage fallback in a browser
+        if: steps.scope.outputs.mode == 'full'
+        run: python tests/browser_club_fallback.py
       - name: Play the Archive Heist vault rooms on a local origin
         if: steps.scope.outputs.mode == 'full'
         run: python tests/browser_archive_vaults.py
