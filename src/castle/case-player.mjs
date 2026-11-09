@@ -21,6 +21,7 @@ export function mount({ root, store, save }) {
     stage = 0,
     busy = false,
     message = '',
+    invalid = false,
     offline = false,
     previousStory;
   const record = () => store.state.caseStudy;
@@ -43,7 +44,7 @@ export function mount({ root, store, save }) {
     const story = store.state.preferences.story;
     if (previousStory !== undefined && previousStory !== story) receipt?.mode(story);
     previousStory = story;
-    root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player select{max-width:100%;min-height:44px}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}.case-player .actions{flex-wrap:wrap}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>Fictional case, separate from Wrenmere Chapter I. Wording and fairness await review. No points.</p><p role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
+    root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player select{max-width:100%;min-height:44px}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}.case-player .actions{flex-wrap:wrap}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>Fictional case, separate from Wrenmere Chapter I. Wording and fairness await review. No points.</p><p id="case-status" role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
     const area = root.querySelector('[data-case-content]');
     if (!definition || !record()) {
       area.innerHTML = `<p>Install to save drafts and accepted answers in your Castle notebook. Export the Notebook before changing devices. Installation needs connection and device storage.</p>${button(record() ? 'Retry opening saved case' : 'Install experimental case', 'install')}`;
@@ -51,6 +52,7 @@ export function mount({ root, store, save }) {
       const c = record(),
         step = definition.steps[stage];
       const projection = Session.project(definition, completed(), step.id, story);
+      const bad = (v) => (invalid && !v ? ' aria-invalid="true" aria-describedby="case-status"' : '');
       const refs = (ids) =>
         ids
           .map((id) => button(definition.records.find((r) => r.id === id).title, 'source', id))
@@ -60,7 +62,7 @@ export function mount({ root, store, save }) {
         .map((s) => button(s.title, 'stage', s.id))
         .join(
           '',
-        )}</nav><h2 tabindex="-1" id="case-stage">${escape(step.title)}</h2><p>${escape(projection.prompt)}</p><section aria-label="Case sources">${projection.records.map((r) => `<article class="card" tabindex="-1" id="case-source-${escape(r.id)}"><h3>${escape(r.title)}</h3><p>${escape(r.kind)} · ${escape(r.source)}</p><p>${escape(r.text)}</p></article>`).join('')}</section><form>${projection.claims.map((claim, i) => `<fieldset><legend>${escape(claim.text)}</legend><label for="case-verdict-${i}">Verdict</label><select id="case-verdict-${i}" data-case-verdict="${i}">${verdicts.map((v) => `<option value="${v}" ${c.drafts[stage][i][0] === v ? 'selected' : ''}>${v ? v.replaceAll('-', ' ') : 'Choose a verdict'}</option>`).join('')}</select><p>Smallest sufficient source set</p>${projection.records.map((r, j) => `<label><input type="checkbox" id="case-cite-${i}-${j}" data-case-cite="${i}" value="${escape(r.id)}" ${c.drafts[stage][i][1].includes(r.id) ? 'checked' : ''}> ${escape(r.title)}</label>`).join('')}</fieldset>`).join('')}<div class="actions">${button('Check this stage', 'check')}${button('Next hint', 'hint')}${button('Show worked answer', 'reveal')}</div></form>${projection.hints
+        )}</nav><h2 tabindex="-1" id="case-stage">${escape(step.title)}</h2><p>${escape(projection.prompt)}</p><section aria-label="Case sources">${projection.records.map((r) => `<article class="card" tabindex="-1" id="case-source-${escape(r.id)}"><h3>${escape(r.title)}</h3><p>${escape(r.kind)} · ${escape(r.source)}</p><p>${escape(r.text)}</p></article>`).join('')}</section><form>${projection.claims.map((claim, i) => `<fieldset><legend>${escape(claim.text)}</legend><label for="case-verdict-${i}">Verdict</label><select id="case-verdict-${i}" data-case-verdict="${i}"${bad(c.drafts[stage][i][0])}>${verdicts.map((v) => `<option value="${v}" ${c.drafts[stage][i][0] === v ? 'selected' : ''}>${v ? v.replaceAll('-', ' ') : 'Choose a verdict'}</option>`).join('')}</select><p id="case-cites-${i}">Smallest sufficient source set</p><div role="group" aria-labelledby="case-cites-${i}"${invalid ? ' aria-describedby="case-status"' : ''}>${projection.records.map((r, j) => `<label><input type="checkbox" id="case-cite-${i}-${j}" data-case-cite="${i}" value="${escape(r.id)}"${bad(c.drafts[stage][i][1].length)} ${c.drafts[stage][i][1].includes(r.id) ? 'checked' : ''}> ${escape(r.title)}</label>`).join('')}</div></fieldset>`).join('')}<div class="actions">${button('Check this stage', 'check')}${button('Next hint', 'hint')}${button('Show worked answer', 'reveal')}</div></form>${projection.hints
         .slice(0, c.hints[stage])
         .map(
           (h) =>
@@ -192,6 +194,7 @@ export function mount({ root, store, save }) {
           if (el.dataset.caseVerdict !== undefined) a[0] = value;
           else a[1] = checked ? [...a[1], value] : a[1].filter((id) => id !== value);
         });
+        invalid = false;
         message = 'Draft saved.';
       });
     },
@@ -254,6 +257,7 @@ export function mount({ root, store, save }) {
             const index = definition.steps.findIndex((s) => s.id === value);
             if (index < 0 || index > record().answers.length) return;
             stage = index;
+            invalid = false;
             const stageId = definition.steps[index].id;
             receipt?.open(stageId, completed().includes(stageId), priorHelp.has(stageId));
             message = '';
@@ -281,6 +285,7 @@ export function mount({ root, store, save }) {
                 hasVerdict: Boolean(verdict),
                 citations: Array.isArray(citations) ? citations.map(() => true) : citations,
               }));
+            invalid = !result.ok;
             if (!result.ok) {
               if (receipt?.enabled) receipt.submission(step.id, false, receiptShape());
               message = 'Check verdicts and smallest sufficient source sets. Your draft is kept.';
