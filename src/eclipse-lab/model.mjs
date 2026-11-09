@@ -37,11 +37,21 @@ export const MODES = {
       'Each line has the shown number of changes between neighbouring symbols.',
     ],
   },
+  mirror: {
+    title: 'Mirror Ledger',
+    description: 'Balance two skies with numbered cross-board links.',
+    rules: [
+      'On each board, every row and column has two suns and two moons.',
+      'No three matching symbols touch in a row or column.',
+      'Within each board, rows must differ, and columns must differ.',
+      'Matching link numbers join cells across boards: same or opposite as marked.',
+    ],
+  },
 };
 const integer = (n, a, b) => Number.isInteger(n) && n >= a && n <= b;
 const list = (a, n, lo, hi) =>
   Array.isArray(a) && a.length === n && Array.from(a).every((x) => integer(x, lo, hi));
-const classic = (p) => p.mode === 'constellation' || p.mode === 'eclipse';
+const classic = (p) => ['constellation', 'eclipse', 'mirror'].includes(p.mode);
 function fail(s) {
   throw new Error(s);
 }
@@ -88,11 +98,12 @@ function validate(p, withSolution) {
       'colTargets',
     ].every((k) => ownData(p, k)) ||
     !Object.hasOwn(MODES, p.mode) ||
-    ![4, 6].includes(p.size)
+    ![4, 6].includes(p.size) ||
+    (p.mode === 'mirror' && p.size !== 4)
   )
     fail('Invalid puzzle mode or size.');
   const n = p.size,
-    N = n * n;
+    N = n * n * (p.mode === 'mirror' ? 2 : 1);
   if (
     typeof p.id !== 'string' ||
     !/^[a-z0-9][a-z0-9-]{0,79}$/.test(p.id) ||
@@ -111,13 +122,12 @@ function validate(p, withSolution) {
     fail('Lines must be balanced.');
   if (
     !Array.isArray(p.links) ||
-    p.links.length > 2 * n * (n - 1) ||
+    p.links.length > (p.mode === 'mirror' ? 16 : 2 * n * (n - 1)) ||
     !Array.isArray(p.windows) ||
     p.windows.length > (n - 1) ** 2
   )
     fail('Invalid clues.');
-  if (!['constellation', 'eclipse'].includes(p.mode) && p.links.length)
-    fail('Links are not used in this mode.');
+  if (!classic(p) && p.links.length) fail('Links are not used in this mode.');
   if (!['eclipse', 'harbour'].includes(p.mode) && p.windows.length)
     fail('Windows are not used in this mode.');
   const edges = new Set();
@@ -129,10 +139,10 @@ function validate(p, withSolution) {
       !integer(l.a, 0, N - 1) ||
       !integer(l.b, 0, N - 1) ||
       !['same', 'opposite'].includes(l.relation) ||
-      !(
-        Math.abs(l.a - l.b) === n ||
-        (Math.abs(l.a - l.b) === 1 && Math.floor(l.a / n) === Math.floor(l.b / n))
-      )
+      !(p.mode === 'mirror'
+        ? l.a < 16 && l.b >= 16
+        : Math.abs(l.a - l.b) === n ||
+          (Math.abs(l.a - l.b) === 1 && Math.floor(l.a / n) === Math.floor(l.b / n)))
     )
       fail('Invalid link.');
     const key = [l.a, l.b].sort((a, b) => a - b).join(':');
@@ -180,7 +190,7 @@ export function validatePuzzle(p) {
 }
 function state(p, cells) {
   validate(p, false);
-  if (!list(cells, p.size * p.size, -1, 1)) fail('Invalid board state.');
+  if (!list(cells, p.givens.length, -1, 1)) fail('Invalid board state.');
 }
 const lineIndices = (n, k, col) =>
   Array.from({ length: n }, (_, i) => (col ? i * n + k : k * n + i));
@@ -212,16 +222,21 @@ function inspect(p, cells) {
     [false, p.rowTargets, p.rowChanges],
     [true, p.colTargets, p.colChanges],
   ])
-    for (let k = 0; k < n; k++) {
-      const idx = lineIndices(n, k, col),
-        opts = options(p, cells, idx, targets[k], changes?.[k]);
+    for (let k = 0; k < cells.length / n; k++) {
+      const offset = Math.floor(k / n) * n * n,
+        idx = lineIndices(n, k % n, col).map((i) => i + offset),
+        opts = options(p, cells, idx, targets[k % n], changes?.[k % n]);
       lines[+col].push({ idx, opts });
-      if (!opts.length) add(`${col ? 'Column' : 'Row'} ${k + 1} cannot meet its rules.`, idx);
+      if (!opts.length)
+        add(
+          `${p.mode === 'mirror' ? `Board ${offset ? 'B' : 'A'}: ` : ''}${col ? 'Column' : 'Row'} ${(k % n) + 1} cannot meet its rules.`,
+          idx,
+        );
     }
   if (classic(p))
     for (const group of lines)
-      for (let a = 0; a < n; a++)
-        for (let b = 0; b < a; b++) {
+      for (let a = 0; a < group.length; a++)
+        for (let b = Math.floor(a / n) * n; b < a; b++) {
           const x = group[a].idx,
             y = group[b].idx;
           if (x.every((i) => cells[i] !== -1) && x.every((i, j) => cells[i] === cells[y[j]]))
@@ -249,7 +264,7 @@ export function check(p, cells) {
 }
 export function component(p, cell) {
   validate(p, false);
-  if (!integer(cell, 0, p.size * p.size - 1)) fail('Invalid cell.');
+  if (!integer(cell, 0, p.givens.length - 1)) fail('Invalid cell.');
   const seen = new Map([[cell, 0]]),
     queue = [cell];
   for (let q = 0; q < queue.length; q++) {
@@ -356,13 +371,19 @@ export function hint(p, cells) {
       return {
         cell: l.b,
         value: a ^ flip,
-        reason: 'The link fixes this cell relative to its neighbour.',
+        reason:
+          p.mode === 'mirror'
+            ? 'The numbered link fixes this cell from the other board.'
+            : 'The link fixes this cell relative to its neighbour.',
       };
     if (b !== -1 && a === -1)
       return {
         cell: l.a,
         value: b ^ flip,
-        reason: 'The link fixes this cell relative to its neighbour.',
+        reason:
+          p.mode === 'mirror'
+            ? 'The numbered link fixes this cell from the other board.'
+            : 'The link fixes this cell relative to its neighbour.',
       };
   }
   if (classic(p))
@@ -398,5 +419,17 @@ export function hint(p, cells) {
             value: opts[0][j],
             reason: 'Every allowed pattern for this line has the same symbol here.',
           };
+  if (p.mode === 'mirror') {
+    const result = solve(p, cells);
+    if (!result.exhausted && result.solutions.length === 1) {
+      const cell = cells.findIndex((v) => v === -1);
+      if (cell !== -1)
+        return {
+          cell,
+          value: result.solutions[0][cell],
+          reason: 'Every completion consistent with both boards and links has this symbol here.',
+        };
+    }
+  }
   return null;
 }
