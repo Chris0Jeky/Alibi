@@ -2164,7 +2164,7 @@
       (p) => activeRun(rec(p)),
       globalThis.AlibiFeel?.(current.puzzle.id),
     );
-    if (p) navigate('play', keyFor(p));
+    if (p && !solved(rec(p))) navigate('play', keyFor(p));
     else navigate('library', current.puzzle.type);
   }
   function startLesson(type, automatic = false) {
