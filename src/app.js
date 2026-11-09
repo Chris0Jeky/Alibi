@@ -1612,25 +1612,22 @@
           el.scrollTop = y;
         }
       }
-      if (focusID) {
-        const el = document.getElementById(focusID);
+      if (focusID || focusMatchIndex >= 0) {
+        const el = focusID
+          ? document.getElementById(focusID)
+          : document.querySelectorAll(focusSelector)[focusMatchIndex];
         if (isFocusTarget(el)) {
           el.focus({ preventScroll: true });
-          if (selection && typeof el.setSelectionRange === 'function' && selection[0] !== null)
+          if (
+            focusID &&
+            selection &&
+            typeof el.setSelectionRange === 'function' &&
+            selection[0] !== null
+          )
             try {
               el.setSelectionRange(...selection);
             } catch {}
         } else {
-          const fallback = document.getElementById(focusFallbackID) || $('#main');
-          if (isFocusTarget(fallback)) {
-            fallback.focus();
-            usedFocusFallback = true;
-          }
-        }
-      } else if (focusMatchIndex >= 0) {
-        const el = document.querySelectorAll(focusSelector)[focusMatchIndex];
-        if (isFocusTarget(el)) el.focus({ preventScroll: true });
-        else {
           const fallback = document.getElementById(focusFallbackID) || $('#main');
           if (isFocusTarget(fallback)) {
             fallback.focus();
@@ -4066,13 +4063,20 @@
       selectedCell = i;
       checking = false;
       feedback = '';
-      render();
+      if (!drag.frame) {
+        const stroke = drag;
+        stroke.frame = requestAnimationFrame(() => {
+          stroke.frame = 0;
+          if (drag === stroke) render();
+        });
+      }
     }
   }
   function endPaint() {
     if (!drag) return;
     const d = drag;
     drag = null;
+    if (d.frame) cancelAnimationFrame(d.frame);
     lastPointerAt = Date.now();
     if (!current || d.key !== current.key) return;
     if (locked() || updateRequested || restoreBusy) {

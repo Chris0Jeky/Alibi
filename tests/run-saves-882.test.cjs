@@ -125,6 +125,10 @@ function paintFixture() {
       },
     },
     render() {},
+    requestAnimationFrame() {
+      return 1;
+    },
+    cancelAnimationFrame() {},
     feedbackSound() {},
     completion() {},
     saves,
