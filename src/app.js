@@ -3843,7 +3843,8 @@
     const skip = e.target.closest('.skip-link');
     if (skip) {
       e.preventDefault();
-      $('#main')?.focus();
+      if (route.page === 'quiet') AlibiActivities.focusDestination();
+      else $('#main')?.focus();
       return;
     }
     requestLinkFocus(e);

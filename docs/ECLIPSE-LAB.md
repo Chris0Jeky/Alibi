@@ -13,7 +13,7 @@ Every mode has eight levels: four 4×4 boards followed by four 6×6 boards. Sun 
 | Harbour | Specified sun totals for every row, column and marked window. Triples and repeated lines are allowed. | Compare overlapping sums and use differences between regions. |
 | Switchback | Equal suns and moons in each line, plus exact counts of adjacent symbol changes. Triples and repeated lines are allowed. | Reason about runs, boundaries and the remaining number of changes. |
 
-The complete rules and textual clues remain visible beside each board. These combinations are experiments, not claims of a newly invented puzzle tradition. See [the research note](research/2026-11-09-eclipse-lab.md) for sources and the alternatives considered.
+Solved levels carry a check mark in the level list, including after reloading or restoring a backup. The complete rules and textual clues remain visible beside each board. These combinations are experiments, not claims of a newly invented puzzle tradition. See [the research note](research/2026-11-09-eclipse-lab.md) for sources and the alternatives considered.
 
 ## Controls
 

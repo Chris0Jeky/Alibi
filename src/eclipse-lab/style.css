@@ -287,6 +287,7 @@ summary:focus-visible,
   gap: 12px;
 }
 .rating label {
+  min-width: 44px;
   min-height: 44px;
   display: flex;
   align-items: center;

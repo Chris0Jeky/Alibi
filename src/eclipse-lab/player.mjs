@@ -78,9 +78,15 @@ export function mount({ root, css, preferences, store, offline }) {
   const shell = (content) =>
     `<style>${css}</style><main tabindex="-1"><header><a class="back" href="#/quiet">← Quiet Wing</a><span class="eyebrow">A room for trying things</span><h1>Eclipse Lab</h1><p class="intro">Four little experiments in suns, moons and the space between.</p></header>${status()}${content}${backupPanel()}</main>`;
   function backupPanel() {
-    return `<section class="backup"><h2>Your lab notebook</h2><p>Lab progress and feedback stay on this device until exported. This lab backup is separate: the regular Cabinet combined backup does not include it.</p><div class="actions"><button data-action="export">Export lab backup</button><label class="filebutton">Review lab backup<input type="file" data-file accept="application/json,.json"></label><button data-action="recovery">Download recovery copy</button></div>${preview ? `<div class="notice"><p>Backup contains ${preview.count} experiment runs. Restoring replaces the current lab shelf and keeps a recovery copy.</p><button data-action="restore">Confirm restore</button><button data-action="cancel-restore">Cancel</button></div>` : ''}</section>`;
+    return `<section class="backup"><h2>Your lab notebook</h2><p>Export a Lab backup to keep your progress and saved feedback elsewhere. The regular Cabinet combined backup does not include it.</p><div class="actions"><button data-action="export">Export lab backup</button><label class="filebutton">Review lab backup<input type="file" data-file accept="application/json,.json"></label><button data-action="recovery">Download recovery copy</button></div>${preview ? `<div class="notice"><p>Backup contains ${preview.count} experiment runs. Restoring replaces the current lab shelf and keeps a recovery copy.</p><button data-action="restore">Confirm restore</button><button data-action="cancel-restore">Cancel</button></div>` : ''}</section>`;
   }
   function lobby() {
+    const runs = store.snapshot().runs;
+    const level = (x) => {
+      const saved = runs[idOf(x)];
+      const done = !!saved && check(saved.puzzle, saved.cells).complete;
+      return `<a href="#/quiet/eclipse/${x.id}" class="${done ? 'completed' : ''}" aria-label="${esc(x.title)}, ${x.size} by ${x.size}${done ? ', solved' : ''}">${x.level}${done ? ' ✓' : ''}</a>`;
+    };
     return `<section class="lobby"><div class="section-head"><span class="eyebrow">The experiments</span><h2>Choose a table</h2><p>Each collection has eight provisional levels. Start small, then try a larger sky.</p></div><div class="cards">${Object.entries(
       MODES,
     )
@@ -89,10 +95,7 @@ export function mount({ root, css, preferences, store, offline }) {
           `<article class="card"><div class="card-number">0${i + 1} <span>✦</span></div><h3>${esc(m.title)}</h3><p>${esc(m.description)}</p><ul>${m.rules.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${['harbour', 'switchback'].includes(key) ? '<p class="note">Triples and repeated lines are allowed.</p>' : ''}<div class="level-list" aria-label="${esc(m.title)} levels">${PUZZLES.filter(
             (x) => x.mode === key,
           )
-            .map(
-              (x) =>
-                `<a href="#/quiet/eclipse/${x.id}" aria-label="${esc(x.title)}, ${x.size} by ${x.size}">${x.level}</a>`,
-            )
+            .map(level)
             .join('')}</div></article>`,
       )
       .join('')}</div></section>`;
@@ -155,7 +158,7 @@ export function mount({ root, css, preferences, store, offline }) {
       body: `Experiment: ${p.mode}\nPuzzle: ${p.id}\nRevision: ${p.revision}\nEnjoyment: ${run.rating ?? 'not rated'}/5\nDifficulty: ${run.difficulty ?? 'not selected'}\n\nFeedback:\n${run.feedback}`,
     });
     const share = `https://github.com/Chris0Jeky/Alibi/issues/new?${params}`;
-    return `<section class="feedback"><span class="eyebrow">Your impressions</span><h2>Help shape this room</h2><p>Ratings and notes stay on this device until you export them. Nothing is sent to a server.</p><fieldset><legend>Enjoyment</legend><div class="rating">${[1, 2, 3, 4, 5].map((x) => `<label><input type="radio" name="rating" value="${x}" ${d.rating === x ? 'checked' : ''}> ${x}</label>`).join('')}</div></fieldset><label>Difficulty <select data-difficulty><option value="">Choose an impression</option><option value="gentle" ${d.difficulty === 'gentle' ? 'selected' : ''}>Gentle</option><option value="just-right" ${d.difficulty === 'just-right' ? 'selected' : ''}>Just right</option><option value="tough" ${d.difficulty === 'tough' ? 'selected' : ''}>Tough</option></select></label><label>Notes <textarea data-feedback maxlength="2000" rows="4">${esc(d.feedback)}</textarea></label><p class="small">${d.dirty ? 'Unsaved draft. Save or discard before updating or exporting.' : 'Optional. You can change this later.'}</p><div class="actions"><button data-action="save-feedback">Save feedback</button><button data-action="discard-feedback">Discard draft</button></div><p class="small">Saved feedback stays on this device. To send it, review and submit a GitHub issue (GitHub sign-in required).</p><a href="${esc(share)}" target="_blank" rel="noopener noreferrer">Share feedback on GitHub</a></section>`;
+    return `<section class="feedback"><span class="eyebrow">Your impressions</span><h2>Help shape this room</h2><p>Ratings and notes save on this device. Sharing them is optional.</p><fieldset><legend>Enjoyment</legend><div class="rating">${[1, 2, 3, 4, 5].map((x) => `<label><input type="radio" name="rating" value="${x}" ${d.rating === x ? 'checked' : ''}> ${x}</label>`).join('')}</div></fieldset><label>Difficulty <select data-difficulty><option value="">Choose an impression</option><option value="gentle" ${d.difficulty === 'gentle' ? 'selected' : ''}>Gentle</option><option value="just-right" ${d.difficulty === 'just-right' ? 'selected' : ''}>Just right</option><option value="tough" ${d.difficulty === 'tough' ? 'selected' : ''}>Tough</option></select></label><label>Notes <textarea data-feedback maxlength="2000" rows="4">${esc(d.feedback)}</textarea></label><p class="small">${d.dirty ? 'Unsaved draft. Save or discard before updating or exporting.' : 'Optional. You can change this later.'}</p><div class="actions"><button data-action="save-feedback">Save feedback</button><button data-action="discard-feedback">Discard draft</button></div><p class="small">Saved feedback stays on this device. To send it, review and submit a GitHub issue (GitHub sign-in required).</p><a href="${esc(share)}" target="_blank" rel="noopener noreferrer">Share feedback on GitHub</a></section>`;
   }
   function play() {
     const m = MODES[p.mode],

@@ -42,6 +42,9 @@ def run():
             page.get_by_role('heading', name=p['title'], exact=True).wait_for()
             assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'board overflow {width} {mode}'
             if mode == 'constellation':
+              page.locator('.skip-link').focus(); page.keyboard.press('Enter')
+              assert page.locator('[data-cell="0"]').evaluate('(e) => e === e.getRootNode().activeElement'), 'skip link enters optional puzzle'
+              assert min(page.locator('.rating label').evaluate_all('(els) => els.map(e => e.getBoundingClientRect().width)')) >= 44
               brush = page.locator('[data-brush="0"]'); brush.focus(); page.keyboard.press('Enter')
               assert page.locator('[data-brush="0"]').evaluate('(e) => e === e.getRootNode().activeElement')
               page.keyboard.press('Tab'); assert page.locator('[data-brush="-1"]').evaluate('(e) => e === e.getRootNode().activeElement')
@@ -71,6 +74,7 @@ def run():
               page.get_by_role('button',name='Redo',exact=True).click(); page.get_by_text('Move restored.', exact=True).wait_for()
               page.locator('[data-cell="0"]').focus(); page.keyboard.press('ArrowRight'); assert page.locator('[data-cell="1"]').evaluate('(e) => e === e.getRootNode().activeElement')
               page.locator('[data-clue="0"]').click(); assert page.locator('.cell.highlight').count() == p['size']
+              page.evaluate('scrollTo(0, 0)')
               page.screenshot(path=str(out / f'board-{width}.png'), full_page=True)
           page.locator('[name="rating"][value="4"]').check(); page.locator('[data-difficulty]').select_option('just-right'); page.locator('[data-feedback]').fill('A lovely small challenge.')
           assert page.evaluate("async () => { try { await AlibiEclipse.flush(); return false } catch { return true } }")
@@ -97,6 +101,9 @@ def run():
           with page.expect_download() as recovery: page.get_by_role('button',name='Download recovery copy').click()
           recovered=json.loads(pathlib.Path(recovery.value.path()).read_text())
           assert any(r['feedback']=='Changed later' for r in recovered['save']['runs'].values())
+          page.evaluate("location.hash = '#/quiet/eclipse'")
+          page.get_by_role('link',name='Constellation 1, 4 by 4, solved',exact=True).wait_for()
+          assert page.locator('.level-list a.completed').count() == 4
           page.evaluate("location.hash = '#/quiet/eclipse/eclipse-05'")
           page.get_by_role('heading',name='Eclipse 5',exact=True).wait_for()
           assert page.locator('.cell').count() == 36
