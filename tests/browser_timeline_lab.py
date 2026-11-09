@@ -59,7 +59,11 @@ def run():
             nav.scroll_into_view_if_needed(); page.screenshot(path=str(out / f'navigation-{width}.png'))
             nav.click()
           else:
-            page.goto(url + '#/quiet/timeline', wait_until='domcontentloaded')
+            # Phones have no sidebar: the Workshop link is the visible way in.
+            page.goto(url + '#/workshop', wait_until='domcontentloaded')
+            link = page.get_by_role('link', name='Timeline Desk', exact=True)
+            link.wait_for(timeout=30000)
+            link.click()
           page.get_by_role('heading', name='Timeline Desk', exact=True).wait_for(timeout=30000)
           assert page.evaluate("AlibiActivities.diagnostics().kind === 'timeline'")
           assert page.get_by_text('Experimental', exact=True).count() >= 1
