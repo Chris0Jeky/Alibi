@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mirror Ledger — experiment</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Alibi · experimental puzzle</p>
+        <h1>Mirror Ledger</h1>
+        <p>Two ledgers share clues. Use what you learn on one board to complete the other.</p>
+      </header>
+      <section aria-label="Instructions">
+        <h2>How to play</h2>
+        <p>
+          Fill both boards with suns and moons. Each row and column has two of each; three identical
+          symbols cannot be consecutive. Completed rows must differ from one another, as must
+          columns. Each numbered link joins one cell on the left ledger to one on the right:
+          <strong>same</strong> means matching symbols; <strong>opposite</strong> means different
+          symbols.
+        </p>
+        <p>
+          Select a cell to cycle empty → sun → moon. With a keyboard, use arrow keys within a board,
+          S for sun, M for moon, Backspace to clear, and Enter or Space to cycle.
+        </p>
+      </section>
+      <div id="app"></div>
+    </main>
+    <script type="module" src="app.mjs"></script>
+  </body>
+</html>
