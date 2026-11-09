@@ -94,7 +94,7 @@ export function mount({ root, css, preferences, store, offline }) {
     )
       .map(
         ([key, m], i) =>
-          `<article class="card"><div class="card-number">0${i + 1} <span>✦</span></div><h3>${esc(m.title)}</h3><p>${esc(m.description)}</p><ul>${m.rules.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${['harbour', 'switchback'].includes(key) ? '<p class="note">Triples and repeated lines are allowed.</p>' : ''}<div class="level-list" aria-label="${esc(m.title)} levels">${PUZZLES.filter(
+          `<article class="card"><div class="card-number">0${i + 1} <span>✦</span></div><h3>${esc(m.title)}</h3><p>${esc(m.description)}</p><ul>${m.rules.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${['harbour', 'switchback'].includes(key) ? '<p class="note">Triples and repeated lines are allowed.</p>' : ''}<div class="level-list" role="group" aria-label="${esc(m.title)} levels">${PUZZLES.filter(
             (x) => x.mode === key,
           )
             .map(level)

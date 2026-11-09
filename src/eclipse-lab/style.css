@@ -7,7 +7,7 @@
     sans-serif;
   --paper: #fffaf0;
   --ink: #292820;
-  --gold: #8b682e;
+  --gold: #7a5a24;
   --line: #c9b994;
   --accent: #493d26;
 }
@@ -74,7 +74,7 @@ button,
 .filebutton {
   min-height: 44px;
   padding: 9px 13px;
-  border: 1px solid var(--line);
+  border: 1px solid #8f7f5c;
   border-radius: 5px;
   background: var(--paper);
   cursor: pointer;
@@ -256,7 +256,7 @@ summary:focus-visible,
   z-index: 1;
 }
 .empty {
-  color: #b7a78a;
+  color: #857654;
 }
 .overlays {
   position: absolute;
