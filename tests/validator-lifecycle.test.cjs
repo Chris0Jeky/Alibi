@@ -10,7 +10,7 @@ const app = fs.readFileSync(
   process.env.ALIBI_APP_SOURCE || path.join(__dirname, '../src/app.js'),
   'utf8',
 );
-const start = app.indexOf('  async function inWorker(message) {');
+const start = app.indexOf('  async function inWorker(');
 const end = app.indexOf('\n  async function installPack(', start);
 assert.ok(start >= 0 && end > start, 'validation adapter boundaries exist');
 
@@ -186,4 +186,29 @@ test('validator adapter propagates loader failure without starting a worker', as
   assert.equal(f.workers.length, 0);
   assert.equal(f.blobs.size, 0);
   assert.equal(f.timers.size, 0);
+});
+
+test('validator adapter accepts trusted inline and external lab worker sources', async () => {
+  for (const inline of [true, false]) {
+    const calls = [];
+    const f = fixture({
+      load: async (url) => {
+        calls.push(url);
+        return 'cached lab bundle';
+      },
+    });
+    const message = { text: '{}', revision: 2 };
+    const pending = f.run(message, inline ? 'embedded lab bundle' : null, '/lab.js');
+    const worker = await f.ready;
+    assert.deepEqual(calls, inline ? [] : ['/lab.js']);
+    assert.deepEqual(worker.message, message);
+    assert.equal(
+      await f.blobs.get(worker.url).text(),
+      inline ? 'embedded lab bundle' : 'cached lab bundle',
+    );
+    const rejection = assert.rejects(pending, /25-second safety limit/);
+    f.expire();
+    await rejection;
+    f.assertReleased(worker);
+  }
 });

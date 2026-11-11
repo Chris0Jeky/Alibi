@@ -5,6 +5,7 @@ import {
   freshRun,
   validateSave,
   parseBackup,
+  prepareRestore,
   KEY,
   RECOVERY_KEY,
 } from '../src/timeline-lab/storage.mjs';
@@ -32,7 +33,13 @@ function locks() {
     },
   };
 }
-const make = (storage = memory(), lock = locks()) => createStore({ storage, locks: lock });
+const make = (storage = memory(), lock = locks()) => {
+  const store = createStore({ storage, locks: lock, validateBackup: parseBackup, prepareRestore });
+  return {
+    ...store,
+    restore: async (raw, revision) => (await store.reviewBackup(raw, revision)).restore(),
+  };
+};
 const edited = () => {
   const run = freshRun(puzzle());
   run.marks[1] = 1;
@@ -320,4 +327,26 @@ test('restore rejects an oversized combined record before either durable copy ch
   assert.deepEqual(attempts, []);
   assert.equal(storage.getItem(KEY), raw);
   assert.equal(storage.getItem(RECOVERY_KEY), legacy);
+});
+
+test('a same-tab save during worker validation invalidates the staged restore', async () => {
+  const storage = memory();
+  let finish;
+  const store = createStore({
+    storage,
+    locks: locks(),
+    validateBackup: (raw, revision) =>
+      new Promise((resolve) => {
+        finish = () => resolve(parseBackup(raw, revision));
+      }),
+  });
+  const pending = store.reviewBackup(store.exportData());
+  const newer = freshRun(puzzle());
+  newer.feedback = 'Saved while validating';
+  await store.saveRun(newer);
+  finish();
+  const preview = await pending;
+  await assert.rejects(preview.restore(), /changed after the restore preview/);
+  assert.equal(make(storage).getRun(puzzle()).feedback, newer.feedback);
+  assert.equal(store.recoveryData(), null);
 });

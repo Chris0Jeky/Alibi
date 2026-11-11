@@ -79,8 +79,26 @@ def run():
             lock => lock.name === 'alibi.timeline.v1')"""
         note = 'Draft typed during the restore'
         try:
-            page.get_by_role('button', name='Confirm restore', exact=True).click()
-            page.wait_for_function(queued, timeout=1800)
+            page.evaluate("""() => {
+                const send = Worker.prototype.postMessage;
+                Worker.prototype.postMessage = function (message, ...args) {
+                  if (message?.type !== 'prepare-restore') return send.call(this, message, ...args);
+                  Worker.prototype.postMessage = send;
+                  window.releaseRestorePreparation = () => send.call(this, message, ...args);
+                };
+            }""")
+            with page.expect_event('worker') as preparation:
+                page.get_by_role('button', name='Confirm restore', exact=True).click()
+            assert preparation.value.url.startswith('blob:')
+            page.wait_for_function("() => typeof window.releaseRestorePreparation === 'function'")
+            progress = page.get_by_text('Restoring backup…', exact=True)
+            progress.wait_for()
+            assert page.get_by_role('button', name='Cancel', exact=True).count() == 0
+            assert page.get_by_role('button', name='Confirm restore', exact=True).count() == 0
+            page.evaluate("window.releaseRestorePreparation()")
+            page.wait_for_function(queued, timeout=8000)
+            assert progress.is_visible()
+            assert page.get_by_role('button', name='Cancel', exact=True).count() == 0
             page.locator('[data-feedback]').fill(note)
             cell(page, p, 0, stale_hour).click()
             assert page.evaluate(queued), 'edits must happen before the waiting restore is released'
@@ -111,6 +129,47 @@ def run():
         restored.wait_for()
         state(page, p, 0, hour, 'open')
         assert page.locator('[data-feedback]').input_value() == 'Prior shelf note'
+
+    def worker_preview(page, backup):
+        with page.expect_event('worker') as launched:
+            page.locator('[data-file]').set_input_files({
+                'name': 'backup.json',
+                'mimeType': 'application/json',
+                'buffer': json.dumps(backup).encode(),
+            })
+        assert launched.value.url.startswith('blob:')
+        page.get_by_role('button', name='Confirm restore', exact=True).wait_for()
+
+    def cancel_worker_preview(page, backup):
+        worker_preview(page, backup)
+        page.get_by_role('button', name='Cancel', exact=True).click()
+        assert page.get_by_role('button', name='Confirm restore', exact=True).count() == 0
+
+    def confirm_worker_restore(page, backup):
+        worker_preview(page, backup)
+        with page.expect_event('worker') as preparation:
+            page.get_by_role('button', name='Confirm restore', exact=True).click()
+        assert preparation.value.url.startswith('blob:')
+        page.get_by_text('Restoring backup…', exact=True).wait_for(state='hidden')
+        assert page.get_by_role('button', name='Confirm restore', exact=True).count() == 0
+
+    def restore_delivery(page, backup):
+        def download(name):
+            with page.expect_download() as receipt:
+                page.get_by_role('button', name=name, exact=True).click()
+            return json.loads(pathlib.Path(receipt.value.path()).read_text(encoding='utf-8'))
+
+        before = download('Export desk backup')['save']
+        imported = json.loads(json.dumps(backup))
+        next(iter(imported['save']['runs'].values()))['feedback'] = 'Imported in this delivery test'
+        confirm_worker_restore(page, imported)
+        page.reload()
+        actual = download('Export desk backup')['save']
+        assert actual == {**imported['save'], 'revision': before['revision'] + 1}
+        recovery = download('Download recovery copy')
+        assert recovery['save'] == before
+        confirm_worker_restore(page, recovery)
+        assert download('Export desk backup')['save'] == {**before, 'revision': actual['revision'] + 1}
 
     try:
       with sync_playwright() as pw:
@@ -239,6 +298,10 @@ def run():
           page.reload(); page.get_by_role('heading', name=PUZZLES[4]['title'], exact=True).wait_for(timeout=30000)
           place(page, PUZZLES[4], 0, 0)
           assert page.evaluate('AlibiActivities.diagnostics().kind') == 'timeline' and page.evaluate('AlibiActivities.diagnostics().offline')
+          if width == 390:
+              restore_delivery(page, backup)
+          else:
+              cancel_worker_preview(page, backup)
           context.set_offline(False)
           assert not errors, errors
           context.close()
@@ -254,6 +317,14 @@ def run():
         with page.expect_download() as download: page.get_by_role('button', name='Export desk backup', exact=True).click()
         assert json.loads(pathlib.Path(download.value.path()).read_text())['recovery']['raw'] == '{future-version}'
         protected.close()
+        standalone = browser.new_context(accept_downloads=True)
+        page = standalone.new_page()
+        page.goto((ROOT / 'alibi-deluxe-play.html').as_uri() + '#/quiet/timeline/' + PUZZLES[0]['id'])
+        page.locator('[data-feedback]').fill('Standalone prior shelf')
+        page.get_by_role('button', name='Save feedback', exact=True).click()
+        page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+        restore_delivery(page, backup)
+        standalone.close()
         browser.close()
       print('Timeline Desk browser journeys passed at 390 and 1280 pixels')
     finally:
