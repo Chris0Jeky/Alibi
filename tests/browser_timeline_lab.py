@@ -45,6 +45,73 @@ def run():
         page.evaluate("id => location.hash = '#/quiet/timeline/' + id", p['id'])
         page.get_by_role('heading', name=p['title'], exact=True).wait_for(timeout=30000)
 
+    def restore_race(context, page, p, backup):
+        open_level(page, p)
+        hour = p['solution'][0]
+        stale_hour = (hour + 1) % p['slots']
+        state(page, p, 0, hour, 'placed')
+        cell(page, p, 0, hour).focus()
+        page.keyboard.press('Backspace')
+        state(page, p, 0, hour, 'open')
+        page.locator('[name="rating"][value="2"]').check()
+        page.locator('[data-feedback]').fill('Prior shelf note')
+        page.get_by_role('button', name='Save feedback', exact=True).click()
+        page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+        with page.expect_download() as export:
+            page.get_by_role('button', name='Export desk backup', exact=True).click()
+        before = json.loads(pathlib.Path(export.value.path()).read_text())
+
+        def review(raw):
+            page.locator('[data-file]').set_input_files({
+                'name': 'timeline-backup.json', 'mimeType': 'application/json', 'buffer': raw,
+            })
+            page.get_by_role('button', name='Confirm restore', exact=True).wait_for()
+
+        review(json.dumps(backup).encode())
+        holder = context.new_page()
+        holder.goto(url + '404.html', wait_until='domcontentloaded')
+        holder.evaluate("""() => {
+            window.testTimelineLock = navigator.locks.request('alibi.timeline.v1', () =>
+                new Promise(resolve => { window.releaseTestTimelineLock = resolve; }));
+        }""")
+        holder.wait_for_function("() => typeof window.releaseTestTimelineLock === 'function'")
+        queued = """async () => (await navigator.locks.query()).pending.some(
+            lock => lock.name === 'alibi.timeline.v1')"""
+        note = 'Draft typed during the restore'
+        try:
+            page.get_by_role('button', name='Confirm restore', exact=True).click()
+            page.wait_for_function(queued, timeout=1800)
+            page.locator('[data-feedback]').fill(note)
+            cell(page, p, 0, stale_hour).click()
+            assert page.evaluate(queued), 'edits must happen before the waiting restore is released'
+        finally:
+            holder.evaluate("async () => { window.releaseTestTimelineLock(); await window.testTimelineLock; }")
+            holder.close()
+
+        restored = page.get_by_text('Desk backup restored. A recovery copy was kept.', exact=True)
+        restored.wait_for()
+        state(page, p, 0, hour, 'placed')
+        state(page, p, 0, stale_hour, 'open')
+        assert page.locator('[data-feedback]').input_value() == note
+        assert page.locator('[name="rating"][value="4"]').is_checked()
+        page.get_by_role('button', name='Save feedback', exact=True).click()
+        page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+
+        page.reload()
+        page.get_by_role('heading', name=p['title'], exact=True).wait_for(timeout=30000)
+        state(page, p, 0, hour, 'placed')
+        state(page, p, 0, stale_hour, 'open')
+        assert page.locator('[data-feedback]').input_value() == note
+        with page.expect_download() as download:
+            page.get_by_role('button', name='Download recovery copy', exact=True).click()
+        recovery = pathlib.Path(download.value.path()).read_bytes()
+        assert json.loads(recovery)['save'] == before['save']
+        review(recovery)
+        page.get_by_role('button', name='Confirm restore', exact=True).click()
+        restored.wait_for()
+        state(page, p, 0, hour, 'open')
+        assert page.locator('[data-feedback]').input_value() == 'Prior shelf note'
+
     try:
       with sync_playwright() as pw:
         browser = pw.chromium.launch(executable_path=CHROMIUM, headless=True, args=['--no-sandbox'])
@@ -161,6 +228,8 @@ def run():
           page.evaluate("location.hash = '#/quiet/timeline'")
           page.get_by_role('link', name=f"Level 1, {PUZZLES[0]['title']}, 5 events, 5 hours, solved").wait_for()
           assert page.locator('.levels a.completed').count() == 2
+          if width == 390:
+              restore_race(context, page, PUZZLES[0], backup)
 
           # Offline: cache the pack, reload without a network and keep playing.
           open_level(page, PUZZLES[4])

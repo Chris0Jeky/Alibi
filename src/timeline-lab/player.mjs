@@ -71,14 +71,12 @@ export function mount({ root, css, preferences, store, offline }) {
   };
   const draftFor = () => {
     const key = idOf(p);
-    if (!drafts.has(key))
-      drafts.set(key, {
-        rating: run.rating,
-        difficulty: run.difficulty,
-        feedback: run.feedback,
-        dirty: false,
-      });
-    return drafts.get(key);
+    if (!drafts.has(key)) drafts.set(key, { edited: new Set(), dirty: false });
+    const draft = drafts.get(key);
+    // Untouched fields follow the current saved run, including after a restore.
+    for (const field of ['rating', 'difficulty', 'feedback'])
+      if (!draft.edited.has(field)) draft[field] = run[field];
+    return draft;
   };
   function setPreferences(value) {
     prefs = value || {};
@@ -239,6 +237,7 @@ export function mount({ root, css, preferences, store, offline }) {
   }
   async function route() {
     await pending.catch(() => {});
+    await store.flush().catch(() => {});
     if (disposed) return;
     const found = selectPuzzle();
     if (found?.id !== p?.id) {
@@ -256,11 +255,15 @@ export function mount({ root, css, preferences, store, offline }) {
   }
   function onInput(e) {
     if (!p) return;
-    const d = draftFor();
-    if (e.target.matches('[name="rating"]')) d.rating = Number(e.target.value);
-    else if (e.target.matches('[data-difficulty]')) d.difficulty = e.target.value || null;
-    else if (e.target.matches('[data-feedback]')) d.feedback = e.target.value;
+    let field, value;
+    if (e.target.matches('[name="rating"]')) [field, value] = ['rating', Number(e.target.value)];
+    else if (e.target.matches('[data-difficulty]'))
+      [field, value] = ['difficulty', e.target.value || null];
+    else if (e.target.matches('[data-feedback]')) [field, value] = ['feedback', e.target.value];
     else return;
+    const d = draftFor();
+    d[field] = value;
+    d.edited.add(field);
     d.dirty = true;
     feedbackMessage = '';
     const feedbackStatus = root.querySelector('.feedback-message');
@@ -317,10 +320,8 @@ export function mount({ root, css, preferences, store, offline }) {
       const d = draftFor(),
         next = { ...run, rating: d.rating, difficulty: d.difficulty, feedback: d.feedback };
       if (await save(next)) {
-        d.dirty =
-          d.rating !== next.rating ||
-          d.difficulty !== next.difficulty ||
-          d.feedback !== next.feedback;
+        for (const field of d.edited) if (d[field] === next[field]) d.edited.delete(field);
+        d.dirty = d.edited.size > 0;
         message = d.dirty
           ? 'Earlier feedback saved; your newer edits are still a draft.'
           : 'Feedback saved locally.';
@@ -387,11 +388,12 @@ export function mount({ root, css, preferences, store, offline }) {
     } else if (action === 'cancel-restore') {
       preview = null;
       render();
-    } else if (action === 'restore' && preview) {
+    } else if (action === 'restore' && preview && !busy) {
+      busy = true;
       try {
         flushDrafts();
-        await store.restore(preview.raw, preview.revision);
-        drafts.clear();
+        pending = store.restore(preview.raw, preview.revision);
+        await pending;
         preview = null;
         run = p ? store.getRun(p) : null;
         if (run) p = run.puzzle;
@@ -399,6 +401,8 @@ export function mount({ root, css, preferences, store, offline }) {
       } catch (err) {
         message = err.message;
         alert(err.message);
+      } finally {
+        busy = false;
       }
       render();
     }

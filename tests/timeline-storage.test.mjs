@@ -137,9 +137,9 @@ test('restore is explicit, checks the preview generation and retains a recovery 
   run.marks[2] = 1;
   await s.saveRun(run);
   await assert.rejects(s.restore(backup, generation), /changed/i);
-  const previous = storage.getItem(KEY);
+  const previous = s.snapshot();
   await s.restore(backup, s.snapshot().revision);
-  assert.equal(storage.getItem(RECOVERY_KEY), previous);
+  assert.deepEqual(parseBackup(s.recoveryData()), previous);
   assert.equal(s.getRun(puzzle()).marks[2], 0);
 });
 test('restore refuses unknown recovery data and foreign-tab changes without overwriting either', async () => {
@@ -203,4 +203,121 @@ test('a protected backup retains the original unknown bytes through restore and 
   const reopened = make(target);
   assert.ok(reopened.exportData().includes('keep me'));
   assert.equal(parseBackup(reopened.exportData()).runs['test-desk@1'].marks[1], 1);
+});
+
+test('a refused active write leaves both saves available after reopening without rollback', async () => {
+  const storage = memory();
+  const s = make(storage);
+  const previous = edited();
+  previous.feedback = 'Older recovery';
+  await s.saveRun(previous);
+  const older = storage.getItem(KEY);
+  storage.setItem(RECOVERY_KEY, older);
+  const imported = s.exportData();
+
+  const current = edited();
+  current.feedback = 'Current run';
+  await s.saveRun(current);
+  const active = storage.getItem(KEY);
+  const writes = [];
+  const faulting = {
+    ...storage,
+    setItem(key, value) {
+      writes.push(key);
+      if (key === KEY || writes.length > 2)
+        throw new DOMException('No storage writes are available', 'QuotaExceededError');
+      storage.setItem(key, value);
+    },
+  };
+
+  await assert.rejects(make(faulting).restore(imported), { name: 'QuotaExceededError' });
+  assert.deepEqual(writes, [KEY]);
+  assert.equal(storage.getItem(KEY), active);
+  assert.equal(storage.getItem(RECOVERY_KEY), older);
+  const reopened = make(storage);
+  assert.equal(reopened.getRun(puzzle()).feedback, 'Current run');
+  assert.equal(parseBackup(reopened.recoveryData()).runs['test-desk@1'].feedback, 'Older recovery');
+  await reopened.restore(imported);
+  const restored = make(storage);
+  assert.equal(restored.getRun(puzzle()).feedback, 'Older recovery');
+  assert.equal(parseBackup(restored.recoveryData()).runs['test-desk@1'].feedback, 'Current run');
+  assert.equal(storage.getItem(RECOVERY_KEY), older);
+  await restored.saveRun(edited());
+  assert.equal(
+    parseBackup(make(storage).recoveryData()).runs['test-desk@1'].feedback,
+    'Current run',
+  );
+});
+
+test('repeated restores keep incoming retained bytes and recover the previous shelf after reload', async () => {
+  const storage = memory();
+  const old = make(storage);
+  await old.saveRun(edited());
+  const withRetained = (raw) => {
+    const save = old.snapshot();
+    save.retainedRaw = raw;
+    return save;
+  };
+  const legacy = JSON.stringify(withRetained('legacy recovery bytes'));
+  storage.setItem(RECOVERY_KEY, legacy);
+  storage.setItem(KEY, JSON.stringify(withRetained('pre-restore bytes')));
+  const store = make(storage),
+    stale = make(storage);
+  const backup = (save, recovery) =>
+    JSON.stringify({ kind: 'alibi-timeline-backup', schema: 1, save, recovery });
+  await store.restore(backup(old.snapshot(), { raw: 'first import bytes' }));
+  const reopened = make(storage);
+  assert.equal(parseBackup(reopened.exportData()).retainedRaw, 'first import bytes');
+  assert.equal(parseBackup(reopened.recoveryData()).retainedRaw, 'pre-restore bytes');
+
+  const first = storage.getItem(KEY);
+  assert.equal(await stale.saveRun(edited()), false);
+  assert.equal(stale.status().mode, 'conflict');
+  assert.equal(storage.getItem(KEY), first);
+  assert.equal(parseBackup(stale.recoveryData()).retainedRaw, 'pre-restore bytes');
+  await assert.rejects(
+    reopened.restore(backup(withRetained('mismatched bytes'), { raw: 'different bytes' })),
+    /two protected records/,
+  );
+  assert.equal(storage.getItem(KEY), first);
+
+  const second = backup(withRetained('second import bytes'), { raw: 'second import bytes' });
+  const failWrite = make({
+    ...storage,
+    setItem() {
+      throw new DOMException('Full', 'QuotaExceededError');
+    },
+  });
+  await assert.rejects(failWrite.restore(second), { name: 'QuotaExceededError' });
+  assert.equal(storage.getItem(KEY), first);
+  assert.equal(parseBackup(make(storage).recoveryData()).retainedRaw, 'pre-restore bytes');
+  await reopened.restore(second);
+  const again = make(storage);
+  assert.equal(parseBackup(again.exportData()).retainedRaw, 'second import bytes');
+  assert.equal(parseBackup(again.recoveryData()).retainedRaw, 'first import bytes');
+  assert.equal(storage.getItem(RECOVERY_KEY), legacy);
+});
+
+test('restore rejects an oversized combined record before either durable copy changes', async () => {
+  const storage = memory();
+  const active = make(storage).snapshot();
+  active.retainedRaw = '\x01'.repeat(600_000);
+  const raw = JSON.stringify(active);
+  storage.setItem(KEY, raw);
+  storage.setItem(RECOVERY_KEY, JSON.stringify(make().snapshot()));
+  const legacy = storage.getItem(RECOVERY_KEY);
+  const backup = JSON.stringify({ kind: 'alibi-timeline-backup', schema: 1, save: active });
+  const attempts = [];
+  const store = make({
+    ...storage,
+    setItem(key, value) {
+      attempts.push(key);
+      storage.setItem(key, value);
+    },
+  });
+  assert.equal(store.status().mode, 'saved');
+  await assert.rejects(store.restore(backup), /save and recovery exceed/);
+  assert.deepEqual(attempts, []);
+  assert.equal(storage.getItem(KEY), raw);
+  assert.equal(storage.getItem(RECOVERY_KEY), legacy);
 });

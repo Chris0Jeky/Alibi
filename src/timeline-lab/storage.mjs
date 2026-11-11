@@ -4,6 +4,7 @@ export const KEY = 'alibi.timeline.v1';
 export const RECOVERY_KEY = 'alibi.timeline.recovery.v1';
 const MAX_BYTES = 768 * 1024;
 const MAX_RETAINED = 2 * 1024 * 1024;
+const MAX_RECORD = 6 * 1024 * 1024;
 const MAX_RUNS = 64;
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const plain = (value) =>
@@ -115,13 +116,20 @@ export function validateSave(save) {
   if (JSON.stringify(active).length > MAX_BYTES) fail('Timeline save exceeds its size limit.');
   return save;
 }
-function parseSave(raw) {
-  if (typeof raw !== 'string' || raw.length > 6 * 1024 * 1024)
+function parseRecord(raw) {
+  if (typeof raw !== 'string' || raw.length > MAX_RECORD)
     fail('Timeline save exceeds its size limit.');
-  return validateSave(JSON.parse(raw));
+  return JSON.parse(raw);
+}
+function parseStored(raw) {
+  const record = parseRecord(raw);
+  if (!plain(record) || !Object.hasOwn(record, 'recoverySnapshot'))
+    return { save: validateSave(record), recoverySnapshot: null };
+  const { recoverySnapshot, ...save } = record;
+  return { save: validateSave(save), recoverySnapshot: validateSave(recoverySnapshot) };
 }
 export function parseBackup(raw) {
-  if (typeof raw !== 'string' || raw.length > 6 * 1024 * 1024)
+  if (typeof raw !== 'string' || raw.length > MAX_RECORD)
     fail('Choose a lab backup smaller than 6 MB.');
   const value = JSON.parse(raw);
   if (
@@ -156,7 +164,9 @@ export function createStore(options = {}) {
     locks,
     raw = null,
     originalRaw = null,
+    recoverySnapshot = null,
     value = empty(),
+    restorePending = false,
     mode = 'saved',
     message = '',
     dirty = false,
@@ -175,7 +185,7 @@ export function createStore(options = {}) {
   }
   if (readable && raw !== null) {
     try {
-      value = parseSave(raw);
+      ({ save: value, recoverySnapshot } = parseStored(raw));
     } catch {
       originalRaw = raw;
       mode = 'protected';
@@ -219,16 +229,25 @@ export function createStore(options = {}) {
             const previousRecovery = storage.getItem(RECOVERY_KEY);
             if (previousRecovery !== null) {
               try {
-                parseSave(previousRecovery);
+                validateSave(parseRecord(previousRecovery));
               } catch {
                 fail('An unknown recovery copy already exists. It has been preserved.');
               }
             }
-            storage.setItem(RECOVERY_KEY, raw ?? JSON.stringify(empty()));
           }
-          const encoded = JSON.stringify(validateSave(next));
+          const previous = recovery
+            ? raw === null
+              ? empty()
+              : parseStored(raw).save
+            : recoverySnapshot;
+          // Commit the save and recovery together. The legacy recovery key stays intact.
+          const save = validateSave(next);
+          const encoded = JSON.stringify(previous ? { ...save, recoverySnapshot: previous } : save);
+          if (encoded.length > MAX_RECORD)
+            fail('Timeline save and recovery exceed the storage limit.');
           storage.setItem(KEY, encoded);
           raw = encoded;
+          recoverySnapshot = previous;
           mode = 'saved';
           message = '';
           dirty = false;
@@ -254,6 +273,7 @@ export function createStore(options = {}) {
       return value.runs[keyFor(puzzle)] ? clone(value.runs[keyFor(puzzle)]) : freshRun(puzzle);
     },
     saveRun(run) {
+      if (restorePending) return Promise.reject(Error('Wait for the lab restore before editing.'));
       // Capture the caller's values now, before a later UI edit can mutate them.
       let captured;
       try {
@@ -307,12 +327,14 @@ export function createStore(options = {}) {
         fail('Export your Timeline Desk session before updating.');
     },
     restore(backup, expectedRevision = value.revision) {
+      if (restorePending) return Promise.reject(Error('A lab restore is already in progress.'));
       let imported;
       try {
         imported = parseBackup(backup);
       } catch (error) {
         return Promise.reject(error);
       }
+      restorePending = true;
       return serial(async () => {
         if (value.revision !== expectedRevision)
           fail('This lab changed after the restore preview. Review the backup again.');
@@ -326,17 +348,25 @@ export function createStore(options = {}) {
         value = next;
         dirty = false;
         exported = -1;
+      }).finally(() => {
+        restorePending = false;
       });
     },
     recoveryData() {
       if (!readable) fail('Recovery storage is unavailable.');
-      const previous = storage.getItem(RECOVERY_KEY);
-      if (previous === null) return null;
-      return JSON.stringify({
-        kind: 'alibi-timeline-backup',
-        schema: 1,
-        save: parseSave(previous),
-      });
+      const current = storage.getItem(KEY);
+      let previous;
+      try {
+        previous = current === raw ? recoverySnapshot : parseStored(current).recoverySnapshot;
+      } catch {
+        // The active record may be protected while its legacy recovery is readable.
+      }
+      if (!previous) {
+        const legacy = storage.getItem(RECOVERY_KEY);
+        if (legacy === null) return null;
+        previous = validateSave(parseRecord(legacy));
+      }
+      return JSON.stringify({ kind: 'alibi-timeline-backup', schema: 1, save: previous });
     },
   };
 }
