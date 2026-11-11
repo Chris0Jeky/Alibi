@@ -129,12 +129,45 @@ export function build(spec) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { SPECS } = await import('./timeline-specs.mjs');
   const only = process.argv[2];
+  const fields = {
+    before: ['a', 'b'],
+    after: ['a', 'b'],
+    apart: ['a', 'b', 'k', 'mode'],
+    within: ['a', 'lo', 'hi'],
+    not: ['a', 's'],
+    witness: ['a', 'r'],
+  };
+  const constructors = Object.entries(fields).map(
+    ([t, args]) => `const ${t} = (${args.join(', ')}) => ({ t: '${t}', ${args.join(', ')} });`,
+  );
   const built = SPECS.filter((s) => !only || s.id === only).map((s) => {
     const r = build(s);
     console.error(`${s.id}: seed ${r.seed}, ${r.puzzle.clues.length} clues`);
-    return r.puzzle;
+    const { clues, solution, ...metadata } = r.puzzle;
+    const properties = Object.entries(metadata).map(
+      ([key, value]) => `    ${key}: ${JSON.stringify(value)},`,
+    );
+    const calls = clues.map(
+      (c) => `      ${c.t}(${fields[c.t].map((key) => JSON.stringify(c[key])).join(', ')}),`,
+    );
+    return [
+      '  {',
+      ...properties,
+      '    clues: [',
+      ...calls,
+      '    ],',
+      `    solution: ${JSON.stringify(solution)},`,
+      '  },',
+    ].join('\n');
   });
   console.log(
-    `/* Authored, deterministic experimental levels. Regenerate with tools/curation/timeline-candidates.mjs. */\nexport const PUZZLES = ${JSON.stringify(built, null, 2)};\n`,
+    [
+      '/* Authored, deterministic experimental levels. Regenerate with tools/curation/timeline-candidates.mjs. */',
+      ...constructors,
+      '',
+      'export const PUZZLES = [',
+      ...built,
+      '];',
+    ].join('\n'),
   );
 }

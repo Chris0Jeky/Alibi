@@ -108,7 +108,7 @@ export function mount({ root, css, preferences, store, offline }) {
       const done = !!saved && solved(saved.puzzle, saved.marks);
       return `<a href="#/quiet/timeline/${x.id}" class="${done ? 'completed' : ''}" aria-label="Level ${x.level}, ${esc(x.title)}, ${x.events.length} events, ${x.slots} hours${done ? ', solved' : ''}"><b>${x.level}${done ? ' ✓' : ''}</b><span>${esc(x.title)}</span><small>${x.events.length} events · ${x.slots} hours</small></a>`;
     };
-    return `<section class="lobby"><div class="section-head"><span class="eyebrow">How it works</span><h2>Reconstruct the night</h2></div><ul class="rules">${RULES.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><div class="section-head"><span class="eyebrow">Twelve cases</span><h2>Choose a night</h2><p>The first three introduce the clue kinds one at a time; later nights mix them.</p></div><nav class="levels" aria-label="Levels">${PUZZLES.map(level).join('')}</nav></section>`;
+    return `<section class="lobby"><div class="section-head"><span class="eyebrow">How it works</span><h2>Reconstruct the night</h2></div><ul class="rules">${RULES.map((x) => `<li>${esc(x)}</li>`).join('')}</ul><div class="section-head"><span class="eyebrow">${PUZZLES.length} cases</span><h2>Choose a night</h2><p>The first three introduce the clue kinds one at a time; later nights mix them.</p></div><nav class="levels" aria-label="Levels">${PUZZLES.map(level).join('')}</nav></section>`;
   }
   const clues = () => p.clues.map((c) => ({ rows: involved(c), text: clueText(p, c) }));
   function grid() {

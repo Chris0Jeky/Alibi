@@ -193,7 +193,8 @@ def run():
           page.get_by_role('heading', name='Timeline Desk', exact=True).wait_for(timeout=30000)
           assert page.evaluate("AlibiActivities.diagnostics().kind === 'timeline'")
           assert page.get_by_text('Experimental', exact=True).count() >= 1
-          assert page.locator('.levels a').count() == 12
+          assert page.locator('.levels a').count() == 15
+          assert page.get_by_text('15 cases', exact=True).count() == 1
           assert 'No timer' in page.locator('.rules').inner_text() or 'no timer' in page.locator('.rules').inner_text().lower()
           page.locator('.skip-link').focus(); page.keyboard.press('Enter')
           assert page.evaluate("document.activeElement.shadowRoot?.activeElement?.matches('main')"), 'lobby skip link reaches its content'
@@ -290,13 +291,31 @@ def run():
           if width == 390:
               restore_race(context, page, PUZZLES[0], backup)
 
-          # Offline: cache the pack, reload without a network and keep playing.
-          open_level(page, PUZZLES[4])
+          # Continue from an original case into the expansion and solve its first case.
+          open_level(page, PUZZLES[11])
+          p = PUZZLES[12]
+          page.get_by_role('link', name='Next →', exact=True).click()
+          page.get_by_role('heading', name=p['title'], exact=True).wait_for()
+          check_targets(page, width, p['id'])
+          page.get_by_role('button', name='Hint', exact=True).click()
+          assert re.match(r'^Clue \d+ ', page.locator('.message').inner_text())
+          assert page.get_by_text(p['payoff']).count() == 0
+          for e, s in enumerate(p['solution']): place(page, p, e, s)
+          page.get_by_text('Solved. ' + p['payoff'], exact=True).wait_for()
+          page.evaluate('scrollTo(0, 0)')
+          page.screenshot(path=str(out / f'level-13-solved-{width}.png'), full_page=True)
+
+          # Reload the next case offline and place two events at the same hour.
+          p = PUZZLES[13]
+          page.get_by_role('link', name='Next case →', exact=True).click()
+          page.get_by_role('heading', name=p['title'], exact=True).wait_for()
           page.wait_for_function('navigator.serviceWorker.controller !== null', timeout=30000)
           assert page.evaluate('async () => await AlibiTimeline.cachePack()')
           context.set_offline(True)
-          page.reload(); page.get_by_role('heading', name=PUZZLES[4]['title'], exact=True).wait_for(timeout=30000)
-          place(page, PUZZLES[4], 0, 0)
+          page.reload(); page.get_by_role('heading', name=p['title'], exact=True).wait_for(timeout=30000)
+          assert 'Two events may share an hour.' in page.locator('.rule').inner_text()
+          place(page, p, 1, p['solution'][1]); place(page, p, 4, p['solution'][4])
+          state(page, p, 1, p['solution'][1], 'placed')
           assert page.evaluate('AlibiActivities.diagnostics().kind') == 'timeline' and page.evaluate('AlibiActivities.diagnostics().offline')
           if width == 390:
               restore_delivery(page, backup)
