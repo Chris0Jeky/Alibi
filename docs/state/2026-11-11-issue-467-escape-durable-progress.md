@@ -100,3 +100,11 @@ budget tests, and real-origin Castle Escape and recovery browser suites. Castle 
 100,992 / 101,120 raw bytes, Escape module 89,114 / 90,112 raw bytes, and startup JavaScript
 135,641 / 135,680 gzip bytes. The hint PR must merge before this change; recheck the exact final
 head, CI and relevant browser paths after any integration changes.
+
+## Exact-head verification and review follow-up
+
+At `b7f05fc7a84f8a12921caee0b38cdad5c9442f9b`, the web build and `npm run verify`
+passed: 2,707 tests passed and 21 were skipped. Hosted Castle jobs then exposed a stale
+browser assertion for the restore warning: the UI says `replacement clears case progress`.
+The assertion now checks that same warning, and the complete Castle case browser journey
+passes at 320 and 1280 pixels. The updated head still requires hosted CI.
