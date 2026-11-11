@@ -1,6 +1,7 @@
 # 0.17.0 qualification checkpoint
 
-Snapshot at 20:40 UTC on 11 November 2026. This is a checkpoint, not a release receipt.
+Queue snapshot at 20:40 UTC on 11 November 2026; retroactive-review results were added later.
+This is a checkpoint, not a release receipt.
 Alibi main was `f089f65b08ff4733f7ab72e6fc0e7b47ce4f6bc5`; 0.17.0 was not published.
 The live site remained on 0.16.0. Pulseboard #264 merged and its deployment run 43083778431
 passed; `/readyz` reported ready, schema 6 and Alibi admitted. The public 0.16.0 receipt and
@@ -38,8 +39,10 @@ cancelled or old results. Reconcile conflicts, exact-head review attestations an
 The GitHub Webhooks incident had cleared, while Actions status was reported operational; no cause
 for this repository's queue was established.
 
-Muse retroactive review for the merged ranges through #964 was still running. Triage each receipt;
-#967 tracks one verified non-blocking family instruction issue. The release-preparation branch is
+Muse retroactive review of the four merged ranges through #964 completed with no confirmed
+high-severity blocker. #967 tracks a verified family instruction inconsistency; #949 also records
+the Eclipse file-selection follow-up. The CI inventory guardrail observation was triaged on #957.
+The release-preparation branch is
 `codex/release-0-17-0-prep-20261111`; its content record and Pulseboard registration exist but must
 be reconciled with later merges before the release PR. The next publication steps remain the clean
 merged-main Cloudflare release, hosted save/offline checks, tag and release assets, and receipt PR
