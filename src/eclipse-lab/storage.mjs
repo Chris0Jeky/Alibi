@@ -4,6 +4,7 @@ export const KEY = 'alibi.eclipse.v1';
 export const RECOVERY_KEY = 'alibi.eclipse.recovery.v1';
 const MAX_BYTES = 768 * 1024;
 const MAX_RETAINED = 2 * 1024 * 1024;
+const MAX_RECORD = 6 * 1024 * 1024;
 const MAX_RUNS = 64;
 const clone = (value) => JSON.parse(JSON.stringify(value));
 const plain = (value) =>
@@ -116,13 +117,20 @@ export function validateSave(save) {
   if (JSON.stringify(active).length > MAX_BYTES) fail('Experiment save exceeds its size limit.');
   return save;
 }
-function parseSave(raw) {
-  if (typeof raw !== 'string' || raw.length > 6 * 1024 * 1024)
+function parseRecord(raw) {
+  if (typeof raw !== 'string' || raw.length > MAX_RECORD)
     fail('Experiment save exceeds its size limit.');
-  return validateSave(JSON.parse(raw));
+  return JSON.parse(raw);
 }
-export function parseBackup(raw) {
-  if (typeof raw !== 'string' || raw.length > 6 * 1024 * 1024)
+function parseStored(raw) {
+  const record = parseRecord(raw);
+  if (!plain(record) || !Object.hasOwn(record, 'recoverySnapshot'))
+    return { save: validateSave(record), recoverySnapshot: null };
+  const { recoverySnapshot, ...save } = record;
+  return { save: validateSave(save), recoverySnapshot: validateSave(recoverySnapshot) };
+}
+export function parseBackup(raw, revision) {
+  if (typeof raw !== 'string' || raw.length > MAX_RECORD)
     fail('Choose a lab backup smaller than 6 MB.');
   const value = JSON.parse(raw);
   if (
@@ -147,7 +155,26 @@ export function parseBackup(raw) {
       );
     save.retainedRaw = value.recovery.raw;
   }
+  if (revision !== undefined) save.revision = revision;
   return validateSave(save);
+}
+
+function encodeRecord(save, previous) {
+  const encoded = JSON.stringify(previous ? { ...save, recoverySnapshot: previous } : save);
+  if (encoded.length > MAX_RECORD) fail('Experiment save and recovery exceed the storage limit.');
+  return encoded;
+}
+
+export function prepareRestore(next, active, legacy) {
+  if (legacy !== null) {
+    try {
+      validateSave(parseRecord(legacy));
+    } catch {
+      fail('An unknown recovery copy already exists. It has been preserved.');
+    }
+  }
+  const previous = active === null ? empty() : parseStored(active).save;
+  return { encoded: encodeRecord(next, previous), previous };
 }
 
 // LocalStorage is used only while an exclusive Web Lock is held. Without locks,
@@ -158,12 +185,14 @@ export function createStore(options = {}) {
     raw = null,
     originalRaw = null,
     value = empty(),
+    recoverySnapshot = null,
     mode = 'saved',
     message = '',
     dirty = false,
     exported = -1,
     readable = true;
-  let queue = Promise.resolve();
+  let queue = Promise.resolve(),
+    restorePending = false;
   try {
     storage = Object.hasOwn(options, 'storage') ? options.storage : globalThis.localStorage;
     locks = Object.hasOwn(options, 'locks') ? options.locks : globalThis.navigator?.locks;
@@ -176,7 +205,7 @@ export function createStore(options = {}) {
   }
   if (readable && raw !== null) {
     try {
-      value = parseSave(raw);
+      ({ save: value, recoverySnapshot } = parseStored(raw));
     } catch {
       originalRaw = raw;
       mode = 'protected';
@@ -211,25 +240,27 @@ export function createStore(options = {}) {
       return false;
     }
     try {
+      const active = raw;
+      if (recovery && storage.getItem(KEY) !== active) throw conflict();
+      const legacy = recovery ? storage.getItem(RECOVERY_KEY) : null;
+      if (legacy !== null && legacy.length > MAX_RECORD)
+        fail('An unknown recovery copy already exists. It has been preserved.');
+      const prepared = recovery ? await options.prepareRestore(next, active, legacy) : null;
+      if (recovery && (!prepared?.previous || typeof prepared.encoded !== 'string'))
+        fail('The lab recovery could not be prepared.');
       return await locks.request(
         KEY,
         { mode: 'exclusive', signal: AbortSignal.timeout(2000) },
         async () => {
-          if (storage.getItem(KEY) !== raw) throw conflict();
-          if (recovery) {
-            const previousRecovery = storage.getItem(RECOVERY_KEY);
-            if (previousRecovery !== null) {
-              try {
-                parseSave(previousRecovery);
-              } catch {
-                fail('An unknown recovery copy already exists. It has been preserved.');
-              }
-            }
-            storage.setItem(RECOVERY_KEY, raw ?? JSON.stringify(empty()));
-          }
-          const encoded = JSON.stringify(validateSave(next));
+          if (storage.getItem(KEY) !== active) throw conflict();
+          if (recovery && storage.getItem(RECOVERY_KEY) !== legacy)
+            fail('The recovery copy changed before restore. Review the backup again.');
+          const previous = prepared ? prepared.previous : recoverySnapshot;
+          const encoded = prepared ? prepared.encoded : encodeRecord(validateSave(next), previous);
+          // Commit the shelf and its recovery together. The legacy recovery key stays intact.
           storage.setItem(KEY, encoded);
           raw = encoded;
+          recoverySnapshot = previous;
           mode = 'saved';
           message = '';
           dirty = false;
@@ -247,6 +278,25 @@ export function createStore(options = {}) {
       return false;
     }
   }
+  // The worker already validated the next revision. Recheck the local revision before writing.
+  function restoreReviewed(next, expectedRevision) {
+    if (restorePending) return Promise.reject(Error('A lab restore is already in progress.'));
+    restorePending = true;
+    return serial(async () => {
+      if (value.revision !== expectedRevision)
+        fail('This lab changed after the restore preview. Review the backup again.');
+      if (mode === 'protected' || mode === 'conflict' || !readable || !locks?.request)
+        fail('Lab data is protected or read-only. Export this session first.');
+      if (dirty && exported !== value.revision)
+        fail('Export the unsaved lab session before restoring.');
+      await write(next, true);
+      value = next;
+      dirty = false;
+      exported = -1;
+    }).finally(() => {
+      restorePending = false;
+    });
+  }
   return {
     status,
     snapshot: () => clone(value),
@@ -255,6 +305,7 @@ export function createStore(options = {}) {
       return value.runs[keyFor(puzzle)] ? clone(value.runs[keyFor(puzzle)]) : freshRun(puzzle);
     },
     saveRun(run) {
+      if (restorePending) return Promise.reject(Error('Wait for the lab restore before editing.'));
       // Capture the caller's values now, before a later UI edit can mutate them.
       let captured;
       try {
@@ -307,33 +358,28 @@ export function createStore(options = {}) {
       if (dirty && exported !== value.revision)
         fail('Export your Eclipse Lab session before updating.');
     },
-    restore(backup, expectedRevision = value.revision) {
-      let imported;
-      try {
-        imported = parseBackup(backup);
-      } catch (error) {
-        return Promise.reject(error);
-      }
-      return serial(async () => {
-        if (value.revision !== expectedRevision)
-          fail('This lab changed after the restore preview. Review the backup again.');
-        if (mode === 'protected' || mode === 'conflict' || !readable || !locks?.request)
-          fail('Lab data is protected or read-only. Export this session first.');
-        if (dirty && exported !== value.revision)
-          fail('Export the unsaved lab session before restoring.');
-        const next = { ...imported, revision: value.revision + 1 };
-        validateSave(next);
-        await write(next, true);
-        value = next;
-        dirty = false;
-        exported = -1;
-      });
+    async reviewBackup(backup, expectedRevision = value.revision) {
+      const next = await options.validateBackup(backup, expectedRevision + 1);
+      return {
+        count: Object.keys(next.runs).length,
+        restore: () => restoreReviewed(next, expectedRevision),
+      };
     },
     recoveryData() {
       if (!readable) fail('Recovery storage is unavailable.');
-      const previous = storage.getItem(RECOVERY_KEY);
-      if (previous === null) return null;
-      return JSON.stringify({ kind: 'alibi-eclipse-backup', schema: 1, save: parseSave(previous) });
+      const current = storage.getItem(KEY);
+      let previous;
+      try {
+        previous = current === raw ? recoverySnapshot : parseStored(current).recoverySnapshot;
+      } catch {
+        // The active record may be protected while its legacy recovery is readable.
+      }
+      if (!previous) {
+        const legacy = storage.getItem(RECOVERY_KEY);
+        if (legacy === null) return null;
+        previous = validateSave(parseRecord(legacy));
+      }
+      return JSON.stringify({ kind: 'alibi-eclipse-backup', schema: 1, save: previous });
     },
   };
 }
