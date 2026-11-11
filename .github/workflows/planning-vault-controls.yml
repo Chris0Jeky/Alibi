@@ -2,6 +2,7 @@ name: Planning vault controls
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - 'src/challenge*.js'
       - 'src/quiet-wing/**'
       - 'src/club-engines.js'
@@ -37,6 +38,7 @@ jobs:
       - run: npm run build:web
       - run: node --test tests/planning-vault-integration.test.cjs tests/planning-audit.test.cjs tests/archive-vaults.test.cjs tests/challenges.test.cjs tests/budget.test.cjs
       - run: python -m pip install -r requirements-dev.txt
+      - run: bash tools/ci-ubuntu-sources.sh
       - run: python -m playwright install --with-deps chromium
       - name: Record tested source and execute the actual-origin matrix
         env:

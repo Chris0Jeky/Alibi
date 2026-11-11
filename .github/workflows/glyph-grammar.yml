@@ -2,6 +2,7 @@ name: Glyph grammar prototype
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - '.github/workflows/glyph-grammar.yml'
       - 'tools/ci-setup-phase.cjs'
       - 'requirements-dev.txt'
@@ -37,12 +38,7 @@ jobs:
         run: node --test tests/glyph-grammar.test.mjs
       - run: python -m pip install -r requirements-dev.txt
       - name: Use Ubuntu repositories for Chromium system dependencies
-        run: |
-          test -s /etc/apt/sources.list.d/ubuntu.sources
-          printf '%s\n' \
-            'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' \
-            'Dir::Etc::sourceparts "-";' \
-            | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+        run: bash tools/ci-ubuntu-sources.sh
       - name: Install bounded Chromium tooling
         run: node tools/ci-setup-phase.cjs --phase glyph-grammar-chromium --timeout-seconds 480 --grace-seconds 20 -- python -m playwright install --with-deps chromium
       - name: Exercise actual controls and preserve source-bound artifacts

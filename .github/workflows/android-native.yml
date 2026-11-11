@@ -134,7 +134,7 @@ jobs:
         run: |
           # The headless emulator still links libpulse.so.0 on Ubuntu 24.04.
           # Use the same Ubuntu-only package sources as the full verification lane.
-          test -s /etc/apt/sources.list.d/ubuntu.sources
+          bash tools/ci-ubuntu-sources.sh
           sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- update
           sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- install --yes --no-install-recommends libpulse0
           sdkmanager --version > test-results/native/sdkmanager-version.txt 2>&1 || true
