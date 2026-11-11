@@ -1,9 +1,10 @@
-import { PROBLEM, classify, evaluate, formatMinute, initialState, reduce } from './model.mjs';
+import { PROBLEM, evaluate, formatMinute, initialState, reduce } from './model.mjs';
 
 const rows = document.querySelector('#event-rows');
 const controls = document.querySelector('#interval-controls');
 const timelineRows = document.querySelector('#timeline-rows');
 const claimSelect = document.querySelector('#claim-select');
+const witnessKinds = ['supporting', 'counterexample'];
 let state = initialState();
 
 function element(tag, className, text) {
@@ -99,27 +100,22 @@ function buildRows() {
     timelineRow.dataset.eventId = event.id;
     timelineRow.append(element('strong', '', event.name));
     const track = element('div', 'timeline-track');
+    track.setAttribute('aria-hidden', 'true');
     const band = element('span', 'timeline-band');
     band.id = `timeline-band-${event.id}`;
     track.append(band);
+    for (const kind of witnessKinds) track.append(element('span', `timeline-marker ${kind}`));
     timelineRow.append(track);
     const timelineWindow = element('span', '', '');
     timelineWindow.id = `timeline-window-${event.id}`;
     timelineRow.append(timelineWindow);
     timelineRows.append(timelineRow);
   }
-  document.querySelector('#timeline').setAttribute('aria-describedby', 'timeline-equivalence');
-  const equivalence = element('span', 'visually-hidden', '');
-  equivalence.id = 'timeline-equivalence';
-  equivalence.textContent =
-    'This read-only timeline shows the current working intervals from the table.';
-  document.querySelector('#timeline-title').after(equivalence);
-
   const axis = document.querySelector('.timeline-axis');
-  axis.append(element('span', '', '20:00'));
+  axis.append(element('span', '', 'Minutes after 20:00'));
   const ticks = element('div', 'axis-ticks');
   for (const minute of [0, 2, 4, 6, 8]) ticks.append(element('span', '', String(minute)));
-  axis.append(ticks, element('span', '', '20:08'));
+  axis.append(ticks);
 
   for (const claim of PROBLEM.claims) {
     const option = element('option', '', claim.text);
@@ -128,15 +124,12 @@ function buildRows() {
   }
 }
 
-function setScheduleTable(container, schedule, emptyText) {
-  if (!schedule) {
-    container.append(element('p', 'schedule-empty', emptyText));
-    return;
-  }
+function setScheduleTable(container, schedule) {
   const table = element('table', 'schedule-table');
-  const caption = element('caption', '', 'One complete admissible schedule');
+  const caption = element('caption', '', 'One admissible schedule in minute order');
   const body = document.createElement('tbody');
-  for (const event of PROBLEM.events) {
+  const ordered = [...PROBLEM.events].sort((a, b) => schedule[a.id] - schedule[b.id]);
+  for (const event of ordered) {
     const row = document.createElement('tr');
     const heading = element('th', '', event.name);
     heading.scope = 'row';
@@ -147,15 +140,15 @@ function setScheduleTable(container, schedule, emptyText) {
   container.append(table);
 }
 
-function witnessCard(title, schedule, emptyText, claimText, counterexample = false) {
+function witnessCard(title, schedule, emptyText, counterexample = false) {
   const card = element('article', 'witness-card');
   card.append(element('h3', '', title));
   if (schedule) {
     const side = counterexample
       ? 'It makes the selected claim false.'
       : 'It makes the selected claim true.';
-    card.append(element('p', '', `${side} ${claimText}`));
-    setScheduleTable(card, schedule, emptyText);
+    card.append(element('p', '', side));
+    setScheduleTable(card, schedule);
   } else card.append(element('p', 'schedule-empty', emptyText));
   return card;
 }
@@ -208,7 +201,12 @@ function refresh() {
         : low === PROBLEM.clock.end
           ? 'translateX(-100%)'
           : 'translateX(-50%)';
-    band.setAttribute('aria-label', `Working window ${timeRange([low, high])}`);
+    for (const kind of witnessKinds) {
+      const marker = band.parentElement.querySelector(`.${kind}`);
+      const minute = analysis.claim[kind]?.[event.id];
+      marker.hidden = minute === undefined;
+      marker.style.left = marker.hidden ? '' : `${(minute / PROBLEM.clock.end) * 100}%`;
+    }
     document.querySelector(`#timeline-window-${event.id}`).textContent = timeRange([low, high]);
   }
 
@@ -225,7 +223,6 @@ function refresh() {
         : `Ambiguous: ${analysis.schedules.length} schedules fit these hypothetical windows and the fixed clues. Each verdict is relative to this set, not an unconditional fact.`;
   }
 
-  const claim = PROBLEM.claims.find((item) => item.id === state.claimId);
   const classification = document.querySelector('#classification');
   classification.removeAttribute('data-verdict');
   const witnesses = document.querySelector('#witnesses');
@@ -234,14 +231,8 @@ function refresh() {
     classification.dataset.verdict = 'no-schedules';
     classification.textContent = 'Not classified · no schedules fit';
     witnesses.append(
-      witnessCard('Supporting schedule', null, 'Unavailable in a zero-schedule model.', claim.text),
-      witnessCard(
-        'Counterexample schedule',
-        null,
-        'Unavailable in a zero-schedule model.',
-        claim.text,
-        true,
-      ),
+      witnessCard('Supporting schedule', null, 'Unavailable in a zero-schedule model.'),
+      witnessCard('Counterexample schedule', null, 'Unavailable in a zero-schedule model.'),
     );
     return;
   }
@@ -258,7 +249,6 @@ function refresh() {
       'Supporting schedule',
       analysis.claim.supporting,
       'No admissible schedule supports this claim.',
-      claim.text,
     ),
     witnessCard(
       'Counterexample schedule',
@@ -266,7 +256,6 @@ function refresh() {
       analysis.claim.verdict === 'necessary'
         ? 'No counterexample exists among the schedules in this working model.'
         : 'No admissible schedule refutes this claim.',
-      claim.text,
       true,
     ),
   );

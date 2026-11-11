@@ -43,15 +43,39 @@ def start_server():
     return server
 
 
-def read_schedule(page, panel_id):
-    panel = page.locator(f"#{panel_id}")
-    tables = panel.locator(".schedule-table")
+def read_schedule(card):
+    tables = card.locator(".schedule-table")
     if tables.count() == 0:
         return None
     result = {}
     for row in tables.first.locator("tbody tr").all():
         result[row.locator("th").inner_text()] = row.locator("td").inner_text()
+    assert list(result.values()) == sorted(result.values()), result
     return result
+
+
+def assert_timeline_witnesses(page):
+    cards = page.locator("#witnesses .witness-card")
+    for i, kind in enumerate(("supporting", "counterexample")):
+        schedule = read_schedule(cards.nth(i))
+        for row in page.locator(".timeline-row").all():
+            event_name = row.locator("strong").inner_text()
+            marker = row.locator(f".timeline-marker.{kind}")
+            assert marker.count() == 1
+            if schedule is None:
+                assert marker.is_hidden(), (kind, event_name)
+                continue
+            assert marker.is_visible(), (kind, event_name)
+            minute = int(schedule[event_name].split(":")[1])
+            offset = marker.evaluate(
+                """(el, minute) => {
+                  const track = el.parentElement.getBoundingClientRect();
+                  const mark = el.getBoundingClientRect();
+                  return Math.abs(mark.left + mark.width / 2 - (track.left + track.width * minute / 8));
+                }""",
+                minute,
+            )
+            assert offset <= 2, (kind, event_name, minute, offset)
 
 
 def assert_schedule_relation(schedule, before_name, after_name, truth):
@@ -133,28 +157,15 @@ def run():
                 ]
                 assert "Ambiguous:" in page.locator("#model-status").inner_text()
                 assert page.locator("#classification").get_attribute("data-verdict") == "possible"
-                assert_schedule_relation(
-                    read_schedule(page, "witnesses"),
-                    "West gate opens",
-                    "Fog bell sounds",
-                    True,
-                )
                 # The page renders two witness cards; check them independently instead of relying
                 # on the selected claim's answer label.
                 cards = page.locator("#witnesses .witness-card")
                 assert cards.count() == 2
-                support = read_schedule(page, "witnesses")
-                assert support is not None
-                counterexample_text = cards.nth(1).inner_text()
-                assert "makes the selected claim false" in counterexample_text
-                counterexample = {}
-                for row in cards.nth(1).locator(".schedule-table tbody tr").all():
-                    counterexample[row.locator("th").inner_text()] = row.locator("td").inner_text()
                 assert_schedule_relation(
-                    counterexample,
-                    "West gate opens",
-                    "Fog bell sounds",
-                    False,
+                    read_schedule(cards.nth(0)), "West gate opens", "Fog bell sounds", True
+                )
+                assert_schedule_relation(
+                    read_schedule(cards.nth(1)), "West gate opens", "Fog bell sounds", False
                 )
 
                 story_text = page.locator("#clues").inner_text()
@@ -198,7 +209,8 @@ def run():
 
                 # The timeline is optional, read-only and equivalent to the table, while table
                 # controls remain visible and operable underneath it.
-                page.locator("#timeline-toggle").click()
+                page.locator("#timeline-toggle").focus()
+                page.keyboard.press("Enter")
                 assert page.locator("#timeline").is_visible()
                 assert page.locator("#timeline-rows .timeline-row").count() == 5
                 assert page.locator("#timeline-toggle").get_attribute("aria-expanded") == "true"
@@ -209,11 +221,30 @@ def run():
                     assert page.locator(f"#event-row-{event_id}").is_visible()
                 assert page.locator("#timeline input, #timeline button").count() == 0
                 assert page.locator("audio, video").count() == 0
+                assert_timeline_witnesses(page)
+                page.locator("#claim-select").select_option("lantern-before-case")
+                assert page.locator("#classification").get_attribute("data-verdict") == "necessary"
+                assert "No counterexample exists" in page.locator("#witnesses").inner_text()
+                assert_timeline_witnesses(page)
+                page.locator("#claim-select").select_option("case-before-bell")
+                assert page.locator("#classification").get_attribute("data-verdict") == "impossible"
+                assert "No admissible schedule supports" in page.locator("#witnesses").inner_text()
+                assert_timeline_witnesses(page)
+                page.locator("#claim-select").select_option("gate-before-bell")
+                assert page.locator("#classification").get_attribute("data-verdict") == "possible"
+                assert_timeline_witnesses(page)
+
+                page.locator("#range-case-earliest").focus()
+                page.keyboard.press("End")
+                for card in cards.all():
+                    assert read_schedule(card)["Oil case reaches the quay"] == "20:08"
+                assert_timeline_witnesses(page)
                 layout_is_bounded(page, width)
+                page.locator("#undo").click()
+                assert_timeline_witnesses(page)
 
                 if width == 320:
                     image = EVIDENCE / "interval-desk-320.png"
-                    page.locator("#timeline-toggle").click()
                     page.screenshot(path=str(image), full_page=True)
                     results["screenshots"].append(str(image.relative_to(ROOT)))
 
@@ -234,13 +265,13 @@ def run():
                     assert "zero-schedule" in page.locator("#model-status").inner_text()
                     for card in page.locator("#witnesses .witness-card").all():
                         assert "zero-schedule model" in card.inner_text()
+                    assert_timeline_witnesses(page)
 
                     # A single-minute interval at the final tick must remain inside the
                     # read-only timeline instead of spilling past the narrow viewport.
                     page.locator("#range-case-earliest").focus()
                     page.keyboard.press("End")
                     assert compact_text(page.locator("#window-case")) == "20:08–20:08"
-                    page.locator("#timeline-toggle").click()
                     band_bounds = page.locator("#timeline-band-case").evaluate(
                         """band => {
                           const track = band.parentElement.getBoundingClientRect();
@@ -260,17 +291,9 @@ def run():
                     assert page.locator("#timeline").is_hidden()
                     assert page.locator("#story-copy").is_visible()
 
-                    # All three epistemic classifications use the same fixed problem and retain
-                    # the relevant witness or counterexample.
-                    page.locator("#claim-select").select_option("lantern-before-case")
-                    assert page.locator("#classification").get_attribute("data-verdict") == "necessary"
-                    assert "No counterexample exists" in page.locator("#witnesses").inner_text()
-                    page.locator("#claim-select").select_option("case-before-bell")
-                    assert page.locator("#classification").get_attribute("data-verdict") == "impossible"
-                    assert "No admissible schedule supports" in page.locator("#witnesses").inner_text()
-                    page.locator("#claim-select").select_option("gate-before-bell")
                     assert page.locator("#classification").get_attribute("data-verdict") == "possible"
-                    assert cards.count() == 2
+                    page.locator("#timeline-toggle").click()
+                    assert_timeline_witnesses(page)
                 else:
                     image = EVIDENCE / "interval-desk-1280.png"
                     page.screenshot(path=str(image), full_page=True)

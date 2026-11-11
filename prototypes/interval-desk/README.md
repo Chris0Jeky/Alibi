@@ -44,10 +44,11 @@ The claims illustrate the three logical outcomes:
   and a counterexample. The selected ranges remain hypotheses, so the label is never presented as
   an unconditional fact.
 
-The optional timeline is a read-only depiction of the same current windows. It adds no event or
-constraint; the table and its native controls stay available while it is open. Story-off hides
-only the opening scene paragraph. Event identities, fixed windows, clue wording and model results
-stay the same. Undo applies to interval edits; Restart restores the original windows and default
+The example tables list events in minute order. Open the optional timeline below them to see the
+same working windows as bands and the same example times as circles and diamonds. A circle marks
+a supporting schedule and a diamond marks a counterexample. The marks occupy separate lanes even
+when the examples agree on a time. The timeline is read-only. Story-off hides the opening scene
+paragraph. Undo applies to interval edits, and Restart restores the original windows and default
 presentation.
 
 ## Automated verification
@@ -76,9 +77,10 @@ Set `ALIBI_CHROMIUM` when Playwright should use a specific local Chromium execut
 starts a temporary loopback-only static server. Set `ALIBI_INTERVAL_DESK_EVIDENCE_DIR` to write
 browser evidence to another repository-local directory; the default refreshes the committed
 reference evidence. It checks 320×740 and 1280×900 layouts, keyboard
-range edits and focus retention, Undo, Earlier, Story off/on, timeline/table equivalence, the
-zero-schedule state, Restart and all three verdicts. It also checks that the browser made no
-external requests and raised no page errors. The generated review screenshots are
+range edits and focus retention, Undo, Earlier, Story off/on, Restart and all three verdicts. It
+checks marker positions against the minute-order tables after changing the claim or narrowing a
+range, and verifies that both sets of markers clear in the zero-schedule state. It also checks
+for external requests and page errors. The original reference screenshots are
 [`320px`](evidence/interval-desk-320.png) and
 [`1280px`](evidence/interval-desk-1280.png). A source-hash-bound JSON receipt with the browser
 version, viewport results and screenshot hashes is written to
@@ -98,16 +100,19 @@ the player to think aloud without timing the solve:
 
 1. Ask what the fixed clock windows mean and whether 20:03 asserts an exact event time. Ask which
    events could share a minute if no clue orders them.
-2. Have them choose Gate before Bell. Ask for one schedule that supports it and one that refutes it,
-   then ask whether either schedule is proof that the event order is historical fact.
+2. With the timeline hidden, have them choose West gate before fog bell. Ask how the two examples
+   differ and whether either is proof that the event order is historical fact. In the counterexample,
+   the gate and bell share a minute, which is enough to refute strict “before.” Record the player's
+   first explanation before giving that interpretation.
 3. Have them explain why Lantern before Case is necessary and why Case before Bell is impossible,
    using the displayed support or counterexample schedules.
 4. Narrow Lantern to 20:05 and Bell to 20:03–20:04. Ask what “no schedules fit” means; it must not
    be mistaken for proof of any selected claim. Restart and use Story off, then confirm the same
    event names and clues remain.
-5. Open the optional timeline and ask whether its position bands reveal an inference unavailable
-   in the table. If it only makes the same bounds easier to scan, that is a useful presentation
-   choice; if it adds only bookkeeping, stop investing in it.
+5. Restart and return to West gate before fog bell. Open the optional timeline and ask the player to
+   explain what the circles and diamonds show about the gate and bell. Compare this explanation
+   with the table-only one. Record whether the timeline clarified strict order, added a useful way
+   to inspect the same evidence, or added bookkeeping. Stop investing in it if it adds bookkeeping.
 
 Record the player's explanation, where they treat a window as an exact time, how they use the
 counterexample, and whether the timeline changes their reasoning. Do not infer understanding or
