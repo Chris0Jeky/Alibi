@@ -186,7 +186,43 @@ jobs:
           sdkmanager --list_installed > test-results/native/sdk-packages.txt
       - name: Boot the installed debug host offline and exercise native WebView navigation
         if: steps.scope.outputs.mode == 'full'
-        run: bash tools/run-android-smoke.sh
+        run: |
+          if [ "${GITHUB_EVENT_NAME:-}" != 'workflow_dispatch' ] ||
+             [ "${GITHUB_REF:-}" != 'refs/heads/codex/alibi-785-gpu-canary' ]; then
+            bash tools/run-android-smoke.sh
+            exit
+          fi
+
+          (cd android && ./gradlew --no-daemon --dependency-verification=strict :app:assembleDebugAndroidTest)
+          out=test-results/native/gpu-canary
+          app_apk=android/app/build/outputs/apk/debug/app-debug.apk
+          test_apk=android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+          reports=android/app/build/outputs/androidTest-results/connected
+          mkdir "$out"
+          sha256sum "$app_apk" "$test_apk" > "$out/apks.sha256"
+          result=0
+          for gpu in swiftshader swangle; do
+            arm="$out/$gpu"
+            mkdir "$arm"
+            sha256sum --check "$out/apks.sha256"
+            listeners="$(ss -Hln '( sport = :5554 or sport = :5555 )')"
+            if [[ -n "$listeners" ]]; then
+              echo 'Canary inconclusive: emulator ports are in use' | tee "$arm/admission.txt"
+              exit 1
+            fi
+            status=0
+            bash tools/run-android-smoke.sh "--gpu-canary=$gpu" || status=$?
+            printf '%s\n' "$status" > "$arm/exit-status.txt"
+            if [[ -d "$reports" ]]; then mv "$reports" "$arm/junit"; fi
+            if [[ -f test-results/native/emulator-smoke.json ]]; then
+              mv test-results/native/emulator-smoke.json "$arm/"
+            fi
+            sha256sum "$app_apk" "$test_apk" > "$arm/apks-after.sha256"
+            cmp "$out/apks.sha256" "$arm/apks-after.sha256"
+            if [[ -f "$arm/emulator-still-running.txt" ]]; then exit 1; fi
+            if [[ "$status" != 0 ]]; then result=1; fi
+          done
+          exit "$result"
       - name: Confirm source and dependency locks stayed unchanged
         if: steps.scope.outputs.mode == 'full'
         id: native_complete

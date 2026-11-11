@@ -4,6 +4,19 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 OUT="$ROOT/test-results/native"
+GPU=swiftshader
+GPU_CANARY=0
+GRADLE_ARGS=()
+case "${1:-}" in
+  '') ;;
+  --gpu-canary=swiftshader|--gpu-canary=swangle)
+    GPU="${1#*=}"
+    GPU_CANARY=1
+    OUT="$OUT/gpu-canary/$GPU"
+    GRADLE_ARGS=(-x :app:packageDebug -x :app:packageDebugAndroidTest)
+    ;;
+  *) printf 'Unknown native smoke option: %s\n' "$1" >&2; exit 2 ;;
+esac
 mkdir -p "$OUT"
 TRACE_ATTEMPTED=0
 TRACE_DEVICE=/data/misc/perfetto-traces/alibi-native.pftrace
@@ -19,7 +32,7 @@ TRACE_STATUS="$TRACE_OUT/draw-trace-status.txt"
 # Keep the original audited digest across Gradle's potentially rebuilding install step.
 EXPECTED_APK_SHA256="$(python tools/android-smoke-evidence.py prepare)"
 # A failed or skipped run must not reuse an earlier success receipt/report.
-rm -f "$OUT/emulator-smoke.json"
+rm -f "$ROOT/test-results/native/emulator-smoke.json"
 rm -rf "$ROOT/android/app/build/outputs/androidTest-results/connected"
 export ANDROID_SERIAL=emulator-5554
 SDK="${ANDROID_HOME:?Android SDK is required}"
@@ -35,7 +48,7 @@ printf 'no\n' | avdmanager create avd --force --name alibi_native \
 test -s "$ANDROID_AVD_HOME/alibi_native.ini"
 emulator -list-avds | tee "$OUT/avds.txt" | grep -Fx alibi_native
 emulator -avd alibi_native -port 5554 -no-window -no-audio -no-boot-anim \
-  -no-snapshot -gpu swiftshader -memory 2048 > "$OUT/emulator.log" 2>&1 &
+  -no-snapshot -gpu "$GPU" -memory 2048 > "$OUT/emulator.log" 2>&1 &
 EMU_PID=$!
 cleanup() {
   local exit_status=$?
@@ -64,6 +77,11 @@ cleanup() {
     python3 "$ROOT/tools/android-native-diagnostic-excerpt.py" < "$OUT/logcat.txt" || true
   fi
   kill "$EMU_PID" 2>/dev/null || true
+  if [[ "$GPU_CANARY" == 1 ]] &&
+    ! timeout 10 bash -c 'while kill -0 "$1" 2>/dev/null; do sleep 0.2; done' _ "$EMU_PID"; then
+    printf 'Canary inconclusive: owned emulator did not exit\n' | tee "$OUT/emulator-still-running.txt" >&2
+    exit 1
+  fi
   return "$exit_status"
 }
 trap cleanup EXIT
@@ -93,6 +111,17 @@ if test "$phone_ready" != 1; then
   exit 1
 fi
 printf '%s\n' 'native readiness phase=boot-and-phone ready'
+if [[ "$GPU_CANARY" == 1 ]]; then
+  selected_gpu="$(sed -nE 's/^.*gles_mode_selected:([^[:space:]]+).*$/\1/p' "$OUT/emulator.log" | sort -u)"
+  {
+    printf 'requested_gles=%s\nselected_gles=%s\n' "$GPU" "$selected_gpu"
+    grep -E 'gles_mode_selected:|Graphics Adapter|Graphics API Version' "$OUT/emulator.log" || true
+  } | tee "$OUT/graphics-backend.txt"
+  case "$GPU/$selected_gpu" in
+    swiftshader/swiftshader|swangle/swangle|swangle/swangle_indirect) ;;
+    *) printf 'Canary inconclusive: requested GLES backend was not selected\n' >&2; exit 1 ;;
+  esac
+fi
 adb shell cmd connectivity airplane-mode enable
 adb shell svc wifi disable
 adb shell svc data disable
@@ -146,5 +175,5 @@ fi
 # nativeHostBootsAndNavigatesOffline checks installed sourceDir before and after controls.
 (cd android && ./gradlew --no-daemon --dependency-verification=strict \
   "-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=$EXPECTED_APK_SHA256" \
-  :app:connectedDebugAndroidTest)
+  :app:connectedDebugAndroidTest "${GRADLE_ARGS[@]}")
 python tools/android-smoke-evidence.py record --expected-sha "$EXPECTED_APK_SHA256"

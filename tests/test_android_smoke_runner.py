@@ -46,6 +46,8 @@ elif name == 'emulator':
     else:
         assert args[:2] == ['-avd', 'alibi_native']
         if not present: sys.exit(53)
+        selected = os.environ.get('STUB_SELECTED_GPU', args[args.index('-gpu') + 1])
+        print('INFO | emuglConfig_init: vulkan_mode_selected:swiftshader gles_mode_selected:' + selected, flush=True)
         (root / 'emulator.pid').write_text(str(os.getpid()))
         def stop(*_):
             (root / 'emulator-stopped').touch()
@@ -100,7 +102,7 @@ else: raise AssertionError(name)
 
 
 class SmokeRunnerTests(unittest.TestCase):
-    def run_smoke(self, **overrides):
+    def run_smoke(self, *arguments, **overrides):
         temp = tempfile.TemporaryDirectory(prefix='alibi-smoke-runner-')
         self.addCleanup(temp.cleanup)
         root = Path(temp.name)
@@ -153,7 +155,7 @@ class SmokeRunnerTests(unittest.TestCase):
                'ANDROID_SDK_HOME': str(inherited[2]), 'RUNNER_TEMP': str(runner_temp),
                'BASH_ENV': str(preload), 'STUB_ROOT': str(root), **overrides}
         started = time.monotonic()
-        result = subprocess.run(['bash', str(project / 'tools/run-android-smoke.sh')], env=env,
+        result = subprocess.run(['bash', str(project / 'tools/run-android-smoke.sh'), *arguments], env=env,
                                 capture_output=True, text=True, timeout=8)
         elapsed = time.monotonic() - started
         calls = [json.loads(line) for line in (root / 'calls.jsonl').read_text().splitlines()]
@@ -193,6 +195,25 @@ class SmokeRunnerTests(unittest.TestCase):
         self.assertTrue(any(c['name'] == 'adb' and c['args'] == ['shell', 'svc', 'data', 'disable'] for c in calls))
         self.assertEqual((project / 'test-results/native/logcat.txt').read_text(), 'stub logcat retained\n')
         self.assert_stopped(root)
+
+    def test_gpu_canary_requires_the_selected_backend_before_using_frozen_apks(self):
+        for selected, status in [('swangle_indirect', 0), ('swiftshader', 1)]:
+            with self.subTest(selected=selected):
+                root, project, _, _, result, _, calls = self.run_smoke(
+                    '--gpu-canary=swangle', STUB_SELECTED_GPU=selected)
+                self.assertEqual(result.returncode, status, result.stderr)
+                arm = project / 'test-results/native/gpu-canary/swangle'
+                self.assertIn('selected_gles=' + selected, (arm / 'graphics-backend.txt').read_text())
+                self.assertTrue((arm / 'logcat.txt').exists())
+                gradle = [call['args'] for call in calls if call['name'] == 'gradlew']
+                if status == 0:
+                    self.assertEqual(gradle[0][-4:], ['-x', ':app:packageDebug',
+                                                     '-x', ':app:packageDebugAndroidTest'])
+                    self.assertTrue((root / 'recorded').exists())
+                else:
+                    self.assertEqual(gradle, [])
+                    self.assertIn('Canary inconclusive', result.stderr)
+                self.assert_stopped(root)
 
     def test_missing_created_ini_fails_before_launch_or_instrumentation(self):
         self.assert_missing(STUB_MISSING_INI='1')
