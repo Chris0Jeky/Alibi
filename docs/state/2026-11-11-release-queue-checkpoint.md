@@ -63,3 +63,11 @@ checks do not replace hosted qualification. Their evidence is in their PR commen
 
 The Muse batch through #964 completed and was triaged; its receipts and the CI consolidation
 plan were copied outside the checkout under the current session's visualization directory.
+
+## 21:18 UTC recovery check
+
+The 45 requested cancellations had reconciled, but all 24 workflows for #966 remained
+queued; required run 43095471490 still had no jobs and the PR remained blocked. GitHub's
+status page reported a major Actions outage under investigation. This is not a billing
+refusal and does not waive the required checks. Preserve the queue while the incident is
+active; after service recovers, verify the runs actually start and qualify the exact heads.
