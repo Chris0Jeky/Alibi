@@ -22,6 +22,9 @@ const SCENE_BUDGET = 180 * 1024;
 const FILM_BUDGET = 1024 * 1024;
 // Castle completion/navigation fixes: measured 98,062 -> 100,837 bytes; ceiling +2,816.
 const SCRIPT_BUDGET = 96 * 1024 + 2816;
+// Experimental escape rooms (#467): player, adapter and six room sources, measured 86,261 bytes.
+// Loaded only from its Castle route, never precached or carried by the Castle script.
+const ESCAPE_BUDGET = 88 * 1024;
 
 const hash = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex').slice(0, 12);
 
@@ -103,6 +106,21 @@ module.exports = function buildCastle(root, dist) {
   fs.writeFileSync(path.join(caseDir, caseScript), casePlayer);
   fs.writeFileSync(path.join(caseDir, download), caseBytes);
   const caseStudy = `./assets/cases/${caseScript}`;
+  const escapeBytes = require('esbuild').buildSync({
+    entryPoints: [path.join(root, 'src/castle/escape-player.mjs')],
+    bundle: true,
+    minify: true,
+    format: 'esm',
+    target: 'es2022',
+    write: false,
+  }).outputFiles[0].contents;
+  if (escapeBytes.length > ESCAPE_BUDGET)
+    throw Error(
+      `Escape rooms are ${escapeBytes.length} bytes; their separate budget is ${ESCAPE_BUDGET} bytes.`,
+    );
+  fs.mkdirSync(path.join(dist, 'assets/escape'), { recursive: true });
+  const escape = `./assets/escape/rooms.${hash(escapeBytes)}.js`;
+  fs.writeFileSync(path.join(dist, escape), escapeBytes);
   const source = require('esbuild').buildSync({
     entryPoints: [path.join(root, 'src/castle/entry.mjs')],
     bundle: true,
@@ -162,10 +180,11 @@ module.exports = function buildCastle(root, dist) {
     [...roomBytes.values()].reduce((total, value) => total + value.delivered.length, 0) +
     optionalBytes +
     casePlayer.length +
+    escapeBytes.length +
     receiptBytes.length +
     caseBytes.length;
   return {
-    config: { script, files, build: hash(scriptBytes), media, film, caseStudy },
+    config: { script, files, build: hash(scriptBytes), media, film, caseStudy, escape },
     receipt,
     // The self-contained preview has no network origin, so embed only the
     // bounded scene set. The film remains explicitly on-demand there too.
@@ -181,6 +200,7 @@ module.exports = function buildCastle(root, dist) {
     },
     bytes: totalBytes,
     scriptBytes: bytes,
+    escapeBytes: escapeBytes.length,
     sceneBytes: [...roomBytes.values()].reduce((total, value) => total + value.delivered.length, 0),
     originalSceneBytes,
     filmBytes: optionalBytes,
@@ -190,3 +210,4 @@ module.exports = function buildCastle(root, dist) {
 module.exports.ROOM_IDS = ROOM_IDS;
 module.exports.SCENE_BUDGET = SCENE_BUDGET;
 module.exports.FILM_BUDGET = FILM_BUDGET;
+module.exports.ESCAPE_BUDGET = ESCAPE_BUDGET;

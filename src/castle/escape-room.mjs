@@ -1,5 +1,6 @@
 // Adapter from a validated postern-escape-1 room to the Castle inspector's object shape (#467).
-// Memory-only: #442 owns persistence and #433 delivery, so the Castle entry does not import this.
+// Memory-only: progress lasts until reload. The Castle entry never imports this; the separately
+// built escape player (escape-player.mjs) loads it on demand behind the experimental route.
 import Session from '../../tools/escape-session.cjs';
 import { escape, button } from './html.mjs';
 
@@ -47,6 +48,8 @@ export function createEscapeAdapter(source) {
           handle: `${scope}/${o.id}/${a.id}`,
           label: a.label,
           input: a.input,
+          // Orientation, constraint and method text for this offered action only (#469).
+          hints: a.hints,
         })),
       })),
     };
@@ -71,6 +74,9 @@ export function createEscapeHost(sources) {
   const rooms = new Map(sources.map((s) => [s.id, createEscapeAdapter(s)]));
   let current = null,
     token = 0;
+  // DOMStringMap values are strings; accept the exact current token in either representation.
+  const fresh = (issued) =>
+    !!current && (issued === token || (typeof issued === 'string' && issued === String(token)));
   return {
     enter(id) {
       current = rooms.get(id) || null;
@@ -81,13 +87,15 @@ export function createEscapeHost(sources) {
       return view ? { ...view, routeToken: token } : null;
     },
     act(issued, handle, input) {
-      // DOMStringMap values are strings; accept the exact current token in either representation.
-      if (
-        (issued !== token && !(typeof issued === 'string' && issued === String(token))) ||
-        !current
-      )
-        return { ok: false, code: 'stale', message: MESSAGES.stale };
+      if (!fresh(issued)) return { ok: false, code: 'stale', message: MESSAGES.stale };
       return current.act(handle, input);
+    },
+    // Undo and restart obey the same route token, so an old visit's control cannot rewind B.
+    undo: (issued) => fresh(issued) && current.undo(),
+    restart(issued) {
+      if (!fresh(issued)) return false;
+      current.restart();
+      return true;
     },
   };
 }
@@ -120,9 +128,10 @@ export function roomMarkup(view) {
 }
 
 // Inspector path: the same object's text, current observations and the same action handles.
+// No notebook control: escape progress is session-only and must not write into the Castle save.
 export function inspectorMarkup(view, id) {
   const o = view.objects.find((entry) => entry.id === id);
   if (!o) return '';
   const route = routeAttribute(view);
-  return `<p>${escape(o.t)}</p>${o.observations.map((text) => `<p>${escape(text)}</p>`).join('')}${inventoryMarkup(view)}<ul aria-label="Actions">${o.actions.map((a) => actionMarkup(a, route)).join('')}</ul>${button('Keep a note', 'keep-observation', o.id, route)}`;
+  return `<p>${escape(o.t)}</p>${o.observations.map((text) => `<p>${escape(text)}</p>`).join('')}${inventoryMarkup(view)}<ul aria-label="Actions">${o.actions.map((a) => actionMarkup(a, route)).join('')}</ul>`;
 }

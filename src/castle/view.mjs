@@ -130,7 +130,7 @@ export async function mount({ root, preferences = null, practice = null }) {
   }
   function header() {
     $('header').innerHTML =
-      `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${link('Experimental case', 'case')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">Chapter I ${E.has(state, 'inference') ? 'complete' : E.progress(state)[0] + '/5'} · Extra questions ${E.progress(state)[1]}/5</span>`;
+      `<div><span class="eyebrow">Alibi · countryside estate</span><br><strong>Wrenmere Castle</strong></div><nav aria-label="Castle navigation">${link('Grounds', 'map')}${link('Museum', 'museum')}${link('Notebook', 'journal')}${link('Room directory', 'directory')}${link('Experimental case', 'case')}${link('Experimental escape rooms', 'case', 'escape')}${button('Preferences', 'preferences')}<a href="#/home">Leave castle</a></nav><span class="score">Chapter I ${E.has(state, 'inference') ? 'complete' : E.progress(state)[0] + '/5'} · Extra questions ${E.progress(state)[1]}/5</span>`;
     for (const a of $('header').querySelectorAll('a'))
       if (a.hash === `#/quiet/castle/${view}`) a.setAttribute('aria-current', 'page');
   }
@@ -885,12 +885,14 @@ export async function mount({ root, preferences = null, practice = null }) {
     if (view === 'case') {
       const main = $(mainSelector);
       main.textContent = 'Opening experimental case…';
-      const url = globalThis.ALIBI_QUIET_CONFIG?.castle?.caseStudy;
+      const url =
+        globalThis.ALIBI_QUIET_CONFIG?.castle?.[next.id == 'escape' ? 'escape' : 'caseStudy'];
       if (!url) main.textContent = 'Open the hosted app to install the experimental case.';
       else
         import(new URL(url, location.href))
           .then((m) => {
-            if (!disposed && epoch === caseEpoch) caseVisit = m.mount({ root: main, store, save });
+            if (!disposed && epoch === caseEpoch)
+              caseVisit = m.mount({ root: main, store, save, show, close });
           })
           .catch((error) => {
             if (!disposed && epoch === caseEpoch) main.textContent = error.message;
