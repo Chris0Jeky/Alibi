@@ -47,7 +47,9 @@ self.onmessage = (e) => {
         throw Error('That file is not valid JSON. The file and all device saves are unchanged.');
       }
     };
-    if (m.type === 'castle-backup' || m.type === 'castle-restore') {
+    if (m.type === 'castle-record') {
+      value = AlibiCastleValidation.validateRecord(m.record);
+    } else if (m.type === 'castle-backup' || m.type === 'castle-restore') {
       if (typeof m.text !== 'string' || new TextEncoder().encode(m.text).length > 512 * 1024)
         throw Error('Castle backup exceeds the 512 KiB import limit.');
       if (m.type === 'castle-restore') {

@@ -128,6 +128,7 @@ module.exports = function buildCastle(root, dist) {
     format: 'iife',
     target: 'es2022',
     write: false,
+    define: { CASTLE_VALIDATION: 'false' },
   }).outputFiles[0].text;
   const scriptBytes = Buffer.from(source);
   const bytes = scriptBytes.byteLength;

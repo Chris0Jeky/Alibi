@@ -131,6 +131,20 @@ function build() {
   );
   const platformURL = `./assets/alibi-platform.${hash(platformSource)}.js`;
   write(path.join(DIST, platformURL), platformSource);
+  const roomIds = {};
+  require('node:vm').runInNewContext(
+    require('esbuild').buildSync({
+      stdin: {
+        contents:
+          "import rooms from './src/castle/rooms.mjs'; globalThis.ids = rooms.map(r => r.id);",
+        resolveDir: ROOT,
+      },
+      bundle: true,
+      format: 'iife',
+      write: false,
+    }).outputFiles[0].text,
+    roomIds,
+  );
   const castleValidation = require('esbuild').buildSync({
     entryPoints: [path.join(SRC, 'castle/validation-entry.mjs')],
     bundle: true,
@@ -138,6 +152,11 @@ function build() {
     format: 'iife',
     target: 'es2022',
     write: false,
+    define: {
+      CASTLE_VALIDATION: 'true',
+      CASTLE_VISIT_IDS: JSON.stringify(roomIds.ids),
+      ESCAPE_SAVE_RULES: JSON.stringify(require('./escape-save-rules.cjs')(ROOT)),
+    },
   }).outputFiles[0].text;
   const officialParts = require('./official-catalogue.cjs').partition(ROOT),
     catalog = officialParts.catalog,

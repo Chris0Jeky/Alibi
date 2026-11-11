@@ -93,7 +93,7 @@ export async function mount({ root, preferences = null, practice = null }) {
           : 'Castle progress saved on this device'
         : 'Castle progress needs attention';
     $('footer').innerHTML =
-      `${escape(label)}. Exports include Chapter I and your experimental case. ${link('Open castle notebook', 'journal')}<br><span class="castle-offline">${globalThis.ALIBI_CONFIG?.standalone ? 'Castle rooms are included in this file.' : offlineState === 'ready' ? 'Castle rooms ready offline.' : offlineState === 'loading' ? 'Preparing castle rooms for offline visits…' : 'Castle rooms are not ready offline. Reopen online to retry.'}</span>`;
+      `${escape(label)}. ${link('Open castle notebook', 'journal')}<br><span class="castle-offline">${globalThis.ALIBI_CONFIG?.standalone ? 'Castle rooms are included in this file.' : offlineState === 'ready' ? 'Castle rooms ready offline.' : offlineState === 'loading' ? 'Preparing castle rooms for offline visits…' : 'Castle rooms are not ready offline. Reopen online to retry.'}</span>`;
   }
   function prefs() {
     root.host.dataset.reduced = String(
@@ -258,7 +258,7 @@ export async function mount({ root, preferences = null, practice = null }) {
     pendingRestore = { data, revision: store.state.revision };
     show(
       'Review castle restore',
-      `<p>Experimental case: ${data.state.caseStudy ? data.state.caseStudy.answers.length + '/3 stages' : 'not included; replacement removes current case progress'}.</p><p>This file contains ${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your current answers and preferences, adds missing discoveries and appends different notes in a labelled section. Repeating the same reviewed file keeps that exact labelled section once; ordinary local note text is never treated as an import. <strong>Replace notebook</strong> uses the file instead of your current castle notebook.</p><p>Both retain a pre-restore recovery copy in the same database transaction. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This file also carries a protected raw record. Keep the original file; that raw record is not automatically restored.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
+      `<p>Experimental case: ${data.state.caseStudy ? data.state.caseStudy.answers.length + '/3 stages' : 'absent; replacement clears case progress'}. Escape room saves: ${Object.keys(data.state.escapeRooms || {}).length}.</p><p>${Object.keys(data.state.completed).length} completed questions, ${data.state.visited.length} visited rooms and ${data.state.notes.length} note characters.</p><p><strong>Merge discoveries</strong> keeps your answers and preferences, adds discoveries and appends distinct notes with labels. Repeating the same reviewed file keeps that exact labelled section once. <strong>Replace notebook</strong> uses the reviewed file as your notebook.</p><p>Both keep a recovery copy. Other Alibi saves are unaffected.</p>${data.preservedRecord ? '<p>This export also holds a protected raw record for manual recovery.</p>' : ''}<div class="actions">${button('Merge discoveries', 'restore-merge', '', 'class="primary"')}${button('Replace notebook', 'restore-replace')}</div>`,
     );
   }
   async function restoreNotebook(replace) {

@@ -33,14 +33,18 @@ export function validateBackup(data) {
   return { ...data, state: validate(data.state) };
 }
 
-export function backup(state, mode = 'local', preservedRecord = null) {
+export function backup(state, mode = 'local', preservedRecord) {
   return {
     format: 'alibi-castle',
     version: 1,
-    scope: state.caseStudy ? 'Wrenmere Chapter I and experimental case' : 'Wrenmere Chapter I only',
+    scope: state.escapeRooms
+      ? 'Wrenmere Castle with escape rooms'
+      : state.caseStudy
+        ? 'Wrenmere Chapter I and experimental case'
+        : 'Wrenmere Chapter I only',
     state: clone(state),
     mode,
-    ...(preservedRecord !== null ? { preservedRecord: clone(preservedRecord) } : {}),
+    ...(preservedRecord !== undefined ? { preservedRecord: clone(preservedRecord) } : {}),
   };
 }
 
@@ -63,6 +67,15 @@ export function mergeStates(local, incoming) {
     if (current.caseStudy && JSON.stringify(current.caseStudy) !== JSON.stringify(added.caseStudy))
       throw Error('Case saves differ. Keep both exports, then review an explicit replacement.');
     next.caseStudy = added.caseStudy;
+  }
+  if (added.escapeRooms) {
+    const localRooms = current.escapeRooms || {};
+    for (const [id, room] of Object.entries(added.escapeRooms))
+      if (Object.hasOwn(localRooms, id) && JSON.stringify(localRooms[id]) !== JSON.stringify(room))
+        throw Error(
+          'Escape room saves differ. Keep both exports, then review an explicit replacement.',
+        );
+    next.escapeRooms = { ...localRooms, ...added.escapeRooms };
   }
   for (const [id, value] of Object.entries(added.completed))
     if (!Object.hasOwn(next.completed, id)) next.completed[id] = value;

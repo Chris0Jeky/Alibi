@@ -399,7 +399,7 @@ const rows = [
     planned,
   ],
 ];
-export default rows.map((row, index) => ({
+export default /* @__PURE__ */ rows.map((row, index) => ({
   ...Object.fromEntries(fields.map((key, i) => [key, row[i]])),
   number: index + 1,
   implemented: row[9] !== planned,

@@ -1,6 +1,5 @@
 // Experimental escape rooms inside the Castle (#467). Built as its own lazily imported module so
-// the Castle script never carries room sources. Session-only: rooms, drafts and hint stages live in
-// this module until reload; nothing touches the Castle save or any other Alibi store (#442).
+// the Castle script never carries room sources. The Castle notebook owns persistence (#467).
 import { createEscapeHost, roomMarkup, inspectorMarkup } from './escape-room.mjs';
 import { escape, button } from './html.mjs';
 import tidekeeper from '../../content/escape-rooms/tidekeeper-workshop.json' with { type: 'json' };
@@ -9,29 +8,87 @@ import moonseed from '../../content/escape-rooms/moonseed-conservatory.json' wit
 import herbarium from '../../content/escape-rooms/herbarium-lift.json' with { type: 'json' };
 import counterweight from '../../content/escape-rooms/counterweight-loft.json' with { type: 'json' };
 import clockmaker from '../../content/escape-rooms/clockmaker-rehearsal.json' with { type: 'json' };
+import pins from '../../content/escape-room-pins.json' with { type: 'json' };
 
 const ROOMS = [tidekeeper, printmaker, moonseed, herbarium, counterweight, clockmaker];
 const BASE = '#/quiet/castle/case/escape';
 const LEVELS = ['Orientation', 'Constraint', 'Method'];
-const NOTICE =
-  'Experimental. Untimed. Escape progress is not saved yet: it lasts until you reload or close Alibi.';
+const NOTICE = 'Experimental. Untimed. Escape progress is included in Castle notebook exports.';
 const host = createEscapeHost(ROOMS);
-const drafts = new Map(); // answer handle -> unsent text
-const hints = new Map(); // action handle -> hint stages shown
-const started = new Set();
 
 // The Castle owns the route, dialog (show/close) and focus return; this owns only its controls.
-export function mount({ root, store, show, close }) {
+export function mount({ root, store, save, show, close }) {
   const shadow = root.getRootNode();
   const abort = new AbortController();
-  const id = location.hash.split('/')[5];
+  const routeHash = location.hash;
+  const id = routeHash.split('/')[5];
   const source = ROOMS.find((r) => r.id === id);
   const story = () => store.state.preferences.story !== false;
-  let token = source ? host.enter(source.id) : host.enter(null),
+  let token,
+    drafts,
+    hints,
     inspecting = null,
-    message = '';
+    message = '',
+    offline = '';
   const view = () => host.view(story());
   const $ = (selector) => root.querySelector(selector);
+  const current = () => !abort.signal.aborted && root.isConnected && location.hash === routeHash;
+  const actionIndex = (handle) =>
+    source.actions.findIndex((a) => handle.endsWith(`/${a.object}/${a.id}`));
+  const offered = (handle) =>
+    view().objects.some((o) => o.actions.some((a) => a.handle === handle));
+  const editable = () => !store.restoring && store.mode !== 'protected';
+
+  function hydrate() {
+    const record = store.state.escapeRooms?.[id];
+    if (record && (record.revision !== source?.revision || record.sha !== pins[id]))
+      throw Error('Unknown escape room revision. Original notebook preserved.');
+    token = host.enter(source?.id, record?.trail ?? null);
+    drafts = { ...record?.drafts };
+    hints = { ...record?.hints };
+  }
+  function retain() {
+    const next = structuredClone(store.state);
+    (next.escapeRooms ||= {})[id] = {
+      revision: source.revision,
+      sha: pins[id],
+      trail: host.snapshot(token),
+      drafts: { ...drafts },
+      hints: { ...hints },
+    };
+    next.revision++;
+    try {
+      save(next).then((ok) => {
+        if (!ok && current())
+          say(store.error || 'Export the Castle notebook to keep this session.');
+      });
+      return true;
+    } catch (error) {
+      hydrate();
+      say(error.message);
+      draw();
+      return false;
+    }
+  }
+  async function cacheRoom() {
+    try {
+      if (!(await globalThis.AlibiCastle.cachePack())) throw Error('Castle pack unavailable.');
+      if (!current()) return;
+      const cache = await caches.open(
+        `alibi-castle-pack-${globalThis.ALIBI_QUIET_CONFIG.castle.build}`,
+      );
+      if (!(await cache.match(import.meta.url)))
+        await cache.add(
+          new Request(import.meta.url, {
+            signal: AbortSignal.any([abort.signal, AbortSignal.timeout(15000)]),
+          }),
+        );
+      offline = ' Available offline.';
+    } catch {
+      offline = ' Offline copy unavailable.';
+    }
+    if (current()) $('[data-escape-offline]').textContent = offline;
+  }
 
   // Castle marks nav links by view, which would name the case; this route is the escape link.
   function markNav() {
@@ -43,26 +100,27 @@ export function mount({ root, store, show, close }) {
     message = text;
     const live = shadow.querySelector('#castle-live');
     if (live) live.textContent = text;
+    for (const status of shadow.querySelectorAll('[data-escape-status]')) status.textContent = text;
   }
   function list() {
-    return `<section class="page escape-player"><p class="eyebrow">Experimental · escape rooms</p><h1 tabindex="-1">Escape rooms</h1><p>${NOTICE}</p><p>Six original fictional rooms, separate from Wrenmere Chapter I. Every object and action is a labelled button. Difficulty has not been calibrated with players.</p><ul class="escape-rooms">${ROOMS.map(
+    return `<section class="page escape-player"><p class="eyebrow">Experimental · escape rooms</p><h1 tabindex="-1">Escape rooms</h1><p>${NOTICE}<span data-escape-offline>${offline}</span></p><p>Six original fictional rooms, separate from Wrenmere Chapter I. Every object and action is a labelled button. Difficulty has not been calibrated with players.</p><ul class="escape-rooms">${ROOMS.map(
       (r) =>
-        `<li><a href="${BASE}/${escape(r.id)}">${escape(r.title)}</a> <small>${started.has(r.id) ? 'Visited this session' : 'Not started'}</small></li>`,
+        `<li><a href="${BASE}/${escape(r.id)}">${escape(r.title)}</a> <small>${store.state.escapeRooms?.[r.id] ? 'Progress retained' : 'Not started'}</small></li>`,
     ).join('')}</ul></section>`;
   }
   function roomPage(v) {
     const text = story() ? 'storyOn' : 'storyOff';
-    return `<section class="page escape-player"><p class="eyebrow">Experimental escape room · revision ${escape(source.revision)}</p><h1 tabindex="-1">${escape(v.title)}</h1><p>${NOTICE}</p><p>${escape(source.intro[text])}</p><p class="status" role="status" aria-live="polite" data-escape-status>${escape(message)}</p>${v.won ? `<h2>Room complete</h2><p>${escape(source.ending[text])}</p>` : ''}${roomMarkup(v)}<div class="actions">${button('Undo', 'escape-undo', '', `data-escape-route="${token}"${v.undoDepth ? '' : ' disabled'}`)}${button('Restart room', 'escape-restart', '', `data-escape-route="${token}"`)}<a href="${BASE}">All escape rooms</a></div></section>`;
+    return `<section class="page escape-player"><p class="eyebrow">Experimental escape room · revision ${escape(source.revision)}</p><h1 tabindex="-1">${escape(v.title)}</h1><p>${NOTICE}<span data-escape-offline>${offline}</span></p><p>${escape(source.intro[text])}</p><p class="status" role="status" aria-live="polite" data-escape-status>${escape(message)}</p>${v.won ? `<h2>Room complete</h2><p>${escape(source.ending[text])}</p>` : ''}${roomMarkup(v)}<div class="actions">${button('Undo', 'escape-undo', '', `data-escape-route="${token}"${v.undoDepth ? '' : ' disabled'}`)}${button('Restart room', 'escape-restart', '', `data-escape-route="${token}"`)}<a href="${BASE}">All escape rooms</a></div></section>`;
   }
   function inspector(v, objectId) {
     const body = inspectorMarkup(v, objectId);
     if (!body) return '';
     const o = v.objects.find((entry) => entry.id === objectId);
-    // Help covers only the actions this object offers now; stages persist for the session only.
+    // Help covers only the actions this object offers now.
     const help = o.actions
       .filter((a) => a.hints.length)
       .map((a) => {
-        const shown = hints.get(a.handle) || 0;
+        const shown = hints[actionIndex(a.handle)] || 0;
         return `<section aria-label="Help: ${escape(a.label)}"><h3>Help: ${escape(a.label)}</h3>${a.hints
           .slice(0, shown)
           .map((h, i) => `<p>${LEVELS[i] || 'Hint'}: ${escape(h)}</p>`)
@@ -75,11 +133,11 @@ export function mount({ root, store, show, close }) {
   }
   function restoreDrafts() {
     for (const input of shadow.querySelectorAll('[data-escape-answer]'))
-      input.value = drafts.get(input.dataset.escapeAnswer) || '';
+      input.value = drafts[actionIndex(input.dataset.escapeAnswer)] || '';
   }
   // Redraw both representations, then put focus back on the equivalent control when it remains.
   function draw(focus) {
-    if (abort.signal.aborted) return;
+    if (!current()) return;
     const v = source && view();
     root.innerHTML = `<style>.escape-player .escape-rooms{list-style:none;padding:0}.escape-player li a,.escape-player .actions a{display:inline-flex;align-items:center;min-height:44px}.escape-room article{margin:0 0 18px}.escape-room h3 button{font:inherit}.escape-player ul ul{padding-left:18px}.escape-player label{display:inline-flex;flex-wrap:wrap;gap:8px;align-items:center}.escape-player .status:empty{display:none}</style>${v ? roomPage(v) : list()}`;
     markNav();
@@ -115,8 +173,11 @@ export function mount({ root, store, show, close }) {
     const { escapeRoute: route, value: handle } = target.dataset;
     const input = target.closest('li')?.querySelector('[data-escape-answer]');
     const result = host.act(route, handle, input ? input.value : null);
-    if (result.ok) drafts.delete(handle);
-    say(result.ok && view().won ? 'Room complete. Nothing was saved.' : result.message);
+    if (result.ok) {
+      delete drafts[actionIndex(handle)];
+      if (!retain()) return;
+    }
+    say(result.ok && view().won ? 'Room complete.' : result.message);
     draw({ do: 'escape-act', value: handle });
     // A rejected answer keeps its draft; return the keyboard to the field to correct it.
     if (!result.ok && input)
@@ -125,13 +186,17 @@ export function mount({ root, store, show, close }) {
   function click(event) {
     const target = event.target.closest?.('[data-do]');
     const name = target?.dataset.do;
-    if (!name?.startsWith('escape-') || !root.isConnected) return;
+    if (!name?.startsWith('escape-') || !current()) return;
     // Every control names the visit that rendered it; a stale one is refused by the host.
     if (target.dataset.escapeRoute !== String(token)) {
       say('That is not available here now. Room unchanged.');
       return;
     }
     const value = target.dataset.value;
+    if (name !== 'escape-object' && !editable()) {
+      say(store.error || 'Wait for the Castle notebook restore to finish.');
+      return;
+    }
     if (name === 'escape-object') {
       inspecting = value;
       message = '';
@@ -140,24 +205,32 @@ export function mount({ root, store, show, close }) {
       restoreDrafts();
     } else if (name === 'escape-act') act(target);
     else if (name === 'escape-hint') {
-      hints.set(value, Math.min(3, (hints.get(value) || 0) + 1));
+      if (!offered(value)) return;
+      const index = actionIndex(value);
+      if (hints[index] === 3) return;
+      hints[index] = (hints[index] || 0) + 1;
+      if (!retain()) return;
       say('Hint shown. The room is unchanged.');
       draw({ do: 'escape-hint', value });
       if (!shadow.querySelector('dialog')?.contains(shadow.activeElement))
         shadow.querySelector('dialog .close')?.focus();
     } else if (name === 'escape-undo') {
-      say(host.undo(token) ? 'Last action undone.' : 'Nothing to undo.');
+      if (host.undo(token)) {
+        if (!retain()) return;
+        say('Last action undone.');
+      } else say('Nothing to undo.');
       draw({ do: 'escape-undo', value: '' });
       if (!$('[data-do="escape-undo"]:not(:disabled)')) $('h1').focus();
     } else if (name === 'escape-restart') {
       show(
         'Restart this room?',
-        `<p>This clears this room's actions, answers in progress, hints and undo history. Other rooms are unchanged. Nothing is saved either way.</p>${button('Restart room', 'escape-restart-confirm', '', `data-escape-route="${token}"`)}`,
+        `<p>This clears this room's actions, answers in progress, hints and undo history. Other rooms are unchanged.</p>${button('Restart room', 'escape-restart-confirm', '', `data-escape-route="${token}"`)}`,
       );
     } else if (name === 'escape-restart-confirm') {
       host.restart(token);
-      for (const map of [drafts, hints])
-        for (const key of [...map.keys()]) if (key.startsWith(`${source.id}@`)) map.delete(key);
+      drafts = {};
+      hints = {};
+      if (!retain()) return;
       say('Room restarted.');
       inspecting = null;
       close();
@@ -166,8 +239,20 @@ export function mount({ root, store, show, close }) {
     }
   }
   function input(event) {
-    const handle = event.target.dataset?.escapeAnswer;
-    if (handle) drafts.set(handle, event.target.value.slice(0, 64));
+    const { escapeAnswer: handle, escapeRoute } = event.target.dataset || {};
+    if (!handle || escapeRoute !== String(token) || !current() || !offered(handle)) return;
+    const index = actionIndex(handle);
+    if (!source.actions[index]?.input) return;
+    if (!editable()) {
+      event.target.value = drafts[index] || '';
+      say(store.error || 'Wait for the Castle notebook restore to finish.');
+      return;
+    }
+    const text = event.target.value.slice(0, 64);
+    if ((drafts[index] || '') === text) return;
+    if (text) drafts[index] = text;
+    else delete drafts[index];
+    retain();
   }
   function key(event) {
     if (event.key !== 'Enter' || !event.target.dataset?.escapeAnswer) return;
@@ -187,12 +272,23 @@ export function mount({ root, store, show, close }) {
     },
     options,
   );
-  if (source) started.add(source.id);
+  hydrate();
+  let restoring = store.restoring;
+  const unsubscribe = store.subscribe(() => {
+    if (store.restoring) restoring = true;
+    else if (restoring && current()) {
+      restoring = false;
+      hydrate();
+      draw();
+    }
+  });
   draw();
+  cacheRoom();
   return {
     refresh: () => draw(),
     dispose() {
       abort.abort();
+      unsubscribe();
       token = null;
     },
   };

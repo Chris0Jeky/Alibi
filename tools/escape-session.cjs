@@ -9,6 +9,8 @@
     const definition = structuredClone(source);
     let state = S.initial(definition);
     const history = [];
+    const encode = (state) =>
+      definition.variables.map((v) => v.values.indexOf(state[v.id])).join('');
     return Object.freeze({
       view(storyOn) {
         return S.project(definition, state, storyOn);
@@ -32,6 +34,17 @@
       },
       state() {
         return { ...state };
+      },
+      snapshot() {
+        return [...history, state].map(encode);
+      },
+      // The Castle backup worker checks reachability and every undo transition first.
+      restore(trail) {
+        const states = trail.map((key) =>
+          Object.fromEntries(definition.variables.map((v, i) => [v.id, v.values[key[i]]])),
+        );
+        state = states.pop();
+        history.splice(0, history.length, ...states);
       },
       restart() {
         state = S.initial(definition);
