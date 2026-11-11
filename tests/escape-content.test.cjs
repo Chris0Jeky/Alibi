@@ -263,6 +263,26 @@ test('removing an installed spring releases tension and still permits recovery',
   assert.equal(state.tension, 'slack');
   assert.equal(state.spring, 'held');
 });
+
+// These clues are revealed by play. Match the visible clue independently of the hint copy.
+const futureClues = {
+  'clockmaker-rehearsal': {
+    action: 'release-hatch',
+    clue: /its service label says/i,
+    premature: /opened spring case|\blabel\b/i,
+  },
+  'counterweight-loft': {
+    action: 'open-hatch',
+    clue: /revealed tool compartment/i,
+    premature: /\bcompartment\b/i,
+  },
+  'printmaker-cabinet': {
+    action: 'pull-proof',
+    clue: /\bKCOD\b/,
+    premature: /KCOD|registration mark|plate[’']s letters|plate text|its shape/i,
+  },
+};
+
 for (const name of names)
   test(`${name}: independent transition enumeration agrees on all reachable controls`, () => {
     const d = load(name),
@@ -270,6 +290,8 @@ for (const name of names)
       states = [start],
       seen = new Set([JSON.stringify(start)]);
     const matches = (s, c) => Object.entries(c).every(([k, v]) => s[k] === v);
+    const futureClue = futureClues[name];
+    const hintVisibility = new Set();
     let edges = 0;
     for (const state of states) {
       if (matches(state, d.goal)) continue;
@@ -279,10 +301,19 @@ for (const name of names)
       );
       for (const mode of [true, false]) {
         const view = S.project(d, state, mode);
-        assert.deepEqual(
-          view.objects.flatMap((o) => o.actions.map((a) => a.id)).sort(),
-          candidates.map((a) => a.id).sort(),
+        const offered = view.objects.flatMap((o) => o.actions);
+        assert.deepEqual(offered.map((a) => a.id).sort(), candidates.map((a) => a.id).sort());
+        const action = futureClue && offered.find((a) => a.id === futureClue.action);
+        if (!action) continue;
+        const clueVisible = view.objects.some((o) =>
+          futureClue.clue.test([o.title, o.text, ...o.observations].join(' ')),
         );
+        hintVisibility.add(clueVisible);
+        assert.equal(action.hints.length, 3);
+        if (!clueVisible) {
+          for (const hint of action.hints)
+            assert.doesNotMatch(hint, futureClue.premature, `${name}/${action.id}: ${hint}`);
+        }
       }
       for (const action of candidates) {
         if (action.input) {
@@ -305,4 +336,5 @@ for (const name of names)
     const report = A.analyze(d);
     assert.equal(report.reachableStates, states.length);
     assert.equal(report.edges, edges);
+    if (futureClue) assert.deepEqual(hintVisibility, new Set([false, true]));
   });
