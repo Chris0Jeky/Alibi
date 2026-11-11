@@ -1,8 +1,11 @@
-name: Disposable signed Ubuntu mirror probe
+name: Disposable signed Ubuntu mirror fallback probe
 on:
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
 jobs:
   mirror:
     runs-on: ubuntu-24.04
@@ -14,24 +17,46 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.13'
-      - name: Configure signed Ubuntu country mirror in this disposable runner
+      - name: Configure signed APT with an unreachable primary
         run: |
-          sudo tee /etc/apt/sources.list.d/ubuntu.sources >/dev/null <<'SOURCES'
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Tested SHA: $GITHUB_SHA"
+          python - <<'PY'
+          import socket
+          with socket.socket() as connection:
+              connection.settimeout(2)
+              assert connection.connect_ex(('127.0.0.1', 1)) != 0, 'Primary mirror must be unreachable'
+          PY
+          printf '%s\tpriority:%s\n' \
+            'https://127.0.0.1:1/ubuntu/' 1 \
+            'https://mirrors.edge.kernel.org/ubuntu/' 2 |
+            sudo tee /etc/apt/alibi-ci-mirrors.txt
+          sudo tee /etc/apt/sources.list.d/ubuntu.sources <<'SOURCES'
           Types: deb
-          URIs: https://mirrors.nic.funet.fi/ubuntu
+          URIs: mirror+file:/etc/apt/alibi-ci-mirrors.txt
           Suites: noble noble-updates noble-backports noble-security
           Components: main restricted universe multiverse
           Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
           SOURCES
-          printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' 'Acquire::Retries "0";' 'Acquire::http::Timeout "15";' 'Acquire::https::Timeout "15";' 'APT::Update::Error-Mode "any";' | sudo tee /etc/apt/apt.conf.d/99alibi-probe >/dev/null
-          sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- update
-      - name: Install emulator library with signed APT
+          sudo tee /etc/apt/apt.conf.d/zzz-alibi-probe <<'CONFIG'
+          Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";
+          Dir::Etc::sourceparts "-";
+          Acquire::Retries "0";
+          Acquire::http::Timeout "15";
+          Acquire::https::Timeout "15";
+          APT::Update::Error-Mode "any";
+          CONFIG
+          sudo apt-config shell retries Acquire::Retries httpsTimeout Acquire::https::Timeout updateError APT::Update::Error-Mode
+          sudo timeout --kill-after=10s 180s apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- update
+      - name: Install emulator and audio libraries through the fallback
         run: |
-          sudo apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- install --yes --no-install-recommends libpulse0
+          sudo timeout --kill-after=10s 240s apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu.sources -o Dir::Etc::sourceparts=- install --yes --no-install-recommends libpulse0 ffmpeg
           ldconfig -p | grep -F 'libpulse.so.0'
+          ffprobe -version | sed -n '1p'
       - run: python -m pip install -r requirements-dev.txt
-      - name: Install pinned Playwright and its full system dependencies
-        run: python -m playwright install --with-deps chromium
+      - name: Install pinned Chromium and its full system dependencies
+        run: timeout --kill-after=10s 360s python -m playwright install --with-deps chromium
       - name: Launch pinned Chromium
         run: |
           python - <<'PY'
@@ -41,3 +66,24 @@ jobs:
               print('Pinned Chromium launched:', browser.version)
               browser.close()
           PY
+      - name: Confirm strict update rejects unreachable mirrors with populated indexes
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import socket
+          with socket.socket() as connection:
+              connection.settimeout(2)
+              assert connection.connect_ex(('127.0.0.1', 2)) != 0, 'Fallback mirror must be unreachable'
+          PY
+          printf '%s\tpriority:%s\n' \
+            'https://127.0.0.1:1/ubuntu/' 1 \
+            'https://127.0.0.1:2/ubuntu/' 2 |
+            sudo tee /etc/apt/alibi-ci-mirrors.txt
+          log="$RUNNER_TEMP/alibi-apt-all-mirrors-down.log"
+          rc=0
+          sudo timeout --kill-after=10s 90s apt-get update >"$log" 2>&1 || rc=$?
+          cat "$log"
+          test "$rc" -eq 100
+          grep -Eq '127\.0\.0\.1:(1|2)' "$log"
+          grep -F 'Failed to fetch' "$log"
+          echo "Expected strict APT failure with both mirrors unreachable: exit $rc"
