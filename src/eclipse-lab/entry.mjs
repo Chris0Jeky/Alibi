@@ -1,12 +1,14 @@
 import css from './style.css';
-import { createStore } from './storage.mjs';
+import { createStore, parseBackup, prepareRestore } from './storage.mjs';
+import { backupValidator } from '../lab-backup-worker.mjs';
 import { mount as mountPlayer, flushDrafts } from './player.mjs';
 let store,
   active = null,
   available = false,
   caching = null;
-const getStore = () => (store ||= createStore());
 const config = () => globalThis.ALIBI_QUIET_CONFIG?.eclipse;
+const validators = backupValidator(config, parseBackup, prepareRestore);
+const getStore = () => (store ||= createStore(validators));
 async function flush() {
   flushDrafts();
   if (store) await store.flush();
