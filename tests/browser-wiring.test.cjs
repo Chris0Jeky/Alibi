@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const fs = require('node:fs');
 const path = require('node:path');
+const { render } = require('../tools/ci-browser-origin-shadow.cjs');
 
 const root = path.resolve(__dirname, '..');
 const workflowsDir = path.join(root, '.github/workflows');
@@ -14,12 +15,13 @@ const workflowText = fs
   .map((name) => fs.readFileSync(path.join(workflowsDir, name), 'utf8'))
   .join('\n');
 
+const wiredText = workflowText + '\n' + render('serial');
 const suites = fs.readdirSync(testsDir).filter((name) => /^browser_.*\.py$/.test(name));
 assert.ok(suites.length > 0, 'browser suites exist');
 
 test('every browser suite is wired into CI or header-marked MANUAL-ONLY', () => {
   const unwired = suites.filter((name) => {
-    if (workflowText.includes(name)) return false;
+    if (wiredText.includes(name)) return false;
     const header = fs
       .readFileSync(path.join(testsDir, name), 'utf8')
       .split('\n')
@@ -32,7 +34,7 @@ test('every browser suite is wired into CI or header-marked MANUAL-ONLY', () => 
 
 test('every wired browser suite file exists', () => {
   const missing = [];
-  for (const match of workflowText.matchAll(/tests\/(browser_[a-z_]+\.py)/g)) {
+  for (const match of wiredText.matchAll(/tests\/(browser_[a-z_]+\.py)/g)) {
     if (!fs.existsSync(path.join(testsDir, match[1]))) missing.push(match[1]);
   }
   assert.deepEqual(missing, [], `workflows reference missing suites: ${missing.join(', ')}`);

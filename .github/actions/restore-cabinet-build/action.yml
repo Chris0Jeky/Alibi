@@ -1,0 +1,39 @@
+name: Restore the cabinet test build
+description: Verify and unpack the immutable build from this workflow run
+inputs:
+  artifact-id:
+    description: Immutable artifact ID returned by this run's build upload
+    required: true
+  sha256:
+    description: SHA-256 of the archive bytes produced by the build job
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Check the artifact request
+      shell: bash
+      env:
+        BUILD_ARTIFACT_ID: ${{ inputs.artifact-id }}
+        BUILD_SHA256: ${{ inputs.sha256 }}
+      run: |
+        test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+        [[ "$BUILD_ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+        [[ "$BUILD_SHA256" =~ ^[a-f0-9]{64}$ ]]
+    - name: Download the exact artifact from this run
+      uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+      with:
+        artifact-ids: ${{ inputs.artifact-id }}
+        path: ${{ runner.temp }}/alibi-cabinet
+    - name: Check the archive and extracted payload
+      shell: bash
+      env:
+        BUILD_SHA256: ${{ inputs.sha256 }}
+      run: |
+        archive="$RUNNER_TEMP/alibi-cabinet/alibi-cabinet.tar.gz"
+        printf '%s  %s\n' "$BUILD_SHA256" "$archive" | sha256sum --check --strict
+        for item in dist dist-android build-info.json alibi-deluxe-play.html alibi-deluxe-cloudflare.zip; do
+          test ! -e "$item" && test ! -L "$item" || exit 1
+        done
+        tar --no-same-owner --no-same-permissions -xzf "$archive"
+        node tools/check-test-build.cjs

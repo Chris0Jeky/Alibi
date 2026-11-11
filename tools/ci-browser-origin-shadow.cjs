@@ -1,15 +1,5 @@
 'use strict';
 
-const fs = require('node:fs');
-const path = require('node:path');
-
-const STEP = [
-  '      - name: Exercise real IndexedDB and offline play',
-  "        if: steps.scope.outputs.mode == 'full'",
-  '        run: |',
-  '',
-].join('\n');
-
 const SERVER = `npm start > /tmp/alibi-server.log 2>&1 &
 for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8797/ > /dev/null && break; sleep 1; done`.split(
   '\n',
@@ -76,32 +66,15 @@ python tests/browser_experience.py
 python tests/browser_castle_quiet_polish.py`.split('\n'),
 ];
 
-// shortcut: mirror this one literal workflow step for the manual trial; extract a shared runner if the trial graduates.
-function render(workflow, shard) {
-  const allCommands = SHARDS.flat();
-  const serial = [...SERVER, ...allCommands];
-  const expected = serial.map((command) => '          ' + command).join('\n') + '\n';
-  const sections = workflow.replaceAll('\r\n', '\n').split(STEP);
-  const nextStep = sections[1]?.search(/^ {6}- /m);
-  if (sections.length !== 2 || nextStep < 0 || sections[1].slice(0, nextStep) !== expected) {
-    throw new Error('The cabinet real-origin step changed; reconcile the shadow shards.');
-  }
-
-  const tests = allCommands
-    .map((line) => line.match(/(?:^| )python (tests\/browser_\w+\.py)$/)?.[1])
-    .filter(Boolean);
-  if (new Set(tests).size !== tests.length) {
-    throw new Error('Duplicate browser test in the shadow shards.');
-  }
-
-  if (shard === 'serial') return serial.join('\n') + '\n';
-  if (!/^[1-4]$/.test(shard)) throw new Error('Unknown shadow shard: ' + shard);
+function render(shard) {
+  if (shard === 'server') return SERVER.join('\n') + '\n';
+  if (shard === 'serial') return [...SERVER, ...SHARDS.flat()].join('\n') + '\n';
+  if (!/^[1-4]$/.test(shard)) throw new Error('Unknown browser origin shard: ' + shard);
   return [...SERVER, ...SHARDS[Number(shard) - 1]].join('\n') + '\n';
 }
 
 module.exports = { render };
 
 if (require.main === module) {
-  const workflow = fs.readFileSync(path.join(__dirname, '../.github/workflows/check.yml'), 'utf8');
-  process.stdout.write(render(workflow, process.argv[2]));
+  process.stdout.write(render(process.argv[2]));
 }
