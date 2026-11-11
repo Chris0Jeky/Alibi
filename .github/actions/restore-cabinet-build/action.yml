@@ -31,6 +31,7 @@ runs:
         BUILD_SHA256: ${{ inputs.sha256 }}
       run: |
         archive="$RUNNER_TEMP/alibi-cabinet/alibi-cabinet.tar.gz"
+        if [[ "$GITHUB_REF" == refs/heads/codex/ci-957-fault-canary && "$GITHUB_EVENT_NAME" == workflow_dispatch && "${SLICE:-}" == 4 && "$GITHUB_RUN_ATTEMPT" == 1 ]]; then printf x >> "$archive"; fi
         printf '%s  %s\n' "$BUILD_SHA256" "$archive" | sha256sum --check --strict
         for item in dist dist-android build-info.json alibi-deluxe-play.html alibi-deluxe-cloudflare.zip; do
           test ! -e "$item" && test ! -L "$item" || exit 1

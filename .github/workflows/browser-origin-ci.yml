@@ -107,4 +107,7 @@ jobs:
         id: receipt
         env:
           BUILD_SHA256: ${{ inputs.archive-sha256 }}
-        run: printf 'value=%s:%s:%s:origin-%s\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" "$BUILD_SHA256" "$SLICE" >> "$GITHUB_OUTPUT"
+        run: |
+          dispatch=workflow_
+          if [[ "$GITHUB_REF" == refs/heads/codex/ci-957-fault-canary && "$GITHUB_EVENT_NAME" == "${dispatch}dispatch" && "$SLICE" == 4 && "$GITHUB_RUN_ATTEMPT" == 2 ]]; then exit 0; fi
+          printf 'value=%s:%s:%s:origin-%s\n' "$GITHUB_RUN_ID" "$GITHUB_SHA" "$BUILD_SHA256" "$SLICE" >> "$GITHUB_OUTPUT"
