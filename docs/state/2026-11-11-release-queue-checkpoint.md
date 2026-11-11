@@ -48,3 +48,18 @@ be reconciled with later merges before the release PR. The next publication step
 merged-main Cloudflare release, hosted save/offline checks, tag and release assets, and receipt PR
 in `docs/DEPLOYMENT.md`. Do not infer physical Android, TalkBack or human playtest acceptance;
 see [HUMAN_TODO.md](../../HUMAN_TODO.md).
+
+## Later local checks
+
+At 20:48 UTC, GitHub still reported run 43095471490 queued with no jobs and the sampled
+cancelled runs in their prior states. Both force-cancel samples returned HTTP 409; no further
+force-cancel was attempted. GitHub's status page listed Actions as operational, so the cause
+was not established and the billing-refusal exception does not apply.
+
+On refreshed clean heads, #960 passed web and Android builds, 71 Timeline/worker/budget tests,
+and Timeline browser journeys; #963 passed the web build, 58 focused/budget tests, and Eclipse
+browser journeys; #965 passed the web build and six-room Castle browser journeys. These local
+checks do not replace hosted qualification. Their evidence is in their PR comments.
+
+The Muse batch through #964 completed and was triaged; its receipts and the CI consolidation
+plan were copied outside the checkout under the current session's visualization directory.
