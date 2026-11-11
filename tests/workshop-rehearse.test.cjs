@@ -98,6 +98,7 @@ function fixture({ verified = true, busy = false } = {}) {
     closeDialog() {},
     navigate: (...args) => log.nav.push(args),
     keyFor: (p) => p.id + '@' + p.revision,
+    nextFamilyPuzzle: () => ({ id: 'another-puzzle' }),
     deferred: null,
   });
   vm.runInContext(host, context);

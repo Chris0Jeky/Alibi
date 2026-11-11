@@ -177,11 +177,53 @@ def witness_plural(page, width):
     page.locator('[data-action="submit-accuse"]').click()
     expect(page.locator("dialog[open]")).to_be_visible()
     text = page.locator("dialog[open]").inner_text()
+    expect(page.locator('dialog[open] [data-action="next"]')).to_have_text('Another puzzle')
     check(
         "1 statements" not in text and "1 statement" in text,
         f"{width}: one true statement is singular (p1)",
     )
     dismiss(page)
+
+
+def finished_family_label(page, width):
+    family = [p for p in PUZZLES.values() if p['type'] == 'witness' and p['id'] != 'witness-01']
+    page.evaluate('''puzzles => new Promise((resolve, reject) => {
+      const request = indexedDB.open('alibi-device', 1);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const db = request.result, tx = db.transaction('runs', 'readwrite');
+        const store = tx.objectStore('runs');
+        store.clear();
+        for (const puzzle of puzzles) {
+          const key = puzzle.id + '@' + puzzle.revision;
+          const value = {schemaVersion: 1, key, rev: 1, puzzle,
+            state: AlibiCore.registry[puzzle.type].initial(puzzle), undo: [], redo: [],
+            moves: 0, hints: 0, elapsed: 0, completedAt: null,
+            firstCompletedAt: '2026-09-01T10:00:00.000Z',
+            updatedAt: '2026-09-01T10:00:00.000Z', note: ''};
+          store.put({key, value});
+        }
+        tx.oncomplete = () => { db.close(); resolve(); };
+        tx.onabort = () => { db.close(); reject(tx.error); };
+      };
+    })''', family)
+    page.reload()
+    page.wait_for_function('() => Boolean(window.AlibiDiagnostics)')
+    page.evaluate('() => ALIBI_DEFERRED.ensure()')
+    play(page, 'witness-01@1')
+    page.locator(f'[data-action="choose-accuse"][data-id="{PUZZLES["witness-01"]["solution"]}"]').click()
+    page.locator('[data-action="submit-accuse"]').click()
+    expect(page.locator('dialog[open] [data-action="next"]')).to_have_text('View family list')
+    dismiss(page)
+    button = page.locator('.play-end [data-action="next"]')
+    expect(button).to_have_text('View family list')
+    page.screenshot(path=str(OUT / f'finished-family-{width}.png'), full_page=True)
+    page.locator('.play-end [data-action="review-record"]').click()
+    expect(page.locator('dialog[open] [data-action="next"]')).to_have_text('View family list')
+    dismiss(page)
+    button.click()
+    page.wait_for_function('() => location.hash === "#/library/witness"')
+    check(True, f'{width}: finished family labels and opens its family list')
 
 
 def casebook_checks(page, width, phone):
@@ -298,6 +340,7 @@ def run():
                     lambda: journal_checks(page, width),
                     lambda: home_checks(page, width),
                     lambda: touch_copy(page, width, touch),
+                    lambda: finished_family_label(page, width),
                 ):
                     try:
                         section()
