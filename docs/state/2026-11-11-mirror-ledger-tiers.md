@@ -30,3 +30,10 @@ and their IDs and revisions match the starting source `e8a3430663c3d784f761024c7
 Recheck the emitted bundle and browser suite after integrating the separate Lab backup
 changes. Android output, physical accessibility and player difficulty remain unverified.
 [Owner actions](../../HUMAN_TODO.md)
+
+## Integration with Lab backups
+
+After merging `be74108b`, the combined build passed with the Eclipse asset at 62,680 raw
+bytes and startup JavaScript at 135,644 gzip bytes. The 58 focused and budget tests and the
+Eclipse browser journeys at 320, 390 and 1280 pixels passed, including backup controls.
+Hosted CI and physical accessibility remain unverified.
