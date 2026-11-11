@@ -1,6 +1,5 @@
 import { MODES, applyMark, check, component, hint } from './model.mjs';
 import { PUZZLES } from './puzzles.mjs';
-import { parseBackup } from './storage.mjs';
 import { feedbackText, canSendFeedback, reviewFeedback } from './feedback.mjs';
 
 // Drafts outlive route changes and mounts; no text is transmitted.
@@ -36,6 +35,8 @@ export function mount({ root, css, preferences, store, offline }) {
     message = '',
     feedbackMessage = '',
     preview = null,
+    reviewGeneration = 0,
+    restoring = false,
     busy = false,
     offlineReady = !!offline;
   let prefs = preferences || {},
@@ -53,14 +54,12 @@ export function mount({ root, css, preferences, store, offline }) {
   };
   const draftFor = () => {
     const key = idOf(p);
-    if (!drafts.has(key))
-      drafts.set(key, {
-        rating: run.rating,
-        difficulty: run.difficulty,
-        feedback: run.feedback,
-        dirty: false,
-      });
-    return drafts.get(key);
+    if (!drafts.has(key)) drafts.set(key, { edited: new Set(), dirty: false });
+    const draft = drafts.get(key);
+    // Untouched fields follow the current saved run, including after a restore.
+    for (const field of ['rating', 'difficulty', 'feedback'])
+      if (!draft.edited.has(field)) draft[field] = run[field];
+    return draft;
   };
   function setPreferences(value) {
     prefs = value || {};
@@ -80,7 +79,7 @@ export function mount({ root, css, preferences, store, offline }) {
   const shell = (content) =>
     `<style>${css}</style><main tabindex="-1"><header><a class="back" href="#/quiet">← Quiet Wing</a><span class="eyebrow">A room for trying things</span><h1>Eclipse Lab</h1><p class="intro">Five little experiments in suns, moons and the space between.</p></header>${status()}${content}${backupPanel()}</main>`;
   function backupPanel() {
-    return `<section class="backup"><h2>Your lab notebook</h2><p>Export a Lab backup to keep your progress and saved feedback elsewhere. The regular Cabinet combined backup does not include it.</p><div class="actions"><button data-action="export">Export lab backup</button><label class="filebutton">Review lab backup<input type="file" data-file accept="application/json,.json"></label><button data-action="recovery">Download recovery copy</button></div>${preview ? `<div class="notice"><p>Backup contains ${preview.count} experiment runs. Restoring replaces the current lab shelf and keeps a recovery copy.</p><button data-action="restore">Confirm restore</button><button data-action="cancel-restore">Cancel</button></div>` : ''}</section>`;
+    return `<section class="backup"><h2>Your lab notebook</h2><p>Export a Lab backup to keep your progress and saved feedback elsewhere. The regular Cabinet combined backup does not include it.</p><div class="actions"><button data-action="export">Export lab backup</button><label class="filebutton">Review lab backup<input type="file" data-file accept="application/json,.json"></label><button data-action="recovery">Download recovery copy</button></div>${restoring ? '<p class="notice" role="status">Restoring backup…</p>' : preview ? `<div class="notice"><p>Backup contains ${preview.count} experiment runs. Restoring replaces the current lab shelf and keeps a recovery copy.</p><button data-action="restore">Confirm restore</button><button data-action="cancel-restore">Cancel</button></div>` : ''}</section>`;
   }
   function lobby() {
     const runs = store.snapshot().runs;
@@ -301,6 +300,7 @@ export function mount({ root, css, preferences, store, offline }) {
   }
   async function route() {
     await pending.catch(() => {});
+    await store.flush().catch(() => {});
     if (disposed) return;
     const found = selectPuzzle();
     if (found?.id !== p?.id) {
@@ -312,16 +312,21 @@ export function mount({ root, css, preferences, store, offline }) {
       message = '';
       feedbackMessage = '';
       preview = null;
+      reviewGeneration++;
     }
     render();
   }
   function onInput(e) {
     if (!p) return;
-    const d = draftFor();
-    if (e.target.matches('[name="rating"]')) d.rating = Number(e.target.value);
-    else if (e.target.matches('[data-difficulty]')) d.difficulty = e.target.value || null;
-    else if (e.target.matches('[data-feedback]')) d.feedback = e.target.value;
+    let field, value;
+    if (e.target.matches('[name="rating"]')) [field, value] = ['rating', Number(e.target.value)];
+    else if (e.target.matches('[data-difficulty]'))
+      [field, value] = ['difficulty', e.target.value || null];
+    else if (e.target.matches('[data-feedback]')) [field, value] = ['feedback', e.target.value];
     else return;
+    const d = draftFor();
+    d[field] = value;
+    d.edited.add(field);
     d.dirty = true;
     feedbackMessage = '';
     const feedbackStatus = root.querySelector('.feedback-message');
@@ -398,10 +403,8 @@ export function mount({ root, css, preferences, store, offline }) {
       const d = draftFor(),
         next = { ...run, rating: d.rating, difficulty: d.difficulty, feedback: d.feedback };
       if (await save(next)) {
-        d.dirty =
-          d.rating !== next.rating ||
-          d.difficulty !== next.difficulty ||
-          d.feedback !== next.feedback;
+        for (const field of d.edited) if (d[field] === next[field]) d.edited.delete(field);
+        d.dirty = d.edited.size > 0;
         message = d.dirty
           ? 'Earlier feedback saved; your newer edits are still a draft.'
           : 'Feedback saved locally.';
@@ -466,13 +469,18 @@ export function mount({ root, css, preferences, store, offline }) {
         alert(err.message);
       }
     } else if (action === 'cancel-restore') {
+      if (restoring) return;
       preview = null;
+      reviewGeneration++;
       render();
-    } else if (action === 'restore' && preview) {
+    } else if (action === 'restore' && preview && !busy) {
+      busy = true;
       try {
         flushDrafts();
-        await store.restore(preview.raw, preview.revision);
-        drafts.clear();
+        restoring = true;
+        render();
+        pending = preview.restore();
+        await pending;
         preview = null;
         run = p ? store.getRun(p) : null;
         if (run) p = run.puzzle;
@@ -480,23 +488,36 @@ export function mount({ root, css, preferences, store, offline }) {
       } catch (err) {
         message = err.message;
         alert(err.message);
+      } finally {
+        restoring = false;
+        busy = false;
       }
       render();
     }
   }
   async function onChange(e) {
     onInput(e);
-    if (!e.target.matches('[data-file]')) return;
+    if (!e.target.matches('[data-file]') || busy) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const generation = ++reviewGeneration,
+      hash = location.hash,
+      currentReview = () => !disposed && generation === reviewGeneration && hash === location.hash;
+    if (preview) {
+      preview = null;
+      render();
+    }
     try {
-      const file = e.target.files?.[0];
-      if (!file) return;
       if (file.size > 6 * 1024 * 1024) throw Error('Choose a lab backup smaller than 6 MB.');
-      const raw = await file.text(),
-        data = parseBackup(raw);
-      preview = { raw, revision: store.snapshot().revision, count: Object.keys(data.runs).length };
+      const raw = await file.text();
+      if (!currentReview()) return;
+      const reviewed = await store.reviewBackup(raw);
+      if (!currentReview()) return;
+      preview = reviewed;
       message = '';
       render();
     } catch (err) {
+      if (!currentReview()) return;
       preview = null;
       message = err.message;
       alert(err.message);

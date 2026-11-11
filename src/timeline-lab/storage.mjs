@@ -128,7 +128,7 @@ function parseStored(raw) {
   const { recoverySnapshot, ...save } = record;
   return { save: validateSave(save), recoverySnapshot: validateSave(recoverySnapshot) };
 }
-export function parseBackup(raw) {
+export function parseBackup(raw, revision) {
   if (typeof raw !== 'string' || raw.length > MAX_RECORD)
     fail('Choose a lab backup smaller than 6 MB.');
   const value = JSON.parse(raw);
@@ -154,7 +154,26 @@ export function parseBackup(raw) {
       );
     save.retainedRaw = value.recovery.raw;
   }
+  if (revision !== undefined) save.revision = revision;
   return validateSave(save);
+}
+
+function encodeRecord(save, previous) {
+  const encoded = JSON.stringify(previous ? { ...save, recoverySnapshot: previous } : save);
+  if (encoded.length > MAX_RECORD) fail('Timeline save and recovery exceed the storage limit.');
+  return encoded;
+}
+
+export function prepareRestore(next, active, legacy) {
+  if (legacy !== null) {
+    try {
+      validateSave(parseRecord(legacy));
+    } catch {
+      fail('An unknown recovery copy already exists. It has been preserved.');
+    }
+  }
+  const previous = active === null ? empty() : parseStored(active).save;
+  return { encoded: encodeRecord(next, previous), previous };
 }
 
 // LocalStorage is used only while an exclusive Web Lock is held. Without locks,
@@ -220,31 +239,24 @@ export function createStore(options = {}) {
       return false;
     }
     try {
+      const active = raw;
+      if (recovery && storage.getItem(KEY) !== active) throw conflict();
+      const legacy = recovery ? storage.getItem(RECOVERY_KEY) : null;
+      if (legacy !== null && legacy.length > MAX_RECORD)
+        fail('An unknown recovery copy already exists. It has been preserved.');
+      const prepared = recovery ? await options.prepareRestore(next, active, legacy) : null;
+      if (recovery && (!prepared?.previous || typeof prepared.encoded !== 'string'))
+        fail('The lab recovery could not be prepared.');
       return await locks.request(
         KEY,
         { mode: 'exclusive', signal: AbortSignal.timeout(2000) },
         async () => {
-          if (storage.getItem(KEY) !== raw) throw conflict();
-          if (recovery) {
-            const previousRecovery = storage.getItem(RECOVERY_KEY);
-            if (previousRecovery !== null) {
-              try {
-                validateSave(parseRecord(previousRecovery));
-              } catch {
-                fail('An unknown recovery copy already exists. It has been preserved.');
-              }
-            }
-          }
-          const previous = recovery
-            ? raw === null
-              ? empty()
-              : parseStored(raw).save
-            : recoverySnapshot;
-          // Commit the save and recovery together. The legacy recovery key stays intact.
-          const save = validateSave(next);
-          const encoded = JSON.stringify(previous ? { ...save, recoverySnapshot: previous } : save);
-          if (encoded.length > MAX_RECORD)
-            fail('Timeline save and recovery exceed the storage limit.');
+          if (storage.getItem(KEY) !== active) throw conflict();
+          if (recovery && storage.getItem(RECOVERY_KEY) !== legacy)
+            fail('The recovery copy changed before restore. Review the backup again.');
+          const previous = prepared ? prepared.previous : recoverySnapshot;
+          const encoded = prepared ? prepared.encoded : encodeRecord(validateSave(next), previous);
+          // Commit the shelf and its recovery together. The legacy recovery key stays intact.
           storage.setItem(KEY, encoded);
           raw = encoded;
           recoverySnapshot = previous;
@@ -264,6 +276,25 @@ export function createStore(options = {}) {
       if (recovery) throw error;
       return false;
     }
+  }
+  // The worker already validated the next revision. Recheck the local revision before writing.
+  function restoreReviewed(next, expectedRevision) {
+    if (restorePending) return Promise.reject(Error('A lab restore is already in progress.'));
+    restorePending = true;
+    return serial(async () => {
+      if (value.revision !== expectedRevision)
+        fail('This lab changed after the restore preview. Review the backup again.');
+      if (mode === 'protected' || mode === 'conflict' || !readable || !locks?.request)
+        fail('Lab data is protected or read-only. Export this session first.');
+      if (dirty && exported !== value.revision)
+        fail('Export the unsaved lab session before restoring.');
+      await write(next, true);
+      value = next;
+      dirty = false;
+      exported = -1;
+    }).finally(() => {
+      restorePending = false;
+    });
   }
   return {
     status,
@@ -326,31 +357,12 @@ export function createStore(options = {}) {
       if (dirty && exported !== value.revision)
         fail('Export your Timeline Desk session before updating.');
     },
-    restore(backup, expectedRevision = value.revision) {
-      if (restorePending) return Promise.reject(Error('A lab restore is already in progress.'));
-      let imported;
-      try {
-        imported = parseBackup(backup);
-      } catch (error) {
-        return Promise.reject(error);
-      }
-      restorePending = true;
-      return serial(async () => {
-        if (value.revision !== expectedRevision)
-          fail('This lab changed after the restore preview. Review the backup again.');
-        if (mode === 'protected' || mode === 'conflict' || !readable || !locks?.request)
-          fail('Lab data is protected or read-only. Export this session first.');
-        if (dirty && exported !== value.revision)
-          fail('Export the unsaved lab session before restoring.');
-        const next = { ...imported, revision: value.revision + 1 };
-        validateSave(next);
-        await write(next, true);
-        value = next;
-        dirty = false;
-        exported = -1;
-      }).finally(() => {
-        restorePending = false;
-      });
+    async reviewBackup(backup, expectedRevision = value.revision) {
+      const next = await options.validateBackup(backup, expectedRevision + 1);
+      return {
+        count: Object.keys(next.runs).length,
+        restore: () => restoreReviewed(next, expectedRevision),
+      };
     },
     recoveryData() {
       if (!readable) fail('Recovery storage is unavailable.');

@@ -6,6 +6,7 @@ import {
   freshRun,
   validateSave,
   parseBackup,
+  prepareRestore,
   KEY,
   RECOVERY_KEY,
 } from '../src/eclipse-lab/storage.mjs';
@@ -44,7 +45,13 @@ function locks() {
     },
   };
 }
-const make = (storage = memory(), lock = locks()) => createStore({ storage, locks: lock });
+const make = (storage = memory(), lock = locks()) => {
+  const store = createStore({ storage, locks: lock, validateBackup: parseBackup, prepareRestore });
+  return {
+    ...store,
+    restore: async (raw, revision) => (await store.reviewBackup(raw, revision)).restore(),
+  };
+};
 const edited = () => {
   const run = freshRun(puzzle());
   run.cells[1] = 1;
@@ -176,7 +183,8 @@ test('restore is explicit, checks the preview generation and retains a recovery 
   await assert.rejects(s.restore(backup, generation), /changed/i);
   const previous = storage.getItem(KEY);
   await s.restore(backup, s.snapshot().revision);
-  assert.equal(storage.getItem(RECOVERY_KEY), previous);
+  assert.equal(storage.getItem(RECOVERY_KEY), null);
+  assert.deepEqual(parseBackup(make(storage).recoveryData()), JSON.parse(previous));
   assert.equal(s.getRun(puzzle()).cells[2], -1);
 });
 test('restore refuses unknown recovery data and foreign-tab changes without overwriting either', async () => {
@@ -240,4 +248,51 @@ test('a protected backup retains the original unknown bytes through restore and 
   const reopened = make(target);
   assert.ok(reopened.exportData().includes('keep me'));
   assert.equal(parseBackup(reopened.exportData()).runs['test-sky@1'].cells[1], 1);
+});
+
+test('an Eclipse restore is atomic if the active write fails, then exports compatible recovery', async () => {
+  const storage = memory();
+  const store = make(storage);
+  const initial = edited();
+  initial.feedback = 'Older legacy recovery';
+  await store.saveRun(initial);
+  const legacy = storage.getItem(KEY);
+  storage.setItem(RECOVERY_KEY, legacy);
+  assert.equal(
+    parseBackup(make(storage).recoveryData()).runs['test-sky@1'].feedback,
+    initial.feedback,
+  );
+
+  const imported = { ...initial, feedback: 'Import target', rating: 4, difficulty: 'tough' };
+  await store.saveRun(imported);
+  const backup = store.exportData();
+  const prior = { ...initial, feedback: 'Active before restore' };
+  await store.saveRun(prior);
+  const active = storage.getItem(KEY);
+  const faulting = {
+    ...storage,
+    setItem(key, value) {
+      if (key === KEY) throw new DOMException('Storage quota', 'QuotaExceededError');
+      storage.setItem(key, value);
+    },
+  };
+  await assert.rejects(make(faulting).restore(backup), { name: 'QuotaExceededError' });
+  assert.equal(storage.getItem(KEY), active);
+  assert.equal(storage.getItem(RECOVERY_KEY), legacy);
+  assert.deepEqual(parseBackup(make(storage).recoveryData()), JSON.parse(legacy));
+
+  await make(storage).restore(backup);
+  const reopened = make(storage);
+  assert.equal(reopened.getRun(puzzle()).feedback, imported.feedback);
+  assert.equal(storage.getItem(RECOVERY_KEY), legacy);
+  assert.deepEqual(parseBackup(reopened.recoveryData()), JSON.parse(active));
+  assert.equal(Object.hasOwn(JSON.parse(reopened.exportData()).save, 'recoverySnapshot'), false);
+  assert.throws(() => validateSave(JSON.parse(storage.getItem(KEY))), /Unknown or invalid/);
+  await reopened.saveRun({ ...imported, feedback: 'Later edit' });
+  assert.deepEqual(parseBackup(make(storage).recoveryData()), JSON.parse(active));
+  const embedded = storage.getItem(KEY);
+  await assert.rejects(make(faulting).restore(backup), { name: 'QuotaExceededError' });
+  assert.equal(storage.getItem(KEY), embedded);
+  assert.equal(storage.getItem(RECOVERY_KEY), legacy);
+  assert.deepEqual(parseBackup(make(storage).recoveryData()), JSON.parse(active));
 });

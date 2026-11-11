@@ -1,4 +1,5 @@
 """Boot the derived Android payload under Capacitor's stable local HTTPS origin."""
+import json
 import mimetypes
 from pathlib import Path
 from urllib.parse import unquote, urlparse
@@ -89,6 +90,47 @@ with sync_playwright() as pw:
         == 0,
         'Android UI hides PWA install and update controls',
     )
+    def download_lab_backup(name):
+        with page.expect_download() as receipt:
+            page.get_by_role('button', name=name, exact=True).click()
+        return json.loads(Path(receipt.value.path()).read_text(encoding='utf-8'))
+
+    def restore_lab_backup(backup):
+        with page.expect_event('worker') as validation:
+            page.locator('[data-file]').set_input_files({
+                'name': 'backup.json',
+                'mimeType': 'application/json',
+                'buffer': json.dumps(backup).encode(),
+            })
+        with page.expect_event('worker') as preparation:
+            page.get_by_role('button', name='Confirm restore', exact=True).click()
+        page.get_by_text('Restoring backup…', exact=True).wait_for(state='hidden')
+        assert page.get_by_role('button', name='Confirm restore', exact=True).count() == 0
+        return all(worker.value.url.startswith('blob:') for worker in (validation, preparation))
+
+    for kind, level, title, export in (
+        ('eclipse', 'mirror-01', 'Eclipse Lab', 'Export lab backup'),
+        ('timeline', 'timeline-01', 'Timeline Desk', 'Export desk backup'),
+    ):
+        page.evaluate("(route) => location.hash = route", f'#/quiet/{kind}/{level}')
+        page.get_by_role('heading', name=title, exact=True).wait_for()
+        page.locator('[data-feedback]').fill('Android prior shelf')
+        page.get_by_role('button', name='Save feedback', exact=True).click()
+        page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+        before = download_lab_backup(export)
+        imported = json.loads(json.dumps(before))
+        next(iter(imported['save']['runs'].values()))['feedback'] = 'Android imported shelf'
+        check(restore_lab_backup(imported), f'{title} previews and prepares with bundled workers')
+        page.reload()
+        actual = download_lab_backup(export)['save']
+        check(actual == {**imported['save'], 'revision': before['save']['revision'] + 1},
+              f'{title} restores the imported shelf across reload')
+        recovery = download_lab_backup('Download recovery copy')
+        check(recovery['save'] == before['save'], f'{title} exports the original shelf as recovery')
+        check(restore_lab_backup(recovery), f'{title} can restore the exported recovery')
+        check(download_lab_backup(export)['save'] == {**before['save'], 'revision': actual['revision'] + 1},
+              f'{title} recovery restores the original shelf')
+
     page.evaluate("location.hash='/settings'")
     page.wait_for_function("()=>location.hash === '#/settings'")
     check(
