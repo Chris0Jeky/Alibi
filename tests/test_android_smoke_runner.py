@@ -92,10 +92,11 @@ elif name == 'adb':
     elif args == ['shell', 'cat', '/proc/uptime']: print('123.45 100.00')
     elif args == ['logcat', '-d']: print('stub logcat retained')
 elif name == 'gradlew':
-    assert '-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=' + 'a' * 64 in args
-    assert '--dependency-verification=strict' in args
-    android_test_tasks = [arg for arg in args if 'connectedDebugAndroidTest' in arg]
-    assert android_test_tasks == [':app:connectedDebugAndroidTest']
+    assert args == [
+        '--no-daemon', '--dependency-verification=strict',
+        '-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=' + 'a' * 64,
+        ':app:connectedDebugAndroidTest',
+    ], args
     sys.exit(int(os.environ.get('STUB_GRADLE_EXIT', '0')))
 else: raise AssertionError(name)
 '''
@@ -196,7 +197,7 @@ class SmokeRunnerTests(unittest.TestCase):
         self.assertEqual((project / 'test-results/native/logcat.txt').read_text(), 'stub logcat retained\n')
         self.assert_stopped(root)
 
-    def test_gpu_canary_requires_the_selected_backend_before_using_frozen_apks(self):
+    def test_gpu_canary_requires_the_selected_backend_and_uses_the_normal_gradle_task(self):
         for selected, status in [('swangle_indirect', 0), ('swiftshader', 1)]:
             with self.subTest(selected=selected):
                 root, project, _, _, result, _, calls = self.run_smoke(
@@ -207,8 +208,7 @@ class SmokeRunnerTests(unittest.TestCase):
                 self.assertTrue((arm / 'logcat.txt').exists())
                 gradle = [call['args'] for call in calls if call['name'] == 'gradlew']
                 if status == 0:
-                    self.assertEqual(gradle[0][-4:], ['-x', ':app:packageDebug',
-                                                     '-x', ':app:packageDebugAndroidTest'])
+                    self.assertEqual(len(gradle), 1)
                     self.assertTrue((root / 'recorded').exists())
                 else:
                     self.assertEqual(gradle, [])

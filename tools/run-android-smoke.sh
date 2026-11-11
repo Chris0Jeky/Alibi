@@ -6,14 +6,12 @@ cd "$ROOT"
 OUT="$ROOT/test-results/native"
 GPU=swiftshader
 GPU_CANARY=0
-GRADLE_ARGS=()
 case "${1:-}" in
   '') ;;
   --gpu-canary=swiftshader|--gpu-canary=swangle)
     GPU="${1#*=}"
     GPU_CANARY=1
     OUT="$OUT/gpu-canary/$GPU"
-    GRADLE_ARGS=(-x :app:packageDebug -x :app:packageDebugAndroidTest)
     ;;
   *) printf 'Unknown native smoke option: %s\n' "$1" >&2; exit 2 ;;
 esac
@@ -175,5 +173,5 @@ fi
 # nativeHostBootsAndNavigatesOffline checks installed sourceDir before and after controls.
 (cd android && ./gradlew --no-daemon --dependency-verification=strict \
   "-Pandroid.testInstrumentationRunnerArguments.alibiExpectedApkSha256=$EXPECTED_APK_SHA256" \
-  :app:connectedDebugAndroidTest "${GRADLE_ARGS[@]}")
+  :app:connectedDebugAndroidTest)
 python tools/android-smoke-evidence.py record --expected-sha "$EXPECTED_APK_SHA256"

@@ -204,7 +204,10 @@ jobs:
           for gpu in swiftshader swangle; do
             arm="$out/$gpu"
             mkdir "$arm"
-            sha256sum --check "$out/apks.sha256"
+            if ! sha256sum --check "$out/apks.sha256"; then
+              echo 'Canary inconclusive: APK bytes differ before instrumentation' | tee "$arm/apk-drift.txt"
+              exit 1
+            fi
             listeners="$(ss -Hln '( sport = :5554 or sport = :5555 )')"
             if [[ -n "$listeners" ]]; then
               echo 'Canary inconclusive: emulator ports are in use' | tee "$arm/admission.txt"
@@ -217,8 +220,11 @@ jobs:
             if [[ -f test-results/native/emulator-smoke.json ]]; then
               mv test-results/native/emulator-smoke.json "$arm/"
             fi
-            sha256sum "$app_apk" "$test_apk" > "$arm/apks-after.sha256"
-            cmp "$out/apks.sha256" "$arm/apks-after.sha256"
+            if ! sha256sum "$app_apk" "$test_apk" > "$arm/apks-after.sha256" ||
+               ! cmp "$out/apks.sha256" "$arm/apks-after.sha256"; then
+              echo 'Canary inconclusive: APK bytes differ after the smoke command' | tee "$arm/apk-drift.txt"
+              exit 1
+            fi
             if [[ -f "$arm/emulator-still-running.txt" ]]; then exit 1; fi
             if [[ "$status" != 0 ]]; then result=1; fi
           done
