@@ -2,11 +2,13 @@
 import json
 import os
 from pathlib import Path
+import subprocess
 from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = os.environ.get('ALIBI_URL', 'http://127.0.0.1:8797/').split('#')[0]
 OUT = ROOT / 'test-results/castle-escape'
+VIEWPORTS = [(320, 740), (844, 390)]
 ROOM = json.loads((ROOT / 'content/escape-rooms/tidekeeper-workshop.json').read_text())
 OTHER = json.loads((ROOT / 'content/escape-rooms/counterweight-loft.json').read_text())
 ESCAPE = '#/quiet/castle/case/escape'
@@ -62,6 +64,64 @@ def sizes(page, width):
     assert not bad, f'{width}: controls below 44px or unnamed: {bad}'
 
 
+def other_room_paths():
+    """Use the same bounded authoring model as the standalone anthology."""
+    rooms = []
+    for source in sorted((ROOT / 'content/escape-rooms').glob('*.json')):
+        room = json.loads(source.read_text(encoding='utf-8'))
+        if room['id'] == ROOM['id']:
+            continue
+        result = subprocess.run(
+            ['node', 'tools/escape-authoring.cjs', str(source)], cwd=ROOT,
+            capture_output=True, encoding='utf-8', check=True, timeout=10,
+        )
+        trace = json.loads(result.stdout)['model']['solution']
+        assert trace, room['id']
+        actions = {action['id']: action for action in room['actions']}
+        rooms.append((room, [actions[action_id] for action_id in trace]))
+    assert len(rooms) == 5
+    return rooms
+
+
+def complete_other_rooms(browser, errors, record):
+    rooms = other_room_paths()
+    for width, height in VIEWPORTS:
+        # Keep completion coverage independent of the Tidekeeper notebook fixtures.
+        context = browser.new_context(viewport={'width': width, 'height': height})
+        page = context.new_page()
+        page.on('pageerror', lambda error: errors.append(str(error)))
+        try:
+            page.goto(BASE + ESCAPE)
+            main = page.locator('#castle-main')
+            room_list = main.locator('.escape-rooms')
+            expect(room_list.get_by_role('link')).to_have_count(len(rooms) + 1)
+            for room, actions in rooms:
+                title = room['title']
+                room_list.get_by_role('link', name=title, exact=True).click()
+                expect(main.get_by_role('heading', name=title, exact=True)).to_be_visible()
+                complete = main.get_by_role('heading', name='Room complete', exact=True)
+                expect(complete).to_have_count(0)
+                objects = {obj['id']: obj['title'] for obj in room['objects']}
+                for step, action in enumerate(actions):
+                    controls = main.get_by_role(
+                        'list', name=f"Actions for {objects[action['object']]}", exact=True,
+                    )
+                    label = action['label']
+                    if action['input']:
+                        controls.get_by_role('textbox', name=label, exact=True).fill(action['answer'])
+                        label = f'Try answer: {label}'
+                    controls.get_by_role('button', name=label, exact=True).click()
+                    if step < len(actions) - 1:
+                        expect(page.locator('#castle-live')).to_have_text('Done.')
+                expect(complete).to_be_visible()
+                expect(main.get_by_text(room['ending']['storyOn'], exact=True)).to_be_visible()
+                expect(main.locator('[data-do="escape-act"]')).to_have_count(0)
+                record(width, f'{title} completed through Castle controls ({len(actions)} actions)')
+                main.get_by_role('link', name='All escape rooms', exact=True).click()
+        finally:
+            context.close()
+
+
 def run():
     OUT.mkdir(parents=True, exist_ok=True)
     report = {'passed': False, 'base': BASE, 'checks': [], 'errors': []}
@@ -72,7 +132,7 @@ def run():
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
-            for width, height in [(320, 740), (844, 390)]:
+            for width, height in VIEWPORTS:
                 context = browser.new_context(viewport={'width': width, 'height': height})
                 page = context.new_page()
                 page.on('pageerror', lambda error: report['errors'].append(str(error)))
@@ -172,6 +232,8 @@ def run():
                 record(width, 'Castle save unchanged; reload starts the room fresh (session-only)')
                 assert not report['errors'], report['errors']
                 context.close()
+            complete_other_rooms(browser, report['errors'], record)
+            assert not report['errors'], report['errors']
             browser.close()
         report['passed'] = True
     finally:
