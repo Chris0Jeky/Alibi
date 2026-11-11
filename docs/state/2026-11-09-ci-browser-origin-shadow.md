@@ -5,3 +5,5 @@ This manual-only, non-required Actions experiment compares the current real-orig
 At preparation, 3 focused Node tests, targeted formatting and an independent read-only review passed. The full hosted experiment and its queue-inclusive cost and timing are not yet verified. Each job builds independently; payloads are not compared across jobs. The 4–6 minute longest browser-shard estimate is a hypothesis, not a release or end-to-end CI result. The workflow must first land on the default branch to be dispatchable; retain the existing required gate while measuring and validating it.
 
 Physical-device and owner acceptance remains in HUMAN_TODO.md. A later change must separately prove the complete suite, exact source/artifact identity and fail-closed aggregation before any required-check migration.
+
+The manual workflow now uses the signed Ubuntu mirror setup merged in #945 before installing Playwright. Its focused command-parity tests still pass; the merged default-branch workflow needs its own hosted experiment.
