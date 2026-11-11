@@ -1,7 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mount, flushDrafts } from '../src/timeline-lab/player.mjs';
-import { createStore, freshRun, KEY } from '../src/timeline-lab/storage.mjs';
+import {
+  createStore,
+  freshRun,
+  KEY,
+  parseBackup,
+  prepareRestore,
+} from '../src/timeline-lab/storage.mjs';
 import { PUZZLES } from '../src/timeline-lab/puzzles.mjs';
 
 test('a restore waiting for the lock keeps newer drafts and prevents stale board writes', async (t) => {
@@ -23,19 +29,31 @@ test('a restore waiting for the lock keeps newer drafts and prevents stale board
   imported.rating = 5;
   imported.difficulty = 'tough';
   const storage = new Map([[KEY, JSON.stringify(save(initial))]]);
-  let unlock;
+  let unlock, entered;
+  const locked = new Promise((resolve) => {
+    entered = resolve;
+  });
   const gate = new Promise((resolve) => {
     unlock = resolve;
   });
-  let requestCount = 0;
+  let requestCount = 0,
+    validations = 0;
   const store = createStore({
+    prepareRestore,
+    validateBackup(raw, revision) {
+      validations++;
+      return parseBackup(raw, revision);
+    },
     storage: {
       getItem: (key) => storage.get(key) ?? null,
       setItem: (key, value) => storage.set(key, value),
     },
     locks: {
       async request(_key, _options, callback) {
-        if (++requestCount === 1) await gate;
+        if (++requestCount === 1) {
+          entered();
+          await gate;
+        }
         return callback();
       },
     },
@@ -71,8 +89,10 @@ test('a restore waiting for the lock keeps newer drafts and prevents stale board
       files: [{ size: Buffer.byteLength(raw), text: async () => raw }],
     },
   });
+  assert.equal(validations, 1);
+  assert.equal(requestCount, 0, 'preview never obtains the write lock');
   const restoring = click('[data-action]', { action: 'restore' });
-  await Promise.resolve();
+  await locked;
   assert.equal(requestCount, 1, 'restore is waiting inside the storage lock request');
   events.get('input')({
     target: {
@@ -97,6 +117,7 @@ test('a restore waiting for the lock keeps newer drafts and prevents stale board
   await Promise.all([restoring, staleMark, staleWrite, nextRoute]);
 
   assert.equal(requestCount, 1, 'neither stale edit attempted a persistent write');
+  assert.equal(validations, 1, 'explicit confirmation uses the worker-validated preview');
   assert.deepEqual(store.getRun(puzzle).marks, imported.marks);
   assert.equal(store.getRun(puzzle).feedback, 'Imported note');
   assert.match(root.innerHTML, /New note while restore waits/);
