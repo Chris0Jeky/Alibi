@@ -31,7 +31,7 @@ export function mount({ root, store, save }) {
   const focusId = () => root.getRootNode().activeElement?.id;
   function receiptMarkup() {
     if (receipt) return receipt.markup();
-    return `<section class="card case-receipt" aria-labelledby="case-receipt-title"><h2 id="case-receipt-title">Local playtest receipt</h2><p>Off until started. Counts stages, modes, hints, reveals and checks; prior help is marked. No answers, citations, notes, saves, devices or timings. Memory only; nothing is sent. First use may download the module.</p><div class="actions">${button('Start local playtest receipt', 'receipt-start')}</div></section>`;
+    return `<section class="card case-receipt" aria-labelledby="case-receipt-title"><h2 id="case-receipt-title">Local playtest receipt</h2><p>Off until started. Counts stages, modes, hints, reveals and checks; marks prior help. No answers, citations, notes, saves, devices or timings. Memory only; nothing is sent. First use may download the module.</p><div class="actions">${button('Start local playtest receipt', 'receipt-start')}</div></section>`;
   }
   function status() {
     if (!current()) return;
@@ -44,24 +44,25 @@ export function mount({ root, store, save }) {
     const story = store.state.preferences.story;
     if (previousStory !== undefined && previousStory !== story) receipt?.mode(story);
     previousStory = story;
-    root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>Fictional case, separate from Wrenmere Chapter I. Wording and fairness await review. No points.</p><p role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
+    root.innerHTML = `<style>.case-player fieldset{margin:1rem 0;padding:1rem;min-width:0}.case-player label{display:block;margin:.5rem 0}.case-player input{min-width:24px;min-height:24px;vertical-align:middle}.case-player article{scroll-margin:1rem}</style><section class="page case-player"><p class="eyebrow">Experimental evidence case · revision 1</p><h1>The Reading Room Blackout</h1><p>Fictional case, separate from Wrenmere Chapter I. Wording and fairness await review. No points.</p><p id=case-status role="status" aria-live="polite" data-case-status></p><div data-case-content></div></section>`;
     const area = root.querySelector('[data-case-content]');
     if (!definition || !record()) {
-      area.innerHTML = `<p>Install to save drafts and accepted answers in your Castle notebook. Export the Notebook before changing devices. Installation needs connection and device storage.</p>${button(record() ? 'Retry opening saved case' : 'Install experimental case', 'install')}`;
+      area.innerHTML = `<p>Install to save drafts and answers in your Castle notebook. Export it before changing devices. Installation needs connection and storage.</p>${button(record() ? 'Retry opening saved case' : 'Install experimental case', 'install')}`;
     } else {
       const c = record(),
-        step = definition.steps[stage];
+        step = definition.steps[stage],
+        rejected = message.startsWith('Check');
       const projection = Session.project(definition, completed(), step.id, story);
       const refs = (ids) =>
         ids
           .map((id) => button(definition.records.find((r) => r.id === id).title, 'source', id))
           .join(' ');
-      area.innerHTML = `<p>${offline ? 'Case ready offline.' : 'Offline files unavailable; reconnect to retain them.'} ${c.answers.length}/3 stages accepted.</p>${button('Share invitation', 'share-open')}${share.text === null ? '' : `<section class="card" aria-labelledby="case-share-title"><h2 id="case-share-title">Share an invitation</h2><p>No progress, notes or answers are included. Copy if you choose.</p><p id="case-share-text" tabindex="-1" style="white-space:pre-wrap">${escape(share.text)}</p><div class="actions">${button('Copy invitation', 'share-copy')}${button('Cancel', 'share-cancel')}</div></section>`}${receiptMarkup()}<p>${escape(definition.intro[story ? 'storyOn' : 'storyOff'])}</p>${button(story ? 'Turn story off' : 'Turn story on', 'story')}<nav class="actions" aria-label="Case stages">${definition.steps
+      area.innerHTML = `<p>${offline ? 'Case ready offline.' : 'Offline files unavailable; reconnect to retain them.'} ${c.answers.length}/3 stages accepted.</p>${button('Share invitation', 'share-open')}${share.text === null ? '' : `<section class="card" aria-labelledby="case-share-title"><h2 id="case-share-title">Share an invitation</h2><p>No progress, notes or answers. Copy if you choose.</p><p id="case-share-text" tabindex="-1" style="white-space:pre-wrap">${escape(share.text)}</p><div class="actions">${button('Copy invitation', 'share-copy')}${button('Cancel', 'share-cancel')}</div></section>`}${receiptMarkup()}<p>${escape(definition.intro[story ? 'storyOn' : 'storyOff'])}</p>${button(story ? 'Turn story off' : 'Turn story on', 'story')}<nav class="actions" aria-label="Case stages">${definition.steps
         .filter((s) => Session.available(definition, completed()).includes(s.id))
         .map((s) => button(s.title, 'stage', s.id))
         .join(
           '',
-        )}</nav><h2 tabindex="-1" id="case-stage">${escape(step.title)}</h2><p>${escape(projection.prompt)}</p><section aria-label="Case sources">${projection.records.map((r) => `<article class="card" tabindex="-1" id="case-source-${escape(r.id)}"><h3>${escape(r.title)}</h3><p>${escape(r.kind)} · ${escape(r.source)}</p><p>${escape(r.text)}</p></article>`).join('')}</section><form>${projection.claims.map((claim, i) => `<fieldset><legend>${escape(claim.text)}</legend><label for="case-verdict-${i}">Verdict</label><select id="case-verdict-${i}" data-case-verdict="${i}"${message.startsWith('Check') && !c.drafts[stage][i][0] ? ' aria-invalid=true' : ''}>${verdicts.map((v) => `<option value="${v}" ${c.drafts[stage][i][0] === v ? 'selected' : ''}>${v ? v.replaceAll('-', ' ') : 'Choose a verdict'}</option>`).join('')}</select><p>Smallest sufficient source set</p><div role=group aria-label=Sources>${projection.records.map((r, j) => `<label><input type="checkbox" id="case-cite-${i}-${j}" data-case-cite="${i}" value="${escape(r.id)}" ${c.drafts[stage][i][1].includes(r.id) ? 'checked' : ''}> ${escape(r.title)}</label>`).join('')}</div></fieldset>`).join('')}<div class="actions">${button('Check this stage', 'check')}${button('Next hint', 'hint')}${button('Show worked answer', 'reveal')}</div></form>${projection.hints
+        )}</nav><h2 tabindex="-1" id="case-stage">${escape(step.title)}</h2><p>${escape(projection.prompt)}</p><section aria-label="Case sources">${projection.records.map((r) => `<article class="card" tabindex="-1" id="case-source-${escape(r.id)}"><h3>${escape(r.title)}</h3><p>${escape(r.kind)} · ${escape(r.source)}</p><p>${escape(r.text)}</p></article>`).join('')}</section><form>${projection.claims.map((claim, i) => `<fieldset><legend>${escape(claim.text)}</legend><label for="case-verdict-${i}">Verdict</label><select id="case-verdict-${i}" data-case-verdict="${i}"${rejected && !c.drafts[stage][i][0] ? ' aria-invalid=true' : ''}>${verdicts.map((v) => `<option value="${v}" ${c.drafts[stage][i][0] === v ? 'selected' : ''}>${v ? v.replaceAll('-', ' ') : 'Choose a verdict'}</option>`).join('')}</select><p>Smallest sufficient source set</p><div role=group aria-label=Sources${rejected ? ' aria-describedby=case-status' : ''}>${projection.records.map((r, j) => `<label><input type="checkbox" id="case-cite-${i}-${j}" data-case-cite="${i}" value="${escape(r.id)}" ${c.drafts[stage][i][1].includes(r.id) ? 'checked' : ''}> ${escape(r.title)}</label>`).join('')}</div></fieldset>`).join('')}<div class="actions">${button('Check this stage', 'check')}${button('Next hint', 'hint')}${button('Show worked answer', 'reveal')}</div></form>${projection.hints
         .slice(0, c.hints[stage])
         .map(
           (h) =>
@@ -284,7 +285,7 @@ export function mount({ root, store, save }) {
               }));
             if (!result.ok) {
               if (receipt?.enabled) receipt.submission(step.id, false, receiptShape());
-              message = 'Check verdicts and smallest sufficient source sets. Your draft is kept.';
+              message = 'Check verdicts and sources. Your draft is kept.';
             } else if (stage < record().answers.length) {
               if (receipt?.enabled) receipt.submission(step.id, true, receiptShape());
               message = 'Stage already accepted. Progress unchanged.';
