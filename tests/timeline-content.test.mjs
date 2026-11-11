@@ -1,13 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { PUZZLES } from '../src/timeline-lab/puzzles.mjs';
 import { validatePuzzle, clueText, schedules } from '../src/timeline-lab/model.mjs';
-import { SPECS } from '../tools/curation/timeline-specs.mjs';
-import { build, propagate } from '../tools/curation/timeline-candidates.mjs';
+import { propagate } from '../tools/curation/timeline-candidates.mjs';
 
 const types = (p) => new Set(p.clues.map((c) => c.t));
-test('twelve pinned levels have stable ids, revisions and order', () => {
-  assert.equal(PUZZLES.length, 12);
+test('fifteen pinned levels have stable ids, revisions and order', () => {
+  assert.equal(PUZZLES.length, 15);
   PUZZLES.forEach((p, i) => {
     const n = String(i + 1).padStart(2, '0');
     assert.equal(p.id, `timeline-${n}`);
@@ -15,7 +17,7 @@ test('twelve pinned levels have stable ids, revisions and order', () => {
     assert.equal(p.level, i + 1);
     validatePuzzle(p);
   });
-  assert.equal(new Set(PUZZLES.map((p) => p.title)).size, 12);
+  assert.equal(new Set(PUZZLES.map((p) => p.title)).size, PUZZLES.length);
   const sizes = PUZZLES.slice(3).map((p) => p.events.length);
   assert.deepEqual(
     sizes,
@@ -23,12 +25,19 @@ test('twelve pinned levels have stable ids, revisions and order', () => {
     'events never decrease after the lessons',
   );
 });
+test('the twelve published definitions retain their exact decoded data', () => {
+  const digest = createHash('sha256')
+    .update(JSON.stringify(PUZZLES.slice(0, 12)))
+    .digest('hex');
+  assert.equal(digest, '82ae5ef52ee6cf34784e9ea160afc420479139155c0467e40cfdab4021b45e40');
+});
 test('levels stay inside the stated bounds and every shared-hour case is feasible', () => {
   for (const p of PUZZLES) {
     assert.ok(p.events.length >= 4 && p.events.length <= 6, p.id);
     assert.ok(p.slots >= 5 && p.slots <= 8, p.id);
     assert.ok(p.slots ** p.events.length <= 8 ** 6, p.id);
     if (p.distinct) assert.ok(p.events.length <= p.slots, p.id);
+    else assert.ok(new Set(p.solution).size < p.events.length, p.id);
   }
   assert.ok(PUZZLES.some((p) => p.distinct) && PUZZLES.some((p) => !p.distinct));
 });
@@ -65,9 +74,15 @@ test('text is one plain line per clue and payoff, with no duplicates inside a le
     assert.ok(p.payoff.length <= 140, p.id);
   }
 });
-test('the committed levels are exactly what the authoring script derives from the specs', () => {
-  assert.equal(SPECS.length, PUZZLES.length);
-  SPECS.forEach((spec, i) => assert.deepEqual(build(spec).puzzle, PUZZLES[i], spec.id));
+test('the authoring command emits the committed level definitions', async () => {
+  const script = fileURLToPath(
+    new URL('../tools/curation/timeline-candidates.mjs', import.meta.url),
+  );
+  const output = execFileSync(process.execPath, [script], { stdio: ['ignore', 'pipe', 'ignore'] });
+  const { PUZZLES: regenerated } = await import(
+    `data:text/javascript;base64,${output.toString('base64')}`
+  );
+  assert.deepEqual(regenerated, PUZZLES);
 });
 test('early levels yield to direct elimination; later levels need a what-if', () => {
   PUZZLES.forEach((p, i) => assert.equal(propagate(p).solved, i < 6, p.id));
