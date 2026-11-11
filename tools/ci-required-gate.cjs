@@ -6,7 +6,6 @@ const ARCHIVE_SHA = /^[a-f0-9]{64}$/;
 const POSITIVE_INTEGER = /^[1-9][0-9]*$/;
 
 function verifyRequiredGate(env) {
-  if (env.ALIBI_CANCELLED !== 'false') throw new Error('Verification was cancelled or unknown.');
   const { GITHUB_RUN_ID: run, GITHUB_SHA: sha, ALIBI_HEAD_SHA: head, ALIBI_BASE_SHA: base } = env;
   if (
     !POSITIVE_INTEGER.test(run) ||

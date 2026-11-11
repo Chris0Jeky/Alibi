@@ -50,3 +50,13 @@ failed or missing shard receipt, same-run download and a failed-job rerun. Compa
 cold and warm critical paths and aggregate runner minutes with the serial workflow.
 Actual GitHub Actions scheduling, artifact and rerun behavior, and the full suites were
 outside the local run. [Owner actions](../../HUMAN_TODO.md)
+
+## Startup validation repair
+
+[Run 43078104485](https://github.com/Chris0Jeky/Alibi/actions/runs/43078104485) failed before jobs
+started on `04be6a46`. Checksum-verified actionlint 1.7.12 reproduced an invalid
+`cancelled()` call in the verdict step's environment. GitHub Actions permits that function
+in conditions. The normal verdict now uses an uncancelled step condition, and a separate
+step fails the required job on cancellation. The job itself still uses `always()` and
+the verdict still rejects missing or cancelled dependencies. The changed workflows pass
+actionlint locally. A fresh hosted run must establish scheduling and runtime behavior.

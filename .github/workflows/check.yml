@@ -292,10 +292,12 @@ jobs:
         with:
           node-version: '22'
       - name: Require each verification result
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         env:
           ALIBI_NEEDS: ${{ toJSON(needs) }}
-          ALIBI_CANCELLED: ${{ cancelled() }}
         run: |
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           node tools/ci-required-gate.cjs
+      - name: Fail cancelled verification
+        if: ${{ cancelled() }}
+        run: exit 1

@@ -40,7 +40,6 @@ function fixture(mode = 'full') {
 function environment(needs, overrides = {}) {
   return {
     ...process.env,
-    ALIBI_CANCELLED: 'false',
     ALIBI_NEEDS: JSON.stringify(needs),
     GITHUB_RUN_ID: run,
     GITHUB_SHA: sha,
@@ -94,7 +93,7 @@ test('binds proof to the original run, checkout, head, base and build', () => {
   }
 });
 
-test('fails closed on unverified docs, preparation failure, or workflow cancellation', () => {
+test('fails closed on unverified docs and preparation failure', () => {
   const docs = fixture('publication-docs');
   docs.prepare.outputs['docs-verified'] = '';
   assert.throws(() => verifyRequiredGate(environment(docs)), /Publication verification/);
@@ -107,10 +106,6 @@ test('fails closed on unverified docs, preparation failure, or workflow cancella
   const failedPrepare = fixture();
   failedPrepare.prepare.result = 'failure';
   assert.throws(() => verifyRequiredGate(environment(failedPrepare)), /Preparation/);
-  assert.throws(
-    () => verifyRequiredGate(environment(fixture(), { ALIBI_CANCELLED: 'true' })),
-    /cancelled/,
-  );
 });
 
 test('the invoked gate process returns a non-zero status for a missing shard receipt', () => {
@@ -136,6 +131,11 @@ test('the required workflow exposes the existing check and four separately named
   assert.match(workflow, /needs: \[prepare, cabinet, origin-1, origin-2, origin-3, origin-4\]/);
   assert.match(workflow, /node tools\/ci-required-gate\.cjs/);
   assert.match(workflow, /ALIBI_NEEDS: \$\{\{ toJSON\(needs\) \}\}/);
+  assert.match(
+    workflow,
+    /name: Fail cancelled verification\n        if: \$\{\{ cancelled\(\) \}\}\n        run: exit 1/,
+  );
+  assert.doesNotMatch(workflow, /^\s+[A-Z_]+: .*cancelled\(\)/m);
   assert.doesNotMatch(workflow, /continue-on-error:|^    paths(?:-ignore)?:/m);
   assert.doesNotMatch(caller, /continue-on-error:|workflow_dispatch|pull_request/);
   for (const name of jobs.slice(1)) {
