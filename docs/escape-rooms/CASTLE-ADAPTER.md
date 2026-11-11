@@ -48,9 +48,19 @@ public authored-object format.
   higher ceiling. The softlock proof (`escape-authoring.cjs`) never enters a player bundle.
 - No change to published Castle rooms, Wrenmere content, the six room sources or their format.
 
+## Mounted slice (9 November 2026)
+
+The six rooms are playable at `#/quiet/castle/case/escape` behind the Castle navigation link
+"Experimental escape rooms". `src/castle/escape-player.mjs` (player, adapter and six sources) is
+built as its own on-demand module (`./assets/escape/rooms.<hash>.js`, 86,261 bytes, 88 KiB budget)
+and is neither precached nor imported by the Castle script, which stays within its unchanged
+101,120-byte ceiling. The player listens for its own `escape-*` controls and uses Castle's
+`show()`/`close()` for the inspector and focus return. Progress, drafts and hint stages are
+session-only module state; nothing is written to the CastleStore. The inspector's notebook control
+was removed for that reason. Evidence: `docs/state/2026-11-09-escape-rooms-playable.md`.
+
 ## Remaining for #467
 
-Mount the host behind a Castle route once #433 delivers room data. Then route `escape-object` and
-`escape-act` clicks through `view.mjs`'s dispatcher and `show()`/`close()`, add a browser test for
-focus return and rapid route changes in a real document, and complete escape-specific recovery
-acceptance under #467 using the existing CastleStore authority.
+Durable escape progress and its recovery acceptance using the existing CastleStore authority
+(revision-pinned, compare-and-swap and import safeguards), and offline delivery of the room module
+under #433.

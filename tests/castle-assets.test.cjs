@@ -61,6 +61,14 @@ test('Castle build emits a bounded scene manifest and on-demand prologue', async
     assert.ok(result.originalSceneBytes <= 180 * 1024);
     assert.ok(bytesAt(dist, config.film.src) <= 1024 * 1024);
     assert.match(config.caseStudy, /^\.\/assets\/cases\/player\.[a-f0-9]{12}\.js$/);
+    // #467: escape rooms are a separate on-demand module, never precached or in the Castle script.
+    assert.match(config.escape, /^\.\/assets\/escape\/rooms\.[a-f0-9]{12}\.js$/);
+    assertContentHash(dist, config.escape);
+    assert.ok(!config.files.includes(config.escape), 'no automatic escape-room download');
+    assert.equal(result.escapeBytes, bytesAt(dist, config.escape));
+    assert.ok(result.escapeBytes <= 88 * 1024);
+    const castleScript = fs.readFileSync(path.join(dist, config.script), 'utf8');
+    assert.doesNotMatch(castleScript, /postern-escape-1|Tidekeeper/, 'room data stays out');
     assertContentHash(dist, config.caseStudy);
     assert.match(result.receipt.download, /^receipt\.[a-f0-9]{12}\.js$/);
     const receiptURL = `./assets/cases/${result.receipt.download}`;
@@ -97,6 +105,7 @@ test('Castle build emits a bounded scene manifest and on-demand prologue', async
         0,
       ) +
         bytesAt(dist, config.caseStudy) +
+        bytesAt(dist, config.escape) +
         receiptBytes.length +
         source.length,
     );
