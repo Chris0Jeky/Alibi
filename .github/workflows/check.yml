@@ -51,17 +51,10 @@ jobs:
         run: |
           node --test tests/ci-setup-phase.test.cjs
           python tests/test_ci_audio_dependencies.py
+          python tests/test_ci_ubuntu_sources.py
       - name: Use Ubuntu repositories for CI system dependencies
         if: steps.scope.outputs.mode == 'full'
-        run: |
-          # FFmpeg and Playwright's Linux dependencies come from Ubuntu. The
-          # runner's unrelated Chrome feed can have inconsistent package indexes.
-          # Apply this to the whole job, including Playwright's later apt calls.
-          test -s /etc/apt/sources.list.d/ubuntu.sources
-          printf '%s\n' \
-            'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' \
-            'Dir::Etc::sourceparts "-";' \
-            | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+        run: bash tools/ci-ubuntu-sources.sh
       - name: Prepare audio archive cache key
         if: steps.scope.outputs.mode == 'full'
         id: audio-cache-key

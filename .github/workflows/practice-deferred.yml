@@ -2,6 +2,7 @@ name: Practice deferred acceptance
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - 'src/castle-practice.js'
       - 'src/app.js'
       - 'tools/build*.cjs'
@@ -46,8 +47,7 @@ jobs:
       - run: python -m pip install -r requirements-dev.txt
       - name: Install Chromium with Ubuntu repositories
         run: |
-          test -s /etc/apt/sources.list.d/ubuntu.sources
-          printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+          bash tools/ci-ubuntu-sources.sh
           python -m playwright install --with-deps chromium
       - name: Native app-owned practice counts through failure and recovery
         run: |

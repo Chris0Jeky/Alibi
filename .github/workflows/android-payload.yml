@@ -3,6 +3,7 @@ name: Verify Android payload
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - '.github/workflows/android-payload.yml'
       - 'docs/capacitor/BUILD-TARGETS.md'
       - 'package.json'
@@ -29,6 +30,7 @@ on:
     branches:
       - main
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - '.github/workflows/android-payload.yml'
       - 'docs/capacitor/BUILD-TARGETS.md'
       - 'package.json'
@@ -87,6 +89,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -r requirements-dev.txt
+      - run: bash tools/ci-ubuntu-sources.sh
       - run: python -m playwright install --with-deps chromium
       - name: Reject missing or leaked emitted native styles
         run: |
