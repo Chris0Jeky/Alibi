@@ -34,6 +34,7 @@ function fixture(method) {
     C: { loadInsights: () => pending },
     $: () => modal,
     blocked: () => false,
+    nextFamilyPuzzle: () => null,
     esc: (text) => text,
     toast: (message) => messages.push(message),
     dialog: (...args) => shown.push(args),
