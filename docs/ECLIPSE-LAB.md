@@ -14,6 +14,11 @@ Every mode has eight levels. Mirror Ledger uses two linked 4×4 boards per level
 | Switchback | Equal suns and moons in each line, plus exact counts of adjacent symbol changes. Triples and repeated lines are allowed. | Reason about runs, boundaries and the remaining number of changes. |
 | Mirror Ledger | Two independent balanced 4×4 boards, each with no triples and distinct rows and columns. Numbered links across boards require same (=) or opposite (≠) symbols. | Carry deductions between boards; neither board is uniquely solvable alone. |
 
+Mirror Ledger’s provisional tiers describe its hint path. **Local clues** covers levels
+1–3 and 6–8, which the hints can complete using line rules and numbered links.
+**Whole-pair deductions** covers levels 4–5, where the hint path uses a bounded proof
+across both boards. The grouping describes the hints players can expect.
+
 Solved levels carry a check mark in the level list, including after reloading or restoring a backup. The complete rules and textual clues remain visible beside each board. These combinations are experiments, not claims of a newly invented puzzle tradition. See [the research note](research/2026-11-09-eclipse-lab.md) for sources and the alternatives considered.
 
 ## Controls

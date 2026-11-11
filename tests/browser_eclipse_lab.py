@@ -38,6 +38,22 @@ def run():
           assert page.evaluate("document.activeElement.shadowRoot?.activeElement?.matches('main')"), 'lobby skip link reaches its content'
           assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), f'overflow {width}'
           page.screenshot(path=str(out / f'lobby-{width}.png'), full_page=True)
+          mirror_card = page.locator('.card').filter(has=page.get_by_role('heading', name='Mirror Ledger', exact=True))
+          assert mirror_card.get_by_text('Provisional tiers based on the Lab’s hint path.', exact=True).is_visible()
+          local = mirror_card.get_by_role('group', name='Local clues', exact=True)
+          whole_pair = mirror_card.get_by_role('group', name='Whole-pair deductions', exact=True)
+          assert local.is_visible() and whole_pair.is_visible()
+          assert local.get_by_role('link').evaluate_all('(links) => links.map(link => link.hash)') == [
+              f'#/quiet/eclipse/mirror-{i:02d}' for i in (1, 2, 3, 6, 7, 8)
+          ]
+          assert whole_pair.get_by_role('link').evaluate_all('(links) => links.map(link => link.hash)') == [
+              '#/quiet/eclipse/mirror-04', '#/quiet/eclipse/mirror-05'
+          ]
+          whole_pair.get_by_role('link', name='Mirror 4, two boards, 4 by 4', exact=True).focus()
+          page.keyboard.press('Enter')
+          page.get_by_role('heading', name='Mirror 4', exact=True).wait_for()
+          page.evaluate("location.hash = '#/quiet/eclipse'")
+          mirror_card.get_by_role('group', name='Whole-pair deductions', exact=True).wait_for()
           for mode in ('constellation', 'eclipse', 'harbour', 'switchback', 'mirror'):
             p = next(p for p in PUZZLES if p['mode'] == mode and p['level'] == 1)
             page.evaluate("id => location.hash = '#/quiet/eclipse/' + id", p['id'])

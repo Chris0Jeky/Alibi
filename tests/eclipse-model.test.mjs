@@ -8,7 +8,7 @@ import {
   applyMark,
   component,
 } from '../src/eclipse-lab/model.mjs';
-import { PUZZLES } from '../src/eclipse-lab/puzzles.mjs';
+import { MIRROR_TIERS, PUZZLES } from '../src/eclipse-lab/puzzles.mjs';
 import { PUZZLES as MIRROR } from '../prototypes/mirror-ledger/puzzles.mjs';
 
 // Independent exhaustive oracle, separate from the Lab's line-pattern solver.
@@ -75,6 +75,35 @@ test('Mirror fixtures preserve the prototype, uniquely need both boards and ever
       assert.equal(solve({ ...p, links }).solutions.length, 2, `${p.id} link ${j + 1}`);
     }
   }
+});
+
+test('provisional Mirror tiers cover every level and match its hint path', () => {
+  const local = [],
+    wholePair = [];
+  for (const p of PUZZLES.filter((p) => p.mode === 'mirror')) {
+    const playable = { ...p };
+    Object.defineProperty(playable, 'solution', {
+      get() {
+        throw Error('answer read');
+      },
+    });
+    let cells = [...p.givens],
+      usedWholePair = false;
+    for (let i = 0; i < cells.length; i++) {
+      const step = hint(playable, cells);
+      if (!step) break;
+      usedWholePair ||= step.reason.startsWith('Every completion');
+      const move = applyMark(playable, cells, { ...step, linked: false });
+      assert.ok(move.ok, p.id);
+      cells = move.cells;
+    }
+    assert.equal(check(playable, cells).complete, true, p.id);
+    (usedWholePair ? wholePair : local).push(p.id);
+  }
+  assert.deepEqual(MIRROR_TIERS, [
+    { label: 'Local clues', levels: local },
+    { label: 'Whole-pair deductions', levels: wholePair },
+  ]);
 });
 
 test('Mirror validates board boundaries and shares safe marks, checks and answer-free hints', () => {
