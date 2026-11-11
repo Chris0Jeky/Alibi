@@ -7,6 +7,8 @@ import { initial, clone, complete } from '../src/castle/engine.mjs';
 import { backup, validateBackup, mergeStates } from '../src/castle/backup.mjs';
 import * as castleValidation from '../src/castle/backup.mjs';
 import { freshCase } from '../src/castle/case-state.mjs';
+import pins from '../content/escape-room-pins.json' with { type: 'json' };
+import escapeRoom from '../content/escape-rooms/tidekeeper-workshop.json' with { type: 'json' };
 
 function validateImport(message) {
   return Promise.resolve().then(() => {
@@ -66,6 +68,64 @@ test('case restore uses the bounded worker and existing atomic recovery record',
   await store.restore(d.records.get('pre-restore-chapter-one'), { replace: true });
   assert.deepEqual(store.state.caseStudy, n.caseStudy);
 });
+
+test('a failed Escape write keeps the committed notebook and the unsaved room trail separately', async () => {
+  const d = disk(),
+    store = new CastleStore(null);
+  d.attach(store);
+  const next = note('Previously committed Chapter I notes.');
+  next.revision = 1;
+  await store.save(next);
+  const committed = clone(d.records.get('chapter-one'));
+  const first = escapeRoom.variables.map((v) => v.values.indexOf(v.initial)).join('');
+  const last = escapeRoom.variables
+    .map((v) => v.values.indexOf(escapeRoom.actions[0].set[v.id] ?? v.initial))
+    .join('');
+  const unsaved = clone(next);
+  unsaved.revision++;
+  unsaved.escapeRooms = {
+    [escapeRoom.id]: {
+      revision: escapeRoom.revision,
+      sha: pins[escapeRoom.id],
+      trail: [first, last],
+      drafts: {},
+      hints: {},
+    },
+  };
+  d.failNextPut();
+  assert.equal(await store.save(unsaved), false);
+  assert.deepEqual(d.records.get('chapter-one'), committed);
+  assert.deepEqual(JSON.parse(store.export()).state.escapeRooms, unsaved.escapeRooms);
+  await assert.rejects(store.flush(), /Disk full/);
+});
+
+test('a same-revision record with an unknown structured-clone field survives CAS', async () => {
+  const d = disk(),
+    store = new CastleStore(null);
+  d.attach(store);
+  const next = note('Previously committed notes.');
+  next.revision = 1;
+  await store.save(next);
+  const raw = d.records.get('chapter-one');
+  raw.state.future = undefined;
+  const edit = note('A stale edit.');
+  edit.revision = 2;
+  assert.equal(await store.save(edit), false);
+  assert.equal(Object.hasOwn(d.records.get('chapter-one').state, 'future'), true);
+  assert.equal(JSON.parse(store.export()).state.notes, 'A stale edit.');
+});
+
+test('a stored null is a damaged record, never an empty slot for a stale writer', async () => {
+  const d = disk(),
+    store = new CastleStore(null);
+  d.attach(store);
+  d.records.set('chapter-one', null);
+  const next = note('Unsaved edit.');
+  next.revision = 1;
+  assert.equal(await store.save(next), false);
+  assert.equal(d.records.get('chapter-one'), null);
+  assert.equal(store.mode, 'protected');
+});
 function disk() {
   const records = new Map();
   let tail = Promise.resolve(),
@@ -88,8 +148,7 @@ function disk() {
                   get(key) {
                     const request = {};
                     queueMicrotask(() => {
-                      request.result = clone(records.get(key) ?? null) ?? undefined;
-                      if (request.result === null) request.result = undefined;
+                      request.result = structuredClone(records.get(key));
                       request.onsuccess();
                       if (failure) {
                         reject(failure);
@@ -312,8 +371,35 @@ test('stale and unknown current records cannot be overwritten by restore', async
   assert.equal(d.records.get('chapter-one').state.notes, 'First writer.');
   const future = { schema: 7, revision: 2, state: { unknown: true } };
   d.records.set('chapter-one', future);
-  await assert.rejects(first.restore(backup(note('Do not replace.')), { replace: true }), /newer/);
+  await assert.rejects(
+    first.restore(backup(note('Do not replace.')), { replace: true }),
+    /Another tab/,
+  );
   assert.deepEqual(d.records.get('chapter-one'), future);
+});
+
+test('restore refuses a different record at the reviewed revision and keeps recovery', async () => {
+  const d = disk(),
+    store = new CastleStore(null);
+  d.attach(store);
+  await store.restore(backup(note('Reviewed notebook.')), { replace: true });
+  const previousRecovery = structuredClone(d.records.get('pre-restore-chapter-one'));
+  const replacement = structuredClone(d.records.get('chapter-one'));
+  replacement.state.escapeRooms = {
+    [escapeRoom.id]: {
+      revision: escapeRoom.revision,
+      sha: pins[escapeRoom.id],
+      trail: ['000000', '100000'],
+      drafts: {},
+      hints: {},
+    },
+  };
+  d.records.set('chapter-one', replacement);
+  assert.equal(replacement.revision, store.diskRevision);
+  await assert.rejects(store.restore(backup(initial()), { replace: true }), /Another tab/);
+  assert.deepEqual(d.records.get('chapter-one'), replacement);
+  assert.deepEqual(d.records.get('pre-restore-chapter-one'), previousRecovery);
+  assert.equal(store.state.notes, 'Reviewed notebook.');
 });
 
 test('session acknowledgement is explicit, tied to exact exported content and never enables restore', async () => {

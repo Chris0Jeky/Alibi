@@ -50,6 +50,21 @@ test('A wrong answer or an unoffered item use leaves the room exactly as it was'
   assert.equal(JSON.stringify(host.view()), before);
 });
 
+test('A fresh host resumes the exact room state and undo history', () => {
+  const host = createEscapeHost([tide, loft]);
+  const token = host.enter(tide.id);
+  assert.equal(host.act(token, open, '9472').ok, true);
+  assert.equal(host.act(token, 'tidekeeper-workshop@1/locker/take-handle').ok, true);
+  const trail = host.snapshot(token);
+  const restored = createEscapeHost([tide, loft]);
+  const current = restored.enter(tide.id, trail);
+  assert.deepEqual(restored.view(), host.view());
+  assert.equal(restored.undo(current), true);
+  assert.deepEqual(restored.view().inventory, []);
+  host.enter(loft.id);
+  assert.equal(host.snapshot(token), null, 'a disposed visit cannot snapshot another room');
+});
+
 test('Each offered action carries only its own authored hint ladder', () => {
   for (const d of Object.values(rooms)) {
     const host = createEscapeHost([d]);
@@ -71,12 +86,12 @@ test('Each offered action carries only its own authored hint ladder', () => {
   }
 });
 
-test('The escape player stays session-only and out of every store', () => {
+test('The escape player uses the Castle host save and no separate store', () => {
   const player = fs.readFileSync(
     new URL('../src/castle/escape-player.mjs', import.meta.url),
     'utf8',
   );
-  for (const forbidden of [/indexedDB/, /localStorage/, /sessionStorage/, /\bsave\(/, /mutate/])
+  for (const forbidden of [/indexedDB/, /localStorage/, /sessionStorage/])
     assert.doesNotMatch(player, forbidden);
-  assert.match(player, /Escape progress is not saved yet/);
+  assert.match(player, /\bsave\(next\)/);
 });

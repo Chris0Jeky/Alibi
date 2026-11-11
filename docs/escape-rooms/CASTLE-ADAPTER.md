@@ -59,8 +59,8 @@ and is neither precached nor imported by the Castle script, which stays within i
 session-only module state; nothing is written to the CastleStore. The inspector's notebook control
 was removed for that reason. Evidence: `docs/state/2026-11-09-escape-rooms-playable.md`.
 
-## Remaining for #467
+## Durable progress candidate (11 November 2026)
 
-Durable escape progress and its recovery acceptance using the existing CastleStore authority
-(revision-pinned, compare-and-swap and import safeguards), and offline delivery of the room module
-under #433.
+The [durable progress handoff](../state/2026-11-11-issue-467-escape-durable-progress.md) records
+the CastleStore save contract, worker validation, optional offline cache and local evidence. The
+on-demand room route and existing notebook remain the lifecycle and persistence authorities.

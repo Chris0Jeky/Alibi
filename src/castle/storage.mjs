@@ -4,6 +4,16 @@ import { backup, validateRecord as envelope } from './backup.mjs';
 export const DATABASE = 'alibi-castle-v1';
 const KEY = 'chapter-one';
 const RECOVERY = 'pre-restore-chapter-one';
+const sameRecord = (a, b) =>
+  a === b ||
+  (a &&
+    b &&
+    typeof a === 'object' &&
+    typeof b === 'object' &&
+    Object.getPrototypeOf(a) === Object.getPrototypeOf(b) &&
+    a.length === b.length &&
+    Object.keys(a).length === Object.keys(b).length &&
+    Object.keys(b).every((key) => Object.hasOwn(a, key) && sameRecord(a[key], b[key])));
 
 /** One retained instance per page. Every write compares the committed revision in its transaction. */
 export class CastleStore {
@@ -15,7 +25,6 @@ export class CastleStore {
     this.error = '';
     this.dirty = false;
     this.diskRevision = 0;
-    this.raw = null;
     this.pending = Promise.resolve();
     this.listeners = new Set();
   }
@@ -81,10 +90,13 @@ export class CastleStore {
       };
       this.raw = await this.transaction('readonly', (records, setResult) => {
         const request = records.get(KEY);
-        request.onsuccess = () => setResult(request.result ?? null);
+        request.onsuccess = () => setResult(request.result);
       });
-      if (this.raw !== null) {
+      if (this.raw !== undefined) {
         const saved = envelope(this.raw);
+        if (saved.state.escapeRooms)
+          await globalThis.AlibiValidateImport({ type: 'castle-record', record: this.raw });
+        if (this.mode === 'protected') return;
         this.state = saved.state;
         this.diskRevision = saved.revision;
       }
@@ -155,8 +167,7 @@ export class CastleStore {
           const read = records.get(KEY);
           read.onsuccess = () => {
             try {
-              const current = read.result === undefined ? 0 : envelope(read.result).revision;
-              if (current !== expected)
+              if (!sameRecord(read.result, this.raw))
                 throw Error(
                   'Another tab changed this castle save. Export this session before reloading.',
                 );
@@ -195,7 +206,7 @@ export class CastleStore {
   export() {
     this.lastExport = this.exportIdentity();
     return JSON.stringify(
-      backup(this.state, this.mode, this.mode === 'protected' ? this.raw : null),
+      backup(this.state, this.mode, this.mode === 'protected' ? this.raw : undefined),
       null,
       2,
     );
@@ -237,7 +248,8 @@ export class CastleStore {
         const request = records.get(KEY);
         request.onsuccess = () => result(request.result);
       });
-      const originalText = JSON.stringify(original);
+      const changed = 'Another tab changed this castle save. Reload and review the file again.';
+      if (!sameRecord(original, this.raw)) throw Error(changed);
       const next = await globalThis.AlibiValidateImport({
         type: 'castle-restore',
         text,
@@ -252,11 +264,9 @@ export class CastleStore {
         const request = records.get(KEY);
         request.onsuccess = () => {
           try {
-            const revision = request.result === undefined ? 0 : request.result.revision;
-            if (JSON.stringify(request.result) !== originalText || revision !== expected)
-              throw Error(
-                'Another tab changed this castle save. Reload and review the file again.',
-              );
+            const revision = request.result?.revision ?? 0;
+            if (!sameRecord(request.result, original) || revision !== expected)
+              throw Error(changed);
             if (this.state.revision !== expectedRevision)
               throw Error('The notebook changed during restore. No records were replaced.');
             records.put(previous, RECOVERY);

@@ -3,6 +3,10 @@ import rooms from './rooms.mjs';
 import puzzles from './puzzles.mjs';
 import { validateTheories, validateLabels } from './investigation.mjs';
 import { validateCaseStudy } from './case-state.mjs';
+const visitIds =
+  typeof CASTLE_VALIDATION !== 'undefined' && CASTLE_VALIDATION
+    ? CASTLE_VISIT_IDS
+    : /* @__PURE__ */ rooms.map((r) => r.id);
 const ids = [
   'gate',
   'shelves',
@@ -353,6 +357,7 @@ function validate(s) {
     'theories',
     'labels',
     'caseStudy',
+    'escapeRooms',
   ]);
   shape(s.completed, ids);
   shape(s.drafts, ids);
@@ -372,9 +377,9 @@ function validate(s) {
     throw Error('Invalid notebook.');
   if (
     !Array.isArray(s.visited) ||
-    s.visited.length > rooms.length ||
+    s.visited.length > visitIds.length ||
     new Set(s.visited).size !== s.visited.length ||
-    !s.visited.every((id) => rooms.some((r) => r.id === id))
+    !s.visited.every((id) => visitIds.includes(id))
   )
     throw Error('Invalid visits.');
   if (
@@ -406,6 +411,10 @@ function validate(s) {
     throw Error('Invalid reveal history.');
   const clean = initial();
   if (Object.hasOwn(s, 'caseStudy')) clean.caseStudy = clone(validateCaseStudy(s.caseStudy));
+  if (Object.hasOwn(s, 'escapeRooms')) {
+    if (!plain(s.escapeRooms)) throw Error('Invalid notebook.');
+    clean.escapeRooms = clone(s.escapeRooms);
+  }
   clean.revealed = [...(s.revealed ?? [])];
   clean.revision = s.revision;
   clean.completed = clone(s.completed);

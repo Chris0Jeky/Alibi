@@ -1,6 +1,5 @@
 // Adapter from a validated postern-escape-1 room to the Castle inspector's object shape (#467).
-// Memory-only: progress lasts until reload. The Castle entry never imports this; the separately
-// built escape player (escape-player.mjs) loads it on demand behind the experimental route.
+// The separately built escape player loads this on demand behind the experimental route.
 import Session from '../../tools/escape-session.cjs';
 import { escape, button } from './html.mjs';
 
@@ -65,7 +64,15 @@ export function createEscapeAdapter(source) {
     const code = offered ? session.attempt(parts[2], input).code : 'stale';
     return { ok: code === 'applied', code, message: MESSAGES[code] };
   }
-  return { room, view, act, undo: session.undo, restart: session.restart };
+  return {
+    room,
+    view,
+    act,
+    undo: session.undo,
+    restart: session.restart,
+    snapshot: session.snapshot,
+    restore: session.restore,
+  };
 }
 
 // Rooms keep their own sessions across navigation. Each enter() issues a new token; a control
@@ -78,8 +85,10 @@ export function createEscapeHost(sources) {
   const fresh = (issued) =>
     !!current && (issued === token || (typeof issued === 'string' && issued === String(token)));
   return {
-    enter(id) {
+    enter(id, trail) {
       current = rooms.get(id) || null;
+      if (trail === null) current?.restart();
+      else if (trail !== undefined) current?.restore(trail);
       return ++token;
     },
     view(storyOn) {
@@ -92,6 +101,7 @@ export function createEscapeHost(sources) {
     },
     // Undo and restart obey the same route token, so an old visit's control cannot rewind B.
     undo: (issued) => fresh(issued) && current.undo(),
+    snapshot: (issued) => (fresh(issued) ? current.snapshot() : null),
     restart(issued) {
       if (!fresh(issued)) return false;
       current.restart();
@@ -128,7 +138,7 @@ export function roomMarkup(view) {
 }
 
 // Inspector path: the same object's text, current observations and the same action handles.
-// No notebook control: escape progress is session-only and must not write into the Castle save.
+// Escape actions use their own save record, so the inspector exposes no notebook action.
 export function inspectorMarkup(view, id) {
   const o = view.objects.find((entry) => entry.id === id);
   if (!o) return '';

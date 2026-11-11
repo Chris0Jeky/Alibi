@@ -493,7 +493,7 @@ def run():
                 old = json.loads(json.dumps(exported))
                 del old['state']['caseStudy']
                 import_data(page, old)
-                expect(page.locator('#castle-dialog')).to_contain_text('replacement removes current case progress')
+                expect(page.locator('#castle-dialog')).to_contain_text('replacement clears case progress')
                 page.locator('[data-do="restore-replace"]').click()
                 page.locator('[data-do="restore-confirm"]').click()
                 expect(page.locator('#castle-dialog')).not_to_be_visible()

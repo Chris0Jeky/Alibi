@@ -53,8 +53,13 @@ test('retains at most 64 undo states during reversible exploration', () => {
   const room = api.createRoomSession(d);
   for (let i = 0; i < 80; i++) room.attempt(i % 2 ? 'recover' : 'drop', null);
   assert.equal(room.undoDepth(), 64);
-  for (let i = 0; i < 64; i++) assert.equal(room.undo(), true);
-  assert.equal(room.undo(), false);
+  const trail = room.snapshot();
+  assert.equal(trail.length, 65);
+  const restored = api.createRoomSession(d);
+  restored.restore(trail);
+  assert.deepEqual(restored.state(), room.state());
+  for (let i = 0; i < 64; i++) assert.equal(restored.undo(), true);
+  assert.equal(restored.undo(), false);
 });
 test('rejects malformed definitions and isolates later edits to source', () => {
   assert.throws(() => api.createRoomSession({}), /room/);
