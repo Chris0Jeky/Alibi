@@ -24,6 +24,47 @@ def run():
             except OSError: time.sleep(.05)
         else: raise RuntimeError('server did not start')
     out = ROOT / 'test-results' / 'eclipse-lab'; out.mkdir(parents=True, exist_ok=True)
+    def worker_preview(page, backup):
+        with page.expect_event('worker') as launched:
+            page.locator('[data-file]').set_input_files({
+                'name': 'backup.json',
+                'mimeType': 'application/json',
+                'buffer': json.dumps(backup).encode(),
+            })
+        assert launched.value.url.startswith('blob:')
+        page.get_by_role('button', name='Confirm restore', exact=True).wait_for()
+
+    def cancel_worker_preview(page, backup):
+        worker_preview(page, backup)
+        page.get_by_role('button', name='Cancel', exact=True).click()
+        assert page.get_by_role('button', name='Confirm restore', exact=True).count() == 0
+
+    def confirm_worker_restore(page, backup):
+        worker_preview(page, backup)
+        with page.expect_event('worker') as preparation:
+            page.get_by_role('button', name='Confirm restore', exact=True).click()
+        assert preparation.value.url.startswith('blob:')
+        page.get_by_text('Restoring backup…', exact=True).wait_for(state='hidden')
+        assert page.get_by_role('button', name='Confirm restore', exact=True).count() == 0
+
+    def restore_delivery(page, backup):
+        def download(name):
+            with page.expect_download() as receipt:
+                page.get_by_role('button', name=name, exact=True).click()
+            return json.loads(pathlib.Path(receipt.value.path()).read_text(encoding='utf-8'))
+
+        before = download('Export lab backup')['save']
+        imported = json.loads(json.dumps(backup))
+        next(iter(imported['save']['runs'].values()))['feedback'] = 'Imported in this delivery test'
+        confirm_worker_restore(page, imported)
+        page.reload()
+        actual = download('Export lab backup')['save']
+        assert actual == {**imported['save'], 'revision': before['revision'] + 1}
+        recovery = download('Download recovery copy')
+        assert recovery['save'] == before
+        confirm_worker_restore(page, recovery)
+        assert download('Export lab backup')['save'] == {**before, 'revision': actual['revision'] + 1}
+
     try:
       with sync_playwright() as pw:
         browser = pw.chromium.launch(executable_path=CHROMIUM, headless=True, args=['--no-sandbox'])
@@ -128,12 +169,65 @@ def run():
           page.locator('[data-file]').set_input_files({'name':'bad.json','mimeType':'application/json','buffer':b'{bad'})
           assert page.locator('[data-feedback]').input_value()=='A lovely small challenge.'
           page.locator('[data-feedback]').fill('Changed later')
+          if width == 390:
+              page.locator('[name="rating"][value="2"]').check()
+              page.locator('[data-difficulty]').select_option('gentle')
           page.get_by_role('button',name='Save feedback',exact=True).click()
           page.get_by_text('Feedback saved locally.',exact=True).wait_for()
           page.locator('[data-file]').set_input_files({'name':'backup.json','mimeType':'application/json','buffer':json.dumps(backup).encode()})
-          page.get_by_role('button',name='Confirm restore').click()
+          restore = page.get_by_role('button', name='Confirm restore', exact=True)
+          if width == 390:
+              holder = context.new_page()
+              holder.goto(url + '404.html', wait_until='domcontentloaded')
+              holder.evaluate("""() => {
+                  window.eclipseLock = navigator.locks.request('alibi.eclipse.v1', () =>
+                    new Promise(resolve => { window.releaseEclipseLock = resolve; }));
+              }""")
+              holder.wait_for_function("() => typeof window.releaseEclipseLock === 'function'")
+              queued = """async () => (await navigator.locks.query()).pending.some(
+                lock => lock.name === 'alibi.eclipse.v1')"""
+              try:
+                  page.evaluate("""() => {
+                      const send = Worker.prototype.postMessage;
+                      Worker.prototype.postMessage = function (message, ...args) {
+                        if (message?.type !== 'prepare-restore') return send.call(this, message, ...args);
+                        Worker.prototype.postMessage = send;
+                        window.releaseRestorePreparation = () => send.call(this, message, ...args);
+                      };
+                  }""")
+                  with page.expect_event('worker') as preparation:
+                      restore.click()
+                  assert preparation.value.url.startswith('blob:')
+                  page.wait_for_function("() => typeof window.releaseRestorePreparation === 'function'")
+                  progress = page.get_by_text('Restoring backup…', exact=True)
+                  progress.wait_for()
+                  assert page.get_by_role('button', name='Cancel', exact=True).count() == 0
+                  assert page.get_by_role('button', name='Confirm restore', exact=True).count() == 0
+                  page.evaluate("window.releaseRestorePreparation()")
+                  page.wait_for_function(queued, timeout=8000)
+                  assert progress.is_visible()
+                  assert page.get_by_role('button', name='Cancel', exact=True).count() == 0
+                  page.locator('[data-feedback]').fill('Only the note changed during restore')
+                  assert page.evaluate(queued), 'note must be entered while the restore is waiting'
+              finally:
+                  holder.evaluate("async () => { window.releaseEclipseLock(); await window.eclipseLock; }")
+                  holder.close()
+          else:
+              restore.click()
           page.get_by_text('Lab backup restored. A recovery copy was kept.',exact=True).wait_for()
-          assert page.locator('[data-feedback]').input_value()=='A lovely small challenge.'
+          if width == 390:
+              assert page.locator('[data-feedback]').input_value() == 'Only the note changed during restore'
+              assert page.locator('[name="rating"][value="4"]').is_checked()
+              assert page.locator('[data-difficulty]').input_value() == 'just-right'
+              page.get_by_role('button', name='Save feedback', exact=True).click()
+              page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+              page.reload()
+              page.get_by_role('heading', name='Mirror 1', exact=True).wait_for(timeout=30000)
+              assert page.locator('[data-feedback]').input_value() == 'Only the note changed during restore'
+              assert page.locator('[name="rating"][value="4"]').is_checked()
+              assert page.locator('[data-difficulty]').input_value() == 'just-right'
+          else:
+              assert page.locator('[data-feedback]').input_value()=='A lovely small challenge.'
           with page.expect_download() as recovery: page.get_by_role('button',name='Download recovery copy').click()
           recovered=json.loads(pathlib.Path(recovery.value.path()).read_text())
           assert any(r['feedback']=='Changed later' for r in recovered['save']['runs'].values())
@@ -157,6 +251,10 @@ def run():
           page.get_by_role('heading', name='Mirror 1', exact=True).wait_for()
           page.get_by_role('button', name='Check', exact=True).click()
           assert 'Solved!' in page.locator('.message').inner_text()
+          if width == 390:
+              restore_delivery(page, backup)
+          else:
+              cancel_worker_preview(page, backup)
           context.set_offline(False)
           assert not errors, errors
           context.close()
@@ -181,6 +279,14 @@ def run():
         with page.expect_download(): page.get_by_role('button',name='Export lab backup',exact=True).click()
         assert page.evaluate("async () => { try { await AlibiEclipse.flush(); return true } catch { return false } }")
         session.close()
+        standalone = browser.new_context(accept_downloads=True)
+        page = standalone.new_page()
+        page.goto((ROOT / 'alibi-deluxe-play.html').as_uri() + '#/quiet/eclipse/' + 'mirror-01')
+        page.locator('[data-feedback]').fill('Standalone prior shelf')
+        page.get_by_role('button', name='Save feedback', exact=True).click()
+        page.get_by_text('Feedback saved locally.', exact=True).wait_for()
+        restore_delivery(page, backup)
+        standalone.close()
         browser.close()
       print('Eclipse browser journeys passed at 320, 390 and 1280 pixels')
     finally:
