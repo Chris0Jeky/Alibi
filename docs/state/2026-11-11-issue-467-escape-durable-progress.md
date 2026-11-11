@@ -61,12 +61,12 @@ checks. Chromium passed 17 Escape checks at 320×740 and 844×390 and nine Castl
 at 390×900. Local receipts are under `test-results/castle-escape/` and
 `test-results/castle-recovery/`.
 
-| Web measure | Bytes | Ceiling |
-| --- | ---: | ---: |
-| Castle script | 100,966 | 101,120 |
-| Escape module | 88,930 | 90,112 |
+| Web measure                                |     Bytes |      Ceiling |
+| ------------------------------------------ | --------: | -----------: |
+| Castle script                              |   100,966 |      101,120 |
+| Escape module                              |    88,930 |       90,112 |
 | Precached shell excluding official content | 1,443,561 | 1,444,280.32 |
-| Startup JavaScript gzip | 135,652 | 135,680 |
+| Startup JavaScript gzip                    |   135,652 |      135,680 |
 
 ## Review fixes
 
@@ -91,3 +91,12 @@ precede these fixes. The combined build and browser checks remain to run on the 
 Exact integrated-head CI and Android artifact qualification remain open. Physical devices,
 assistive technology and human clue/difficulty acceptance remain separate. See
 [HUMAN_TODO.md](../../HUMAN_TODO.md).
+
+## Combined pre-merge proof
+
+After integrating the reviewed hint branch and refreshing its three source pins, clean source
+`780a33f5ccf2ba0a7a33e1b32057ca667e9b0603` passed web and Android builds, 63 focused and
+budget tests, and real-origin Castle Escape and recovery browser suites. Castle script measured
+100,992 / 101,120 raw bytes, Escape module 89,114 / 90,112 raw bytes, and startup JavaScript
+135,641 / 135,680 gzip bytes. The hint PR must merge before this change; recheck the exact final
+head, CI and relevant browser paths after any integration changes.
