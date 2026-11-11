@@ -307,21 +307,33 @@ def run():
                     case_click(page, 'receipt-start')
                     expect(page.locator('[data-case-action="receipt-review"]')).to_be_visible()
                 page.locator('#case-verdict-0').focus()
-                page.locator('#case-verdict-0').select_option('contradicted')
+                page.locator('#case-verdict-0').select_option('supported')
                 expect(page.locator('#case-verdict-0')).to_be_enabled()
                 expect(page.locator('#case-verdict-0')).to_be_focused()
-                # Keep the rejection in the reasoning bucket: all fields are complete, but claim 0 is wrong.
-                for index, verdict in enumerate(['contradicted', 'not-established', 'contradicted']):
+                # Every verdict is correct, but claim 0 lacks one required source.
+                for index, verdict in enumerate(['supported', 'not-established', 'contradicted']):
                     if index:
                         page.locator(f'[data-case-verdict="{index}"]').select_option(verdict)
                         expect(page.locator('#case-verdict-0')).to_be_enabled()
-                    for source_id in ['checks', 'model']:
+                    for source_id in (['checks'] if index == 0 else ['checks', 'model']):
                         page.locator(f'[data-case-cite="{index}"][value="{source_id}"]').check()
                         expect(page.locator('#case-verdict-0')).to_be_enabled()
                 wrong = read(page)['state']['caseStudy']
                 case_click(page, 'check')
                 expect(page.locator('[data-case-status]')).to_contain_text('draft is kept')
                 assert read(page)['state']['caseStudy'] == wrong
+                groups = page.get_by_role('group', name='Sources')
+                assert groups.count() == 3
+                for group in groups.all():
+                    status_id = group.get_attribute('aria-describedby')
+                    assert status_id and 'draft is kept' in page.locator(f'#{status_id}').inner_text()
+                cite = page.locator('[data-case-cite="0"][value="model"]')
+                cite.check()
+                expect(page.locator('[data-case-status]')).to_have_text('Draft saved.')
+                assert groups.first.get_attribute('aria-describedby') is None
+                cite.uncheck()
+                expect(page.locator('[data-case-status]')).to_have_text('Draft saved.')
+                assert set(read(page)['state']['caseStudy']['drafts'][0][0][1]) == set(wrong['drafts'][0][0][1])
                 case_click(page, 'hint')
                 case_click(page, 'reveal')
                 case_click(page, 'stage', SOURCE['steps'][0]['id'])
@@ -372,7 +384,7 @@ def run():
                     assert read(page)['state']['caseStudy'] == retained
                     page.get_by_role('button', name='Close window', exact=True).click()
                     expect(page.get_by_role('button', name='Preferences', exact=True)).to_be_focused()
-                    expect(page.locator('#case-verdict-0')).to_have_value('contradicted')
+                    expect(page.locator('#case-verdict-0')).to_have_value('supported')
                     expect(page.locator('[data-case-cite="0"][value="checks"]')).to_be_checked()
                     expect(page.locator('#case-stage')).to_have_text(SOURCE['steps'][0]['title'])
                     page.reload()
