@@ -1,6 +1,6 @@
 # Timeline Desk lab (issue #448 spike)
 
-Base: `main` at `a21dc725`. Branch `claude/timeline-desk-lab`. Not pushed, not a pull request, not a production release.
+Original base: `main` at `a21dc725`. The work is under PR #929; it is experimental and is not a production release.
 
 Question (#448): can an interval-style interface give satisfying deduction without forcing an unjustified exact timestamp? This slice answers it as a standalone, experimental, original game. It is not registered in the official catalogue and does not touch Wrenmere Chapter IV (#77), Eclipse Lab or the castle.
 
@@ -10,7 +10,7 @@ Question (#448): can an interval-style interface give satisfying deduction witho
 - **Twelve levels** `timeline-01..12`, revision 1, in `src/timeline-lab/puzzles.mjs`. Levels 1 to 3 teach ordering, distances and the witness clock; 4 adds ranges and not-at; later levels mix them and alternate shared-hour rules. Early levels fall to direct elimination; levels 7 to 12 need a what-if (`propagate` in the authoring script; a proxy, not a human rating).
 - **Solver and hint.** Depth-first enumeration of at most 8^6 assignments serves tests, hints and the win check. A hint never reads `solution`. It prefers a cell one clue (or the shared-hour rule) explains and names the clue, falls back to full enumeration of the schedules consistent with the marks, and reports a contradiction, outlining the marks whose individual removal restores a schedule. Because every level has a unique schedule, enumeration alone would reveal the answer at once; the single-clue preference is what keeps hints incremental.
 - **Lazy pack.** `src/timeline-lab/{entry,model,puzzles,player,storage,feedback}.mjs` plus `style.css`, built by `tools/build-timeline.cjs` into one hashed asset, loaded through `AlibiActivities` at `#/quiet/timeline` (`AlibiTimeline`), cached on first visit, flushed by the shared update guard. Sidebar entry "Timeline Desk, Experimental".
-- **Saves.** Separate localStorage keys `alibi.timeline.v1` and `alibi.timeline.recovery.v1`, per `id@revision` pinned definition, bounded (64 runs, 40 history steps), Web Lock guarded, unknown or future bytes preserved and exported, backup/restore with recovery copy. `alibi-device` and every existing store are unchanged. Optional local rating, difficulty and note with the same explicit GitHub/Voices share path as Eclipse Lab (no marks or history).
+- **Saves.** Timeline uses `alibi.timeline.v1` and retains the legacy `alibi.timeline.recovery.v1` key. A restore commits the active shelf and its pre-restore recovery snapshot in one record. Runs pin definitions by `id@revision`; the store is bounded (64 runs, 40 history steps), Web Lock guarded, and preserves unknown or future bytes for export. `alibi-device` and every existing store are unchanged. Optional local rating, difficulty and note use the same explicit GitHub/Voices share path as Eclipse Lab (no marks or history).
 - **Authoring.** `tools/curation/timeline-candidates.mjs` with `timeline-specs.mjs` derives a minimal clue set per hand-written story and schedule; a test regenerates all twelve and compares.
 
 ## Budgets
@@ -39,3 +39,7 @@ No human playtest or difficulty calibration; no physical phone, screen reader or
 ## 9 November integration
 
 PR #929 was reconciled with main d9300ffc after #927. The only textual conflict was the catalogue's src/app.js metadata; it was regenerated from the combined source. The combined web build reported startup JavaScript 135,589 / 135,680 gzip bytes. Exact-head CI, Android and browser qualification remain required; this build is not a release receipt.
+
+## 11 November restore review
+
+Two independently reproduced data-loss defects were fixed in `896f5a3a`: a pending restore could erase a new feedback draft or allow an old-board edit to overwrite the restored run, and a failed active-save write could replace the prior recovery copy. Restore now fences stale writes and commits the active shelf with its recovery snapshot atomically. On that commit, `npm run verify` passed 2,676 Node tests with 21 skips, and 42 focused Timeline tests passed. Independent UI and storage reviews found no remaining blocker; browser verification of the final head remains required. The stale clue-selection issue is tracked in #941 and main-thread backup validation in #931. Older builds preserve the new active record as unknown rather than opening it; no physical-device or hosted proof is claimed.
