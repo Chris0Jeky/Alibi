@@ -38,10 +38,10 @@ export const PROBLEM = deepFreeze({
   claims: [
     {
       id: 'lantern-before-case',
-      text: 'The lantern went dark before the oil case reached the quay.',
+      text: 'Lantern before oil case',
     },
-    { id: 'case-before-bell', text: 'The oil case reached the quay before the fog bell rang.' },
-    { id: 'gate-before-bell', text: 'The west gate opened before the fog bell rang.' },
+    { id: 'case-before-bell', text: 'Oil case before fog bell' },
+    { id: 'gate-before-bell', text: 'West gate before fog bell' },
   ],
 });
 

@@ -29,9 +29,6 @@
         <button id="story-toggle" type="button" aria-pressed="true">Turn story off</button>
         <button id="undo" type="button" disabled>Undo interval change</button>
         <button id="restart" type="button">Restart</button>
-        <button id="timeline-toggle" type="button" aria-expanded="false" aria-controls="timeline">
-          Show optional timeline
-        </button>
       </nav>
 
       <section class="panel evidence-panel" aria-labelledby="evidence-title">
@@ -81,23 +78,6 @@
         <div id="interval-controls" class="interval-controls"></div>
       </section>
 
-      <section id="timeline" class="panel timeline-panel" aria-labelledby="timeline-title" hidden>
-        <div class="section-heading">
-          <p class="eyebrow">Same events and working windows</p>
-          <h2 id="timeline-title">Optional timeline</h2>
-        </div>
-        <p>
-          Each band marks the same inclusive interval shown in the table. The timeline adds no new
-          rule and is read-only; all changes remain available through the table controls.
-        </p>
-        <div class="timeline-axis" aria-hidden="true"></div>
-        <ol
-          id="timeline-rows"
-          class="timeline-rows"
-          aria-label="Working intervals on a time axis"
-        ></ol>
-      </section>
-
       <section class="panel conclusion-panel" aria-labelledby="conclusion-title">
         <div class="section-heading">
           <p class="eyebrow">Check a conclusion</p>
@@ -108,6 +88,26 @@
         <p id="model-status" class="model-status" role="status" aria-live="polite"></p>
         <div id="classification" class="classification" aria-live="polite"></div>
         <div id="witnesses" class="witnesses"></div>
+        <button id="timeline-toggle" type="button" aria-expanded="false" aria-controls="timeline">
+          Show optional timeline
+        </button>
+      </section>
+
+      <section id="timeline" class="panel timeline-panel" aria-labelledby="timeline-title" hidden>
+        <div class="section-heading">
+          <h2 id="timeline-title">Optional timeline</h2>
+        </div>
+        <p>
+          Compare where the two events in your claim fall. The bands show your working intervals.
+          Circles and diamonds mark the example times from the tables above.
+        </p>
+        <ul class="timeline-key">
+          <li><span class="window" aria-hidden="true"></span>Working interval</li>
+          <li><span class="supporting" aria-hidden="true"></span>Supporting schedule</li>
+          <li><span class="counterexample" aria-hidden="true"></span>Counterexample schedule</li>
+        </ul>
+        <div class="timeline-axis" aria-hidden="true"></div>
+        <ol id="timeline-rows" class="timeline-rows" aria-label="Working intervals"></ol>
       </section>
 
       <footer class="footer-note">
