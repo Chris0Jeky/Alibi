@@ -2,6 +2,7 @@ name: Eclipse Lab controls
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - 'src/eclipse-lab/**'
       - 'src/activities.js'
       - 'src/app.js'
@@ -39,6 +40,7 @@ jobs:
       - name: Check rules, content, saves and optional activity lifecycle
         run: node --test tests/eclipse*.test.cjs tests/eclipse*.test.mjs tests/activities*.test.cjs
       - run: python -m pip install -r requirements-dev.txt
+      - run: bash tools/ci-ubuntu-sources.sh
       - name: Install Chromium with bounded setup
         run: node tools/ci-setup-phase.cjs --phase playwright-chromium --timeout-seconds 480 --grace-seconds 20 -- python -m playwright install --with-deps chromium
       - name: Play experiments and exercise local feedback, recovery and offline routes

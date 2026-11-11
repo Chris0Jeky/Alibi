@@ -2,6 +2,7 @@ name: Games recovery controls
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - 'src/club.js'
       - 'src/club-engines.js'
       - 'src/backup-validation.js'
@@ -40,6 +41,7 @@ jobs:
       - run: node --test tests/duel-*.test.cjs tests/club-fresh-seed.test.cjs tests/block-replay-cache.test.cjs tests/club-run-defaults.test.cjs
       - run: npm run build:web
       - run: python -m pip install -r requirements-dev.txt
+      - run: bash tools/ci-ubuntu-sources.sh
       - run: python -m playwright install --with-deps chromium
       - name: Exercise built-origin games
         run: |

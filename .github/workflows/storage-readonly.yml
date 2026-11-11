@@ -2,6 +2,7 @@ name: Cabinet read-only fallback
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - 'src/storage.js'
       - 'src/core.js'
       - 'src/app.js'
@@ -86,8 +87,7 @@ jobs:
         id: browser-install
         if: ${{ !cancelled() && steps.python-dependencies.outcome == 'success' }}
         run: |
-          test -s /etc/apt/sources.list.d/ubuntu.sources
-          printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+          bash tools/ci-ubuntu-sources.sh
           python -m playwright install --with-deps chromium
       - name: Native policy and actual emitted-app export controls
         if: ${{ !cancelled() && steps.browser-install.outcome == 'success' && steps.build.outcome == 'success' }}
