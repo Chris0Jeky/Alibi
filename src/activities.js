@@ -25,7 +25,14 @@
     } else await script(c.script);
   }
   const activityFor = (kind) =>
-    G[{ quiet: 'AlibiQuietWing', castle: 'AlibiCastle', eclipse: 'AlibiEclipse' }[kind]];
+    G[
+      {
+        quiet: 'AlibiQuietWing',
+        castle: 'AlibiCastle',
+        eclipse: 'AlibiEclipse',
+        timeline: 'AlibiTimeline',
+      }[kind]
+    ];
   async function loadActivity(kind) {
     if (activityFor(kind)) return;
     if (!loads[kind])
@@ -98,7 +105,8 @@
   function enter(host, options = {}) {
     if (options.preferences) preferences = copyPreferences(options.preferences);
     const kind =
-      /^#\/quiet\/(castle|eclipse)(?:\/|$|\?)/.exec(G.location?.hash || '')?.[1] || 'quiet';
+      /^#\/quiet\/(castle|eclipse|timeline)(?:\/|$|\?)/.exec(G.location?.hash || '')?.[1] ||
+      'quiet';
     if (kind === 'castle' && Object.prototype.hasOwnProperty.call(options, 'practice'))
       practice = options.practice || null;
     const token = ++epoch;
@@ -166,6 +174,7 @@
     if (active) await active.flush();
     if (activeKind !== 'castle') await G.AlibiCastle?.flush();
     if (activeKind !== 'eclipse') await G.AlibiEclipse?.flush();
+    if (activeKind !== 'timeline') await G.AlibiTimeline?.flush();
     if (activeKind !== 'quiet' && G.QWRetainedDirty)
       throw Error('Return to Quiet Wing and export its unsaved session before updating.');
     if (G.QWApp && G.QWStore.info().mode === 'session')
