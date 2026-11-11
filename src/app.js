@@ -2725,10 +2725,12 @@
       restoreBusy = false;
     }
   }
-  async function inWorker(message) {
-    const workerText = globalThis.ALIBI_WORKER_SOURCE
-      ? globalThis.ALIBI_WORKER_SOURCE
-      : await globalThis.AlibiValidatorLoader.load(globalThis.ALIBI_WORKER_URL);
+  async function inWorker(
+    message,
+    source = globalThis.ALIBI_WORKER_SOURCE,
+    asset = globalThis.ALIBI_WORKER_URL,
+  ) {
+    const workerText = source || (await globalThis.AlibiValidatorLoader.load(asset));
     return new Promise((resolve, reject) => {
       if (!window.Worker) throw Error('This browser does not support background validation.');
       const blob = new Blob([workerText], { type: 'text/javascript' }),

@@ -5,6 +5,8 @@ on:
       - 'src/timeline-lab/**'
       - 'src/activities.js'
       - 'src/app.js'
+      - 'src/lab-backup-worker.mjs'
+      - 'tests/lab-backup-worker.test.mjs'
       - 'tools/build*.cjs'
       - 'tests/timeline*.test.*'
       - 'tests/browser_timeline_lab.py'
@@ -38,7 +40,7 @@ jobs:
       - run: npm run format:check
       - run: npm run build:android
       - name: Check rules, content, saves and optional activity lifecycle
-        run: node --test tests/timeline*.test.cjs tests/timeline*.test.mjs tests/activities*.test.cjs
+        run: node --test tests/timeline*.test.cjs tests/timeline*.test.mjs tests/activities*.test.cjs tests/lab-backup-worker.test.mjs
       - run: python -m pip install -r requirements-dev.txt
       - name: Configure signed Ubuntu package mirrors
         run: bash tools/ci-ubuntu-sources.sh
