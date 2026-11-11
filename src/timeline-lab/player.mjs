@@ -9,7 +9,6 @@ import {
   schedules,
 } from './model.mjs';
 import { PUZZLES } from './puzzles.mjs';
-import { parseBackup } from './storage.mjs';
 import { feedbackText, canSendFeedback, reviewFeedback } from './feedback.mjs';
 
 // Drafts outlive route changes and mounts; no text is transmitted.
@@ -54,6 +53,8 @@ export function mount({ root, css, preferences, store, offline }) {
     message = '',
     feedbackMessage = '',
     preview = null,
+    reviewGeneration = 0,
+    restoring = false,
     busy = false,
     offlineReady = !!offline;
   let prefs = preferences || {},
@@ -96,7 +97,7 @@ export function mount({ root, css, preferences, store, offline }) {
   const shell = (content) =>
     `<style>${css}</style><main tabindex="-1"><header><a class="back" href="#/quiet">← Quiet Wing</a><span class="eyebrow">A room for trying things <b class="badge">Experimental</b></span><h1>Timeline Desk</h1><p class="intro">Rebuild a night hour by hour from imperfect statements, and see whether an alibi survives.</p></header>${status()}${content}${backupPanel()}</main>`;
   function backupPanel() {
-    return `<section class="backup"><h2>Your desk notebook</h2><p>Export a Timeline Desk backup to keep your progress and saved feedback elsewhere. The regular Cabinet combined backup does not include it.</p><div class="actions"><button data-action="export">Export desk backup</button><label class="filebutton">Review desk backup<input type="file" data-file accept="application/json,.json"></label><button data-action="recovery">Download recovery copy</button></div>${preview ? `<div class="notice"><p>Backup contains ${preview.count} level runs. Restoring replaces the current desk shelf and keeps a recovery copy.</p><button data-action="restore">Confirm restore</button><button data-action="cancel-restore">Cancel</button></div>` : ''}</section>`;
+    return `<section class="backup"><h2>Your desk notebook</h2><p>Export a Timeline Desk backup to keep your progress and saved feedback elsewhere. The regular Cabinet combined backup does not include it.</p><div class="actions"><button data-action="export">Export desk backup</button><label class="filebutton">Review desk backup<input type="file" data-file accept="application/json,.json"></label><button data-action="recovery">Download recovery copy</button></div>${restoring ? '<p class="notice" role="status">Restoring backup…</p>' : preview ? `<div class="notice"><p>Backup contains ${preview.count} level runs. Restoring replaces the current desk shelf and keeps a recovery copy.</p><button data-action="restore">Confirm restore</button><button data-action="cancel-restore">Cancel</button></div>` : ''}</section>`;
   }
   const solved = (puzzle, marks) => check(puzzle, marks).complete;
   const win = () => `Solved. ${p.payoff}`;
@@ -250,6 +251,7 @@ export function mount({ root, css, preferences, store, offline }) {
       message = '';
       feedbackMessage = '';
       preview = null;
+      reviewGeneration++;
     }
     render();
   }
@@ -386,13 +388,17 @@ export function mount({ root, css, preferences, store, offline }) {
         alert(err.message);
       }
     } else if (action === 'cancel-restore') {
+      if (restoring) return;
       preview = null;
+      reviewGeneration++;
       render();
     } else if (action === 'restore' && preview && !busy) {
       busy = true;
       try {
         flushDrafts();
-        pending = store.restore(preview.raw, preview.revision);
+        restoring = true;
+        render();
+        pending = preview.restore();
         await pending;
         preview = null;
         run = p ? store.getRun(p) : null;
@@ -402,6 +408,7 @@ export function mount({ root, css, preferences, store, offline }) {
         message = err.message;
         alert(err.message);
       } finally {
+        restoring = false;
         busy = false;
       }
       render();
@@ -409,17 +416,27 @@ export function mount({ root, css, preferences, store, offline }) {
   }
   async function onChange(e) {
     onInput(e);
-    if (!e.target.matches('[data-file]')) return;
+    if (!e.target.matches('[data-file]') || busy) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const generation = ++reviewGeneration,
+      hash = location.hash,
+      currentReview = () => !disposed && generation === reviewGeneration && hash === location.hash;
+    if (preview) {
+      preview = null;
+      render();
+    }
     try {
-      const file = e.target.files?.[0];
-      if (!file) return;
       if (file.size > 6 * 1024 * 1024) throw Error('Choose a desk backup smaller than 6 MB.');
-      const raw = await file.text(),
-        data = parseBackup(raw);
-      preview = { raw, revision: store.snapshot().revision, count: Object.keys(data.runs).length };
+      const raw = await file.text();
+      if (!currentReview()) return;
+      const reviewed = await store.reviewBackup(raw);
+      if (!currentReview()) return;
+      preview = reviewed;
       message = '';
       render();
     } catch (err) {
+      if (!currentReview()) return;
       preview = null;
       message = err.message;
       alert(err.message);
