@@ -1,14 +1,20 @@
-name: Disposable Playwright dependency probe
+name: Disposable browser shard and dependency probe
 on:
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   probe:
+    name: Disposable probe (${{ matrix.slice }})
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        slice: [serial, '1', '2', '3', '4', timeline]
     env:
       PYTHONUTF8: '1'
+      PROBE_SLICE: ${{ matrix.slice }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -19,37 +25,35 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.13'
-      - name: Record runner and source
+      - name: Verify source and runner
         run: |
-          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           cat /etc/os-release
           fc-match sans-serif
       - run: npm ci
-      - run: npm run build
+      - run: npm run build:android
+      - run: node tools/check-test-build.cjs
       - run: python -m pip install -r requirements-dev.txt
       - name: Install pinned browser without APT
         run: python -m playwright install chromium
-      - name: Launch pinned browser
+      - name: Run unchanged origin commands
+        if: matrix.slice != 'timeline'
         run: |
-          python - <<'PY'
-          from playwright.sync_api import sync_playwright
-          with sync_playwright() as p:
-              browser = p.chromium.launch()
-              page = browser.new_page()
-              page.set_content('<h1>Browser dependency probe</h1>')
-              assert page.locator('h1').inner_text() == 'Browser dependency probe'
-              print('Playwright Chromium launched:', browser.version)
-              browser.close()
-          PY
-      - name: Run unchanged real-origin suite
+          node tools/ci-browser-origin-shadow.cjs "$PROBE_SLICE" > "$RUNNER_TEMP/commands.sh"
+          SECONDS=0
+          trap 'status=$?; printf "slice %s, source %s, elapsed %s seconds, exit %s\n" "$PROBE_SLICE" "$GITHUB_SHA" "$SECONDS" "$status" >> "$GITHUB_STEP_SUMMARY"' EXIT
+          bash -e "$RUNNER_TEMP/commands.sh"
+      - name: Run Timeline and cabinet UI journeys
+        if: matrix.slice == 'timeline'
         run: |
-          npm start > /tmp/alibi-probe-server.log 2>&1 &
-          for i in $(seq 1 30); do curl --fail --silent http://127.0.0.1:8797/ >/dev/null && break; sleep 1; done
-          python tests/browser_origin.py
+          SECONDS=0
+          trap 'status=$?; printf "slice %s, source %s, elapsed %s seconds, exit %s\n" "$PROBE_SLICE" "$GITHUB_SHA" "$SECONDS" "$status" >> "$GITHUB_STEP_SUMMARY"' EXIT
+          python tests/browser_timeline_lab.py
+          python tests/browser_ui.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: disposable-playwright-probe
-          path: test-results/browser-origin/
+          name: disposable-browser-probe-${{ matrix.slice }}
+          path: test-results/
           if-no-files-found: ignore
           retention-days: 3
