@@ -127,6 +127,7 @@ named('release install caches the emitted shell', async () => {
             (n) =>
               n !== 'workshop' &&
               n !== 'cases' &&
+              n !== 'escape' &&
               !n.startsWith('folio-') &&
               !n.startsWith('ambience-') &&
               !n.startsWith('enhanced-') &&
@@ -183,6 +184,7 @@ named('offline release includes core assets', () => {
       (n) =>
         n !== 'workshop' &&
         n !== 'cases' &&
+        n !== 'escape' &&
         !n.startsWith('folio-') &&
         !n.startsWith('ambience-') &&
         !n.startsWith('enhanced-') &&

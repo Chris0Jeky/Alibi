@@ -1,4 +1,6 @@
 /* Wrenmere's original SVG illustrations are optional, same-origin scene assets. */
+import { escape } from './html.mjs';
+
 const ROOM_MEDIA = Object.freeze([
   'cartography',
   'conservatory',
@@ -11,19 +13,6 @@ const ROOM_MEDIA = Object.freeze([
   'west-stair',
   'workshop',
 ]);
-
-const escape = (value) =>
-  String(value ?? '').replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-      })[character],
-  );
 
 function media() {
   const value = globalThis.ALIBI_QUIET_CONFIG?.castle?.media;
