@@ -5,6 +5,10 @@ const path = require('node:path');
 const test = require('node:test');
 const { render } = require('../../tools/ci-browser-origin-shadow.cjs');
 
+const shadow = fs.readFileSync(
+  path.join(__dirname, '../../.github/workflows/browser-origin-shadow.yml'),
+  'utf8',
+);
 const commands = (script) =>
   script.split('\n').filter((line) => /(?:^| )python tests\/browser_/.test(line));
 
@@ -34,14 +38,46 @@ test('unknown slices do not render commands', () => {
 });
 
 test('the manual workflow selects the serial control and all four shards once', () => {
-  const shadow = fs.readFileSync(
-    path.join(__dirname, '../../.github/workflows/browser-origin-shadow.yml'),
-    'utf8',
-  );
   assert.match(shadow, /^on: workflow_dispatch\r?$/m);
   const matrices = [...shadow.matchAll(/^ {8}slice: \[(.+)\]\r?$/gm)];
   assert.deepEqual(
     matrices.map((match) => match[1].split(', ').map((slice) => slice.replaceAll("'", ''))),
     [['serial', '1', '2', '3', '4']],
   );
+});
+
+test('failed slices retain source, build and browser diagnostics without masking the failure', () => {
+  const [run, diagnostics] = shadow.split('      - name: Gather local shadow diagnostics\n');
+  assert.ok(diagnostics, 'the shadow workflow gathers failure evidence');
+  const [gather, evidence] = diagnostics.split('      - name: Upload shadow failure evidence\n');
+  assert.ok(evidence, 'the shadow workflow uploads failure evidence');
+  assert.match(run, /bash -e "\$RUNNER_TEMP\/alibi-origin\.sh"/);
+  assert.match(run, / > "\$RUNNER_TEMP\/alibi-origin-source\.txt"/);
+  assert.doesNotMatch(shadow, /continue-on-error:/);
+  for (const step of [gather, evidence]) {
+    assert.match(step, /^        if: \$\{\{ failure\(\) \}\}$/m);
+  }
+  assert.match(evidence, /uses: actions\/upload-artifact@[0-9a-f]{40} # v4\b/);
+  assert.match(
+    evidence,
+    /name: alibi-origin-failure-\$\{\{ matrix\.slice \}\}-attempt-\$\{\{ github\.run_attempt \}\}/,
+  );
+  for (const entry of [
+    '/alibi-origin-source.txt',
+    '/alibi-origin.sh',
+    '/tmp/alibi-server.log',
+    '/tmp/alibi-assets.log',
+  ]) {
+    assert.ok(gather.includes(entry), 'missing local diagnostic: ' + entry);
+  }
+  for (const entry of [
+    'test-results/shadow-evidence/',
+    'build-info.json',
+    'dist/assets/alibi-platform-identity.*.js',
+    'dist-android/android-build-identity.json',
+    'test-results/browser-origin/browser-origin.json',
+    'test-results/browser-origin/failure.png',
+  ]) {
+    assert.ok(evidence.includes(entry), 'missing failure evidence: ' + entry);
+  }
 });

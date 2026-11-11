@@ -33,7 +33,9 @@ jobs:
           cache-dependency-path: requirements-dev.txt
       - name: Check command parity and record exact source
         run: |
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          tested_sha=$(git rev-parse HEAD)
+          printf 'event=%s\ncheckout=%s\n' "$GITHUB_SHA" "$tested_sha" > "$RUNNER_TEMP/alibi-origin-source.txt"
+          test "$tested_sha" = "$GITHUB_SHA"
           node --test tests/ci-shadow/browser-origin.test.cjs
           node tools/ci-browser-origin-shadow.cjs "$SHADOW_SLICE" > "$RUNNER_TEMP/alibi-origin.sh"
       - run: npm ci
@@ -51,3 +53,30 @@ jobs:
           trap 'status=$?; printf "Browser origin shadow %s\n\nSource SHA %s\n\nElapsed %s seconds, exit %s.\n" "$SHADOW_SLICE" "$tested_sha" "$SECONDS" "$status" >> "$GITHUB_STEP_SUMMARY"' EXIT
           SECONDS=0
           bash -e "$RUNNER_TEMP/alibi-origin.sh"
+      - name: Gather local shadow diagnostics
+        if: ${{ failure() }}
+        run: |
+          mkdir -p test-results/shadow-evidence
+          for file in "$RUNNER_TEMP/alibi-origin-source.txt" "$RUNNER_TEMP/alibi-origin.sh" /tmp/alibi-server.log /tmp/alibi-assets.log; do
+            if [[ -f "$file" ]]; then cp -- "$file" test-results/shadow-evidence/; fi
+          done
+      - name: Upload shadow failure evidence
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: alibi-origin-failure-${{ matrix.slice }}-attempt-${{ github.run_attempt }}
+          path: |
+            test-results/shadow-evidence/
+            build-info.json
+            dist/assets/alibi-platform-identity.*.js
+            dist-android/android-build-identity.json
+            test-results/browser-origin/browser-origin.json
+            test-results/browser-origin/failure.png
+            test-results/browser-backup-import.json
+            test-results/quiet-focus/quiet-focus-timeout-*.json
+            test-results/atmosphere/image-failure.json
+            test-results/**/results.json
+            test-results/**/receipt.json
+            test-results/**/failure-*.json
+          if-no-files-found: warn
+          retention-days: 14
