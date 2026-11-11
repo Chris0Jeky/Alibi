@@ -2,6 +2,7 @@ name: Workshop collection discovery
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - 'content/**'
       - 'src/app.js'
       - 'src/workshop-add.mjs'
@@ -53,6 +54,7 @@ jobs:
           cp dist-android/android-assets.json test-results/workshop-discovery/android-assets.json
           git diff --exit-code
       - run: python -m pip install -r requirements-dev.txt
+      - run: bash tools/ci-ubuntu-sources.sh
       - run: python -m playwright install --with-deps chromium
       - name: Download and import exact packs through real controls, then replay offline
         run: |

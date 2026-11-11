@@ -2,6 +2,7 @@ name: Offline navigation recovery
 on:
   pull_request:
     paths:
+      - 'tools/ci-ubuntu-sources.sh'
       - 'tools/build.cjs'
       - 'tools/serve.cjs'
       - 'src/boot.js'
@@ -40,8 +41,7 @@ jobs:
       - run: python -m pip install -r requirements-dev.txt
       - name: Install browser using Ubuntu package sources
         run: |
-          test -s /etc/apt/sources.list.d/ubuntu.sources
-          printf '%s\n' 'Dir::Etc::sourcelist "/etc/apt/sources.list.d/ubuntu.sources";' 'Dir::Etc::sourceparts "-";' | sudo tee /etc/apt/apt.conf.d/99alibi-ci-sources >/dev/null
+          bash tools/ci-ubuntu-sources.sh
           python -m playwright install --with-deps chromium
       - run: python tests/browser_offline_navigation.py
       - name: Enforce unchanged byte budgets
