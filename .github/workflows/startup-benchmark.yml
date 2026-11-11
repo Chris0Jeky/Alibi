@@ -1,4 +1,4 @@
-name: Disposable Ubuntu mirror DNS probe
+name: Disposable Ubuntu mirrors diagnostic
 on:
   workflow_dispatch:
 permissions:
@@ -8,8 +8,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Resolve and reach Ubuntu mirror
+      - name: Test official Ubuntu mirror names independently
         run: |
-          printf 'Source %s\n' "$GITHUB_SHA"
-          getent ahostsv4 azure.archive.ubuntu.com
-          curl --fail --silent --show-error --head --max-time 20 http://azure.archive.ubuntu.com/ubuntu/dists/noble/InRelease
+          printf 'Diagnostic source %s\n' "$GITHUB_SHA"
+          for host in azure.archive.ubuntu.com archive.ubuntu.com security.ubuntu.com; do
+            printf '\n--- %s ---\n' "$host"
+            getent ahostsv4 "$host" || printf 'DNS lookup failed\n'
+            curl --silent --show-error --head --max-time 15 "https://$host/ubuntu/dists/noble/InRelease" || printf 'HTTPS request failed\n'
+          done
