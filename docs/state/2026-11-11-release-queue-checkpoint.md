@@ -71,3 +71,5 @@ queued; required run 43095471490 still had no jobs and the PR remained blocked. 
 status page reported a major Actions outage under investigation. This is not a billing
 refusal and does not waive the required checks. Preserve the queue while the incident is
 active; after service recovers, verify the runs actually start and qualify the exact heads.
+The live incident feed subsequently reported monitoring from 21:07 UTC and said the Actions
+backlog was being processed; at 21:19 UTC the required run still had no jobs.
