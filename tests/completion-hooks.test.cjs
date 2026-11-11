@@ -92,6 +92,7 @@ async function complete({
     books: [],
     route: {},
     solved: (run) => !!run.completedAt,
+    nextFamilyPuzzle: () => null,
     icon: () => '',
     esc: (text) => text,
     chapterReveal: () => '',
