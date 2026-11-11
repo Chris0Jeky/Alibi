@@ -1,5 +1,18 @@
 [
   {
+    "version": "0.17.0",
+    "date": "2026-11-11",
+    "title": "Mirror Ledger, Timeline Desk and escape-room previews",
+    "tag": "v0.17.0",
+    "receipt": "docs/RELEASE-0.17.0.md",
+    "changes": [
+      "Try eight linked, two-board Sun & Moon levels in Mirror Ledger, a new mode in the experimental Eclipse Lab.",
+      "Work out when events happened in twelve puzzles in the experimental Timeline Desk.",
+      "Explore six untimed experimental escape rooms in Wrenmere Castle. Escape progress lasts until you reload or close Alibi.",
+      "On phones, the completion card is closer to the board. A finished family offers View family list, and Castle case controls have clearer labels and visible keyboard focus."
+    ]
+  },
+  {
     "version": "0.16.0",
     "date": "2026-11-09",
     "title": "More Sun & Moon, a new Lab, and sturdier saves",
