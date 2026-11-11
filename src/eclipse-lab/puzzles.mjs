@@ -1458,3 +1458,11 @@ export const PUZZLES = [
     ],
   },
 ];
+
+export const MIRROR_TIERS = [
+  {
+    label: 'Local clues',
+    levels: ['mirror-01', 'mirror-02', 'mirror-03', 'mirror-06', 'mirror-07', 'mirror-08'],
+  },
+  { label: 'Whole-pair deductions', levels: ['mirror-04', 'mirror-05'] },
+];

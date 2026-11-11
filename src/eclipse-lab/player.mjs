@@ -1,5 +1,5 @@
 import { MODES, applyMark, check, component, hint } from './model.mjs';
-import { PUZZLES } from './puzzles.mjs';
+import { MIRROR_TIERS, PUZZLES } from './puzzles.mjs';
 import { feedbackText, canSendFeedback, reviewFeedback } from './feedback.mjs';
 
 // Drafts outlive route changes and mounts; no text is transmitted.
@@ -88,17 +88,25 @@ export function mount({ root, css, preferences, store, offline }) {
       const done = !!saved && check(saved.puzzle, saved.cells).complete;
       return `<a href="#/quiet/eclipse/${x.id}" class="${done ? 'completed' : ''}" aria-label="${esc(x.title)}, ${x.mode === 'mirror' ? 'two boards, ' : ''}${x.size} by ${x.size}${done ? ', solved' : ''}">${x.level}${done ? ' ✓' : ''}</a>`;
     };
+    const levelList = (label, levels) =>
+      `<div class="level-list" role="group" aria-label="${esc(label)}">${levels.map(level).join('')}</div>`;
     return `<section class="lobby"><div class="section-head"><span class="eyebrow">The experiments</span><h2>Choose a table</h2><p>Each collection has eight provisional levels. Try a larger sky, or connect two boards in Mirror Ledger.</p></div><div class="cards">${Object.entries(
       MODES,
     )
-      .map(
-        ([key, m], i) =>
-          `<article class="card"><div class="card-number">0${i + 1} <span>✦</span></div><h3>${esc(m.title)}</h3><p>${esc(m.description)}</p><ul>${m.rules.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${['harbour', 'switchback'].includes(key) ? '<p class="note">Triples and repeated lines are allowed.</p>' : ''}<div class="level-list" role="group" aria-label="${esc(m.title)} levels">${PUZZLES.filter(
-            (x) => x.mode === key,
-          )
-            .map(level)
-            .join('')}</div></article>`,
-      )
+      .map(([key, m], i) => {
+        const levels = PUZZLES.filter((x) => x.mode === key);
+        const picker =
+          key === 'mirror'
+            ? `<p class="note">Provisional tiers based on the Lab’s hint path.</p>${MIRROR_TIERS.map(
+                (tier) =>
+                  `<h4>${esc(tier.label)}</h4>${levelList(
+                    tier.label,
+                    levels.filter((x) => tier.levels.includes(x.id)),
+                  )}`,
+              ).join('')}`
+            : levelList(m.title + ' levels', levels);
+        return `<article class="card"><div class="card-number">0${i + 1} <span>✦</span></div><h3>${esc(m.title)}</h3><p>${esc(m.description)}</p><ul>${m.rules.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${['harbour', 'switchback'].includes(key) ? '<p class="note">Triples and repeated lines are allowed.</p>' : ''}${picker}</article>`;
+      })
       .join('')}</div></section>`;
   }
   function clues() {
