@@ -75,6 +75,21 @@ Player storage belongs to an origin and browser profile. Changing domain or brow
 migrate IndexedDB. Export on the old origin, import on the new one, and retain the old site long
 enough to recover data. A redirect alone cannot move browser saves.
 
+### Before changing site, browser or device
+
+Open the old app in the profile that holds your saves. In Settings, select **Export cabinet, Club, Wing & castle**. Review the included sections and read failures; a downloaded combined backup does not mean all four sections were readable.
+
+If you used any of these optional areas and the old build offers them, export them separately:
+
+| Area | Control on the old copy |
+| --- | --- |
+| Quiet Wing challenges | Export the replay from each challenge you want to keep. |
+| [Eclipse Lab](ECLIPSE-LAB.md) | In **Your lab notebook**, select **Export lab backup**. |
+| [Timeline Desk](state/2026-11-09-timeline-desk-lab.md) | In **Your desk notebook**, select **Export desk backup**. |
+| [Cascade Cabinet](BLOCK-CABINET-ENGINE.md#cascade-cabinet-rules) | Select **Export replay** inside Cascade Cabinet. |
+
+On the new copy, review the combined backup in Settings and restore the sections you need. Open each optional area to review or import its own file where supported. Check a known save from each area you restored before retiring the old copy. Keep the original files and old browser data until you have verified the move.
+
 ### Origin migration inventory
 
 Before any future origin migration, enumerate these records explicitly. This is the persistent
@@ -139,7 +154,9 @@ Claude sessions). Deploy the published release that first contains the notice:
    deployment succeeds.
 4. In a disposable profile, open the Sites origin: the moved notice shows at 390px and desktop,
    "Back up my saves" opens Settings with **Export cabinet, Club, Wing & castle**, and an export of a
-   seeded save downloads. Then import that file on the primary origin.
+   seeded save downloads. Then import that file on the primary origin. For each optional area
+   present in both tested builds, verify its separate export and import with disposable data using
+   the checklist above; do not count the combined file as evidence for those areas.
 5. Record the saved version and deployment id in the release receipt and `docs/STATE.md`, and close
    the `HUMAN_TODO.md` item. After this, do not deploy to Sites again, and remove the Sites entry
    from `tests/browser_live_update.py` (it expects every origin to receive each new release).

@@ -88,7 +88,7 @@ Timeline Desk at `#/quiet/timeline` has twelve original levels: place events in 
 
 ### Saves and offline
 
-Cabinet saves use IndexedDB database `alibi-device`, version 1 (`src/storage.js`): revision-pinned continuations, notes, undo and redo, favorites, recovery, and JSON backup. The service worker (`sw.js`, emitted by the build) caches application files. Optional room and media packs stay off the critical path. Two origins do not share storage. Export the cabinet, Club, and Quiet Wing backups, the separate challenge export, and the Eclipse Lab backup before you change site, browser, or device.
+Cabinet saves use IndexedDB database `alibi-device`, version 1 (`src/storage.js`): revision-pinned continuations, notes, undo and redo, favorites, recovery, and JSON backup. The service worker (`sw.js`, emitted by the build) caches application files. Optional room and media packs stay off the critical path. Two origins do not share storage. Before changing site, browser, or device, use the [save transfer checklist](docs/DEPLOYMENT.md#before-changing-site-browser-or-device). The combined backup covers the Cabinet, Club, Quiet Wing and Castle; challenge replays, Eclipse Lab, Timeline Desk and Cascade Cabinet are separate.
 
 ## Architecture
 
