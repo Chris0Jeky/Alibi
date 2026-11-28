@@ -161,6 +161,7 @@ def scene_checks(page, width):
         "Another crime scene puzzle" in page.locator(".play-end").inner_text(),
         f"{width}: follow-up names a crime scene puzzle in the singular (p2)",
     )
+    expect(page.locator('.board-instruction')).to_contain_text('choose an option below')
     page.locator('.main-tools [data-action="hint"]').click()
     page.wait_for_timeout(200)
     check(
@@ -217,6 +218,7 @@ def finished_family_label(page, width):
     dismiss(page)
     button = page.locator('.play-end [data-action="next"]')
     expect(button).to_have_text('View family list')
+    expect(page.locator('.board-instruction')).to_contain_text('choose an option below')
     page.screenshot(path=str(OUT / f'finished-family-{width}.png'), full_page=True)
     page.locator('.play-end [data-action="review-record"]').click()
     expect(page.locator('dialog[open] [data-action="next"]')).to_have_text('View family list')
